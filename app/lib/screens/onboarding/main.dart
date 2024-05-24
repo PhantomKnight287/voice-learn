@@ -1,6 +1,7 @@
+import 'package:app/screens/auth/register.dart';
 import 'package:app/screens/home/main.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:rive/rive.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -92,9 +93,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 const Spacer(),
                 GestureDetector(
                   onTap: () {
-                    Get.off(
-                      () => const HomeScreen(),
-                      transition: Transition.leftToRight,
+                    Navigator.of(context).pushReplacement(
+                      CupertinoPageRoute(
+                        builder: (context) => const RegisterScreen(),
+                      ),
                     );
                   },
                   child: Container(
@@ -102,7 +104,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     alignment: Alignment.center,
                     height: 50,
                     decoration: BoxDecoration(
-                      color: const Color(0xffFFBF00),
+                      color: Theme.of(context).primaryColor,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Row(
