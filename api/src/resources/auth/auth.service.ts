@@ -12,13 +12,13 @@ export class AuthService {
   constructor(private service: ConfigService) {}
 
   async login(body: LoginDTO) {
-    const { password, username } = body;
+    const { password, email } = body;
     const user = await prisma.user.findFirst({
-      where: { username: { equals: username, mode: 'insensitive' } },
+      where: { email: { equals: email, mode: 'insensitive' } },
     });
     if (!user)
       throw new HttpException(
-        'No user found with given username.',
+        'No user found with given email.',
         HttpStatus.NOT_FOUND,
       );
 
@@ -30,21 +30,21 @@ export class AuthService {
       token,
       user: {
         name: user.name,
-        username: user.username,
+        email: user.email,
         id: user.id,
       },
     };
   }
 
   async signup(body: SignupDTO) {
-    const { username, password, name } = body;
+    const { email, password, name } = body;
     const existingUser = await prisma.user.findFirst({
-      where: { username: { equals: username, mode: 'insensitive' } },
+      where: { email: { equals: email, mode: 'insensitive' } },
     });
 
     if (existingUser) {
       throw new HttpException(
-        'Username is already taken.',
+        'A user already exists with given email.',
         HttpStatus.CONFLICT,
       );
     }
@@ -55,7 +55,7 @@ export class AuthService {
         id: `user_${createId()}`,
         name,
         password: hashedPassword,
-        username,
+        email,
       },
     });
     const token = sign({ id: newUser.id }, this.service.get('JWT_SECRET'));
@@ -63,7 +63,7 @@ export class AuthService {
       token,
       user: {
         id: newUser.id,
-        username,
+        email,
         name,
       },
     };
@@ -79,6 +79,21 @@ export class AuthService {
       return user;
     } catch (e) {
       throw Error('Unauthorized');
+    }
+  }
+
+  async hydrate(token: string) {
+    try {
+      const payload = verifyJWT(token, process.env.JWT_SECRET) as JwtPayload;
+      const user = await prisma.user.findFirst({
+        where: { id: payload.id },
+        omit: { password: true },
+      });
+      if (!user)
+        throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+      return user;
+    } catch (e) {
+      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
   }
 }
