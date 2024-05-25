@@ -1,10 +1,18 @@
+import 'dart:convert';
+
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/input.dart';
 import 'package:app/constants/main.dart';
+import 'package:app/models/responses/auth/main.dart';
 import 'package:app/screens/auth/login.dart';
+import 'package:app/screens/home/main.dart';
+import 'package:app/utils/error.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toastification/toastification.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -32,6 +40,73 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void initState() {
     super.initState();
+  }
+
+  Future<void> _signUp() async {
+    if (_formKey.currentState!.validate() == false) {
+      return;
+    }
+    setState(() {
+      _loading = true;
+    });
+
+    final req = await http.post(
+        Uri.parse(
+          "$API_URL/auth/sign-up",
+        ),
+        body: jsonEncode(
+          {
+            "email": _emailController.text,
+            "password": _passwordController.text,
+            "name": _nameController.text,
+          },
+        ),
+        headers: {"Content-Type": "application/json"});
+    final body = jsonDecode(req.body);
+    setState(() {
+      _loading = false;
+    });
+    if (req.statusCode != 201) {
+      toastification.show(
+        type: ToastificationType.error,
+        style: ToastificationStyle.minimal,
+        autoCloseDuration: const Duration(seconds: 5),
+        title: const Text("An Error Occurred"),
+        description: Text(
+          ApiResponseHelper.getErrorMessage(body),
+        ),
+        alignment: Alignment.topCenter,
+        showProgressBar: false,
+      );
+      return;
+    }
+    final response = RegisterResponse.fromJSON(body);
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString("token", response.token);
+    toastification.show(
+      type: ToastificationType.success,
+      style: ToastificationStyle.minimal,
+      autoCloseDuration: const Duration(seconds: 5),
+      title: Text("Welcome ${response.user.name.split(" ")[0]}!"),
+      alignment: Alignment.topCenter,
+      showProgressBar: false,
+    );
+    context.read<UserBloc>().add(
+          UserLoggedInEvent(
+            id: response.user.id,
+            name: response.user.name,
+            token: response.token,
+            email: response.user.email,
+            createdAt: response.user.createdAt,
+            gems: response.user.gems,
+            updatedAt: response.user.updatedAt,
+          ),
+        );
+    Navigator.of(context).pushReplacement(
+      CupertinoPageRoute(
+        builder: (context) => const HomeScreen(),
+      ),
+    );
   }
 
   @override
@@ -85,6 +160,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     hintText: "John Doe",
                     keyboardType: TextInputType.name,
                     controller: _nameController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your name';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(
                     height: BASE_MARGIN * 6,
@@ -103,6 +184,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     hintText: "johndoe@gmail.com",
                     keyboardType: TextInputType.emailAddress,
                     controller: _emailController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(
                     height: BASE_MARGIN * 6,
@@ -132,12 +219,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         });
                       },
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(
                     height: BASE_MARGIN * 6,
                   ),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: _signUp,
                     style: ButtonStyle(
                       alignment: Alignment.center,
                       foregroundColor: WidgetStateProperty.all(Colors.black),
@@ -152,13 +245,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                     ),
-                    child: const Text(
-                      "Sign Up",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    child: _loading
+                        ? Container(
+                            width: 24,
+                            height: 24,
+                            padding: const EdgeInsets.all(2.0),
+                            child: const CircularProgressIndicator(
+                              color: Colors.black,
+                              strokeWidth: 3,
+                            ),
+                          )
+                        : const Text(
+                            "Sign Up",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                   ),
                   Align(
                     alignment: FractionalOffset.bottomCenter,

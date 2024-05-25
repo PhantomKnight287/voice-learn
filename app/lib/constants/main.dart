@@ -8,4 +8,4 @@ const SECONDARY_TEXT_COLOR = Color(0xff808080);
 
 const BASE_MARGIN = 4;
 
-const API_URL = kDebugMode ? "http://10.0.2.2:3000/v1" : "https://api.voicelearn.tech/v1";
+const API_URL = kDebugMode ? "http://10.0.2.2:5000/v1" : "https://api.voicelearn.tech/v1";

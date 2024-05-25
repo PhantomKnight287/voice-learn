@@ -66,6 +66,10 @@ class InputField extends StatelessWidget {
         filled: true,
         hintStyle: hintStyle,
         suffixIcon: suffixIcon,
+        errorStyle: const TextStyle(
+          color: Colors.red,
+          fontSize: 15,
+        ),
       ),
       validator: validator,
       onChanged: onChanged,

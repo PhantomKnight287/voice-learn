@@ -1,3 +1,4 @@
+import 'package:app/screens/auth/login.dart';
 import 'package:app/screens/auth/register.dart';
 import 'package:app/screens/home/main.dart';
 import 'package:flutter/cupertino.dart';
@@ -95,7 +96,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   onTap: () {
                     Navigator.of(context).pushReplacement(
                       CupertinoPageRoute(
-                        builder: (context) => const RegisterScreen(),
+                        builder: (context) => const LoginScreen(),
                       ),
                     );
                   },
