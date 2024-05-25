@@ -1,5 +1,5 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { LoginDTO } from './dto/login.dto';
+import { SignInDTO } from './dto/sign-in.dto';
 import { hash, verify } from 'argon2';
 import { JwtPayload, sign, verify as verifyJWT } from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
@@ -11,7 +11,7 @@ import { prisma } from 'src/db';
 export class AuthService {
   constructor(private service: ConfigService) {}
 
-  async login(body: LoginDTO) {
+  async signIn(body: SignInDTO) {
     const { password, email } = body;
     const user = await prisma.user.findFirst({
       where: { email: { equals: email, mode: 'insensitive' } },
@@ -25,14 +25,12 @@ export class AuthService {
     const isPasswordCorrect = await verify(user.password, password);
     if (isPasswordCorrect === false)
       throw new HttpException('Incorrect password', HttpStatus.UNAUTHORIZED);
+
+    delete user.password;
     const token = sign({ id: user.id }, this.service.get('JWT_SECRET'));
     return {
       token,
-      user: {
-        name: user.name,
-        email: user.email,
-        id: user.id,
-      },
+      user,
     };
   }
 
@@ -57,15 +55,14 @@ export class AuthService {
         password: hashedPassword,
         email,
       },
+      omit: {
+        password: true,
+      },
     });
     const token = sign({ id: newUser.id }, this.service.get('JWT_SECRET'));
     return {
       token,
-      user: {
-        id: newUser.id,
-        email,
-        name,
-      },
+      user: newUser,
     };
   }
 
@@ -84,7 +81,10 @@ export class AuthService {
 
   async hydrate(token: string) {
     try {
-      const payload = verifyJWT(token, process.env.JWT_SECRET) as JwtPayload;
+      const payload = verifyJWT(
+        token.replace('Bearer ', ''),
+        process.env.JWT_SECRET,
+      ) as JwtPayload;
       const user = await prisma.user.findFirst({
         where: { id: payload.id },
         omit: { password: true },

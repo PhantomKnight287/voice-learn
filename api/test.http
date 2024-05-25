@@ -1,4 +1,4 @@
-@url = http://localhost:3000
+@url = http://localhost:5000/v1
 
 ###
 POST {{url}}/auth/login
@@ -21,8 +21,8 @@ Content-Type: application/json
 }
 
 ###
-GET {{url}}
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzZXJfZHpveno4M3Uyb3pvZGhpaHF3bzVuazduIiwiaWF0IjoxNzE1MjM5MzYwfQ.mbrb71K8ltLK3nZKh6ZuF2wIHwmriw8vkE1sBee_0xM
+GET {{url}}/auth/hydrate
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzZXJfZXZsdTM0NHF1cXk4MmI0Z3oxZGVhZmlqIiwiaWF0IjoxNzE2NjE5NDUxfQ.8PSjOlYjrXgCW7kZBpD2wnZmLAIIPMpBeXBxiXgkkdE
 
 ###
 GET {{url}}

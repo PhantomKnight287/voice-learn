@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Headers, HttpCode, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginDTO } from './dto/login.dto';
+import { SignInDTO } from './dto/sign-in.dto';
 import { SignupDTO } from './dto/signup.dto';
 import {
   ApiConflictResponse,
@@ -27,6 +27,9 @@ export class AuthController {
           name: 'string',
           email: 'string',
           id: 'string',
+          gems: 'number',
+          updatedAt: 'ISO string',
+          createdAt: 'ISO string',
         },
       },
     },
@@ -45,9 +48,9 @@ export class AuthController {
       },
     },
   })
-  @Post('login')
-  login(@Body() body: LoginDTO) {
-    return this.authService.login(body);
+  @Post('sign-in')
+  login(@Body() body: SignInDTO) {
+    return this.authService.signIn(body);
   }
 
   @ApiOperation({})
@@ -59,6 +62,9 @@ export class AuthController {
           name: 'string',
           email: 'string',
           id: 'string',
+          gems: 'number',
+          updatedAt: 'ISO string',
+          createdAt: 'ISO string',
         },
       },
     },
@@ -93,6 +99,7 @@ export class AuthController {
         email: 'string',
         createdAt: 'Date',
         updatedAt: 'Date',
+        gems: 'number',
       },
     },
   })

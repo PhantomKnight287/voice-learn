@@ -21,7 +21,7 @@ export class AppModule implements NestModule {
       .apply(AuthMiddleware)
       .exclude({
         method: RequestMethod.POST,
-        path: '/auth/(.*)',
+        path: '/v(.*)/auth/(.*)',
       })
       .forRoutes('*');
   }
