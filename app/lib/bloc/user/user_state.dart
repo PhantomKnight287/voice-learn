@@ -1,42 +1,50 @@
 part of 'user_bloc.dart';
 
 @immutable
-abstract class UserState {
-  final String id;
-  final String? email;
-  final String name;
-  final int gems;
-  final String updatedAt;
-  final String createdAt;
-  final String token;
-
-  const UserState({
-    this.name = '',
-    this.id = '',
-    this.token = '',
-    this.email = '',
-    this.createdAt = '',
-    this.gems = 0,
-    this.updatedAt = '',
+abstract class UserState extends UserModel {
+  UserState({
+    required super.id,
+    required super.name,
+    required super.createdAt,
+    required super.gems,
+    required super.updatedAt,
+    required super.token,
+    super.email,
   });
 }
 
 class UserInitial extends UserState {
-  const UserInitial() : super();
-}
-
-class UserLoggedInState extends UserState {
-  const UserLoggedInState({
-    required super.name,
+  UserInitial({
     required super.id,
-    required super.token,
+    required super.name,
     required super.createdAt,
     required super.gems,
     required super.updatedAt,
-    super.email = null,
+    required super.token,
+    super.email,
+  });
+}
+
+class UserLoggedInState extends UserState {
+  UserLoggedInState({
+    required super.id,
+    required super.name,
+    required super.createdAt,
+    required super.gems,
+    required super.updatedAt,
+    required super.token,
+    super.email,
   });
 }
 
 class UserLoggedOutState extends UserState {
-  const UserLoggedOutState() : super();
+  UserLoggedOutState({
+    super.id = '',
+    super.name = '',
+    super.createdAt = '',
+    super.gems = 0,
+    super.updatedAt = '',
+    super.token = '',
+    super.email = '',
+  });
 }

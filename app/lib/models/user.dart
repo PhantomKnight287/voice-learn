@@ -5,6 +5,7 @@ class UserModel {
   final int gems;
   final String updatedAt;
   final String createdAt;
+  final String token;
 
   UserModel({
     required this.id,
@@ -13,9 +14,10 @@ class UserModel {
     required this.createdAt,
     required this.gems,
     required this.updatedAt,
+    required this.token,
   });
 
-  factory UserModel.fromJSON(Map<String, dynamic> json) {
+  factory UserModel.fromJSON(Map<String, dynamic> json, String token) {
     return UserModel(
       id: json['id'],
       name: json['name'],
@@ -23,6 +25,7 @@ class UserModel {
       createdAt: json["createdAt"],
       gems: json["gems"],
       updatedAt: json["updatedAt"],
+      token: token,
     );
   }
 

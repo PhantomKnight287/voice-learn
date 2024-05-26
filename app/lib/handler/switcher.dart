@@ -33,7 +33,10 @@ class _ViewHandlerState extends State<ViewHandler> {
         headers: {"Authorization": "Bearer $token"},
       );
       final body = jsonDecode(req.body);
-      final user = UserModel.fromJSON(body);
+      final user = UserModel.fromJSON(
+        body,
+        token,
+      );
       if (req.statusCode == 200) {
         context.read<UserBloc>().add(
               UserLoggedInEvent(

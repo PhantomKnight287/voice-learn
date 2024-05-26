@@ -12,7 +12,10 @@ class LoginResponse {
   factory LoginResponse.fromJSON(Map<String, dynamic> json) {
     return LoginResponse(
       token: json['token'],
-      user: UserModel.fromJSON(json['user']),
+      user: UserModel.fromJSON(
+        json['user'],
+        json['token'],
+      ),
     );
   }
 
@@ -31,7 +34,7 @@ class RegisterResponse extends LoginResponse {
   factory RegisterResponse.fromJSON(Map<String, dynamic> json) {
     return RegisterResponse(
       token: json['token'],
-      user: UserModel.fromJSON(json['user']),
+      user: UserModel.fromJSON(json['user'], json['token']),
     );
   }
 
