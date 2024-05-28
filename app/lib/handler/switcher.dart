@@ -5,6 +5,7 @@ import 'package:app/constants/main.dart';
 import 'package:app/models/user.dart';
 import 'package:app/screens/home/main.dart';
 import 'package:app/screens/onboarding/main.dart';
+import 'package:app/screens/onboarding/questions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -65,6 +66,7 @@ class _ViewHandlerState extends State<ViewHandler> {
 
   @override
   Widget build(BuildContext context) {
+    return OnboardingQuestionsScreen();
     final userBloc = context.read<UserBloc>();
     return BlocBuilder<UserBloc, UserState>(
       builder: (context, state) {

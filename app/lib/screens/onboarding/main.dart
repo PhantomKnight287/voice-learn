@@ -1,6 +1,4 @@
 import 'package:app/screens/auth/login.dart';
-import 'package:app/screens/auth/register.dart';
-import 'package:app/screens/home/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
@@ -16,15 +14,22 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final String brandName = 'Voice Learn.';
-  final TextStyle normalTextStyle = const TextStyle(
-    fontSize: 24,
-    color: Colors.black,
-  );
-  final TextStyle brandTextStyle = const TextStyle(
-    fontWeight: FontWeight.bold,
-    fontSize: 24,
-    color: Colors.black,
-  );
+  late TextStyle normalTextStyle;
+  late TextStyle brandTextStyle;
+
+  @override
+  void initState() {
+    super.initState();
+    normalTextStyle = TextStyle(
+      fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+      color: Colors.black,
+    );
+    brandTextStyle = TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+      color: Colors.black,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,16 +41,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   "Practice New",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 32,
-                  ),
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
-                const Text(
+                Text(
                   "Languages",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32),
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(
                   height: 20,

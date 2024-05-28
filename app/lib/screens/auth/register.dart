@@ -71,7 +71,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         type: ToastificationType.error,
         style: ToastificationStyle.minimal,
         autoCloseDuration: const Duration(seconds: 5),
-        title: const Text("An Error Occurred"),
+        title: Text("An Error Occurred"),
         description: Text(
           ApiResponseHelper.getErrorMessage(body),
         ),
@@ -126,30 +126,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(
                     height: BASE_MARGIN * 2,
                   ),
-                  const Text(
+                  Text(
                     "Lets get you started",
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
                   SizedBox(
                     height: BASE_MARGIN.toDouble(),
                   ),
-                  const Text(
+                  Text(
                     "Welcome! Let’s get started on your journey. Please fill in details below to create your account.",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: SECONDARY_TEXT_COLOR,
-                    ),
+                    style: Theme.of(context).textTheme.titleSmall,
                   ),
                   const SizedBox(
                     height: BASE_MARGIN * 5,
                   ),
-                  const Text(
+                  Text(
                     "Name",
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -170,10 +164,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(
                     height: BASE_MARGIN * 6,
                   ),
-                  const Text(
+                  Text(
                     "Email",
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -194,10 +188,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(
                     height: BASE_MARGIN * 6,
                   ),
-                  const Text(
+                  Text(
                     "Password",
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -255,10 +249,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               strokeWidth: 3,
                             ),
                           )
-                        : const Text(
+                        : Text(
                             "Sign Up",
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -282,16 +276,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: RichText(
                         text: TextSpan(
                           text: "Already have an account? ",
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.black,
-                            fontSize: 16,
+                            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                           ),
                           children: [
                             TextSpan(
                               text: "Sign In",
                               style: TextStyle(
                                 color: Colors.blue.shade500,
-                                fontSize: 16,
+                                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                               ),
                             )
                           ],

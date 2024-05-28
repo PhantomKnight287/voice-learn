@@ -28,6 +28,19 @@ class VoiceLearnApp extends StatelessWidget {
             fontFamily: "Geist",
             brightness: Brightness.light,
             primaryColor: PRIMARY_COLOR,
+            textTheme: const TextTheme(
+              titleLarge: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+              ),
+              titleSmall: TextStyle(
+                fontSize: 16,
+                color: SECONDARY_TEXT_COLOR,
+              ),
+              titleMedium: TextStyle(
+                fontSize: 24,
+              ),
+            ),
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ElevatedButton.styleFrom(
                 backgroundColor: PRIMARY_COLOR,

@@ -121,30 +121,24 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(
                     height: BASE_MARGIN * 2,
                   ),
-                  const Text(
+                  Text(
                     "Lets sign you in",
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
                   SizedBox(
                     height: BASE_MARGIN.toDouble(),
                   ),
-                  const Text(
+                  Text(
                     "Welcome back! We're glad to see you again. Please enter your details to sign in.",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: SECONDARY_TEXT_COLOR,
-                    ),
+                    style: Theme.of(context).textTheme.titleSmall,
                   ),
                   const SizedBox(
                     height: BASE_MARGIN * 5,
                   ),
-                  const Text(
+                  Text(
                     "Email",
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -165,10 +159,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(
                     height: BASE_MARGIN * 6,
                   ),
-                  const Text(
+                  Text(
                     "Password",
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -226,10 +220,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               strokeWidth: 3,
                             ),
                           )
-                        : const Text(
+                        : Text(
                             "Sign In",
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -253,16 +247,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: RichText(
                         text: TextSpan(
                           text: "Don't have an account? ",
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.black,
-                            fontSize: 16,
+                            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                           ),
                           children: [
                             TextSpan(
                               text: "Sign Up",
                               style: TextStyle(
                                 color: Colors.blue.shade500,
-                                fontSize: 16,
+                                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                               ),
                             )
                           ],

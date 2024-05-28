@@ -70,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     "Welcome ${state.name.split(" ")[0]}",
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

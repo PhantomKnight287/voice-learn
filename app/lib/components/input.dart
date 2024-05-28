@@ -66,9 +66,9 @@ class InputField extends StatelessWidget {
         filled: true,
         hintStyle: hintStyle,
         suffixIcon: suffixIcon,
-        errorStyle: const TextStyle(
+        errorStyle: TextStyle(
           color: Colors.red,
-          fontSize: 15,
+          fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
         ),
       ),
       validator: validator,
