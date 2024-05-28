@@ -71,3 +71,8 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](LICENSE).
+
+
+| Text | Hash | 
+| --- | --- | 
+| password | $argon2id$v=19$m=65536,t=3,p=4$dLAUjStTuNFKRI7c9oxAmA$trd4XfkrPfCZA7eYrYxqcWY5pzB/Ku6IPW3tpVag7Bg | 
