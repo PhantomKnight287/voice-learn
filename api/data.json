@@ -1,0 +1,485 @@
+{
+  "paths": [
+    {
+      "type": "generated",
+      "modules": [
+        {
+          "name": "Greetings and Introductions",
+          "lessons": [
+            {
+              "name": "Basic Greetings",
+              "questions": [
+                {
+                  "question": [{ "translation": "Hello", "word": "Hallo" }],
+                  "type": "sentence",
+                  "options": ["Hello", "Goodbye", "Good morning"],
+                  "correctAnswer": "Hello"
+                },
+                {
+                  "question": [
+                    { "translation": "Good", "word": "Guten" },
+                    { "translation": "day", "word": "Tag" }
+                  ],
+                  "type": "sentence",
+                  "options": ["Good day", "Good evening", "Good night"],
+                  "correctAnswer": "Good day"
+                },
+                {
+                  "question": [
+                    { "translation": "Good", "word": "Guten" },
+                    { "translation": "morning", "word": "Morgen" }
+                  ],
+                  "type": "sentence",
+                  "options": ["Good morning", "Good afternoon", "Good evening"],
+                  "correctAnswer": "Good morning"
+                },
+                {
+                  "question": [
+                    { "translation": "Good", "word": "Guten" },
+                    { "translation": "evening", "word": "Abend" }
+                  ],
+                  "type": "sentence",
+                  "options": ["Good evening", "Good night", "Good afternoon"],
+                  "correctAnswer": "Good evening"
+                },
+                {
+                  "question": [
+                    { "translation": "Good", "word": "Gute" },
+                    { "translation": "night", "word": "Nacht" }
+                  ],
+                  "type": "sentence",
+                  "options": ["Good night", "Good morning", "Good evening"],
+                  "correctAnswer": "Good night"
+                }
+              ]
+            },
+            {
+              "name": "Introducing Yourself",
+              "questions": [
+                {
+                  "question": [
+                    { "translation": "I", "word": "Ich" },
+                    { "translation": "am called", "word": "heiße" }
+                  ],
+                  "type": "sentence",
+                  "options": ["I am called", "My name is", "I call myself"],
+                  "correctAnswer": "I am called"
+                },
+                {
+                  "question": [
+                    { "translation": "How", "word": "Wie" },
+                    { "translation": "are you called", "word": "heißen" }
+                  ],
+                  "type": "sentence",
+                  "options": [
+                    "How are you called?",
+                    "What is your name?",
+                    "Who are you?"
+                  ],
+                  "correctAnswer": "How are you called?"
+                },
+                {
+                  "question": [
+                    { "translation": "I", "word": "Ich" },
+                    { "translation": "am", "word": "bin" },
+                    { "translation": "from", "word": "aus" }
+                  ],
+                  "type": "sentence",
+                  "options": ["I am from", "I come from", "I live in"],
+                  "correctAnswer": "I am from"
+                },
+                {
+                  "question": [
+                    { "translation": "Please", "word": "Bitte" },
+                    { "translation": "nice", "word": "schön" },
+                    { "translation": "you", "word": "Sie" },
+                    { "translation": "to meet", "word": "kennenzulernen" }
+                  ],
+                  "type": "sentence",
+                  "options": [
+                    "Nice to meet you",
+                    "Pleased to meet you",
+                    "It's nice to meet you"
+                  ],
+                  "correctAnswer": "Nice to meet you"
+                }
+              ]
+            },
+            {
+              "name": "Basic Phrases",
+              "questions": [
+                {
+                  "question": [{ "translation": "Thank you", "word": "Danke" }],
+                  "type": "sentence",
+                  "options": ["Thank you", "You're welcome", "Please"],
+                  "correctAnswer": "Thank you"
+                },
+                {
+                  "question": [{ "translation": "Please", "word": "Bitte" }],
+                  "type": "sentence",
+                  "options": ["Please", "Thank you", "You're welcome"],
+                  "correctAnswer": "Please"
+                },
+                {
+                  "question": [
+                    { "translation": "You're welcome", "word": "Gern" }
+                  ],
+                  "type": "sentence",
+                  "options": ["You're welcome", "Thank you", "Please"],
+                  "correctAnswer": "You're welcome"
+                },
+                {
+                  "question": [{ "translation": "Yes", "word": "Ja" }],
+                  "type": "sentence",
+                  "options": ["Yes", "No", "Maybe"],
+                  "correctAnswer": "Yes"
+                },
+                {
+                  "question": [{ "translation": "No", "word": "Nein" }],
+                  "type": "sentence",
+                  "options": ["No", "Yes", "Maybe"],
+                  "correctAnswer": "No"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Numbers and Counting",
+          "lessons": [
+            {
+              "name": "Numbers 1-10",
+              "questions": [
+                {
+                  "question": [{ "translation": "One", "word": "Eins" }],
+                  "type": "select_one",
+                  "options": ["One", "Two", "Three"],
+                  "correctAnswer": "One"
+                },
+                {
+                  "question": [{ "translation": "Two", "word": "Zwei" }],
+                  "type": "select_one",
+                  "options": ["Two", "One", "Three"],
+                  "correctAnswer": "Two"
+                },
+                {
+                  "question": [{ "translation": "Three", "word": "Drei" }],
+                  "type": "select_one",
+                  "options": ["Three", "Two", "One"],
+                  "correctAnswer": "Three"
+                },
+                {
+                  "question": [{ "translation": "Four", "word": "Vier" }],
+                  "type": "select_one",
+                  "options": ["Four", "Five", "Six"],
+                  "correctAnswer": "Four"
+                },
+                {
+                  "question": [{ "translation": "Five", "word": "Fünf" }],
+                  "type": "select_one",
+                  "options": ["Five", "Four", "Six"],
+                  "correctAnswer": "Five"
+                },
+                {
+                  "question": [{ "translation": "Six", "word": "Sechs" }],
+                  "type": "select_one",
+                  "options": ["Six", "Five", "Four"],
+                  "correctAnswer": "Six"
+                },
+                {
+                  "question": [{ "translation": "Seven", "word": "Sieben" }],
+                  "type": "select_one",
+                  "options": ["Seven", "Eight", "Nine"],
+                  "correctAnswer": "Seven"
+                },
+                {
+                  "question": [{ "translation": "Eight", "word": "Acht" }],
+                  "type": "select_one",
+                  "options": ["Eight", "Seven", "Nine"],
+                  "correctAnswer": "Eight"
+                },
+                {
+                  "question": [{ "translation": "Nine", "word": "Neun" }],
+                  "type": "select_one",
+                  "options": ["Nine", "Eight", "Ten"],
+                  "correctAnswer": "Nine"
+                },
+                {
+                  "question": [{ "translation": "Ten", "word": "Zehn" }],
+                  "type": "select_one",
+                  "options": ["Ten", "Nine", "Eleven"],
+                  "correctAnswer": "Ten"
+                }
+              ]
+            },
+            {
+              "name": "Counting to 20",
+              "questions": [
+                {
+                  "question": [{ "translation": "Eleven", "word": "Elf" }],
+                  "type": "select_one",
+                  "options": ["Eleven", "Twelve", "Thirteen"],
+                  "correctAnswer": "Eleven"
+                },
+                {
+                  "question": [{ "translation": "Twelve", "word": "Zwölf" }],
+                  "type": "select_one",
+                  "options": ["Twelve", "Eleven", "Thirteen"],
+                  "correctAnswer": "Twelve"
+                },
+                {
+                  "question": [
+                    { "translation": "Thirteen", "word": "Dreizehn" }
+                  ],
+                  "type": "select_one",
+                  "options": ["Thirteen", "Twelve", "Fourteen"],
+                  "correctAnswer": "Thirteen"
+                },
+                {
+                  "question": [
+                    { "translation": "Fourteen", "word": "Vierzehn" }
+                  ],
+                  "type": "select_one",
+                  "options": ["Fourteen", "Thirteen", "Fifteen"],
+                  "correctAnswer": "Fourteen"
+                },
+                {
+                  "question": [
+                    { "translation": "Fifteen", "word": "Fünfzehn" }
+                  ],
+                  "type": "select_one",
+                  "options": ["Fifteen", "Fourteen", "Sixteen"],
+                  "correctAnswer": "Fifteen"
+                },
+                {
+                  "question": [
+                    { "translation": "Sixteen", "word": "Sechzehn" }
+                  ],
+                  "type": "select_one",
+                  "options": ["Sixteen", "Fifteen", "Seventeen"],
+                  "correctAnswer": "Sixteen"
+                },
+                {
+                  "question": [
+                    { "translation": "Seventeen", "word": "Siebzehn" }
+                  ],
+                  "type": "select_one",
+                  "options": ["Seventeen", "Sixteen", "Eighteen"],
+                  "correctAnswer": "Seventeen"
+                },
+                {
+                  "question": [
+                    { "translation": "Eighteen", "word": "Achtzehn" }
+                  ],
+                  "type": "select_one",
+                  "options": ["Eighteen", "Seventeen", "Nineteen"],
+                  "correctAnswer": "Eighteen"
+                },
+                {
+                  "question": [
+                    { "translation": "Nineteen", "word": "Neunzehn" }
+                  ],
+                  "type": "select_one",
+                  "options": ["Nineteen", "Eighteen", "Twenty"],
+                  "correctAnswer": "Nineteen"
+                },
+                {
+                  "question": [{ "translation": "Twenty", "word": "Zwanzig" }],
+                  "type": "select_one",
+                  "options": ["Twenty", "Nineteen", "Twenty-one"],
+                  "correctAnswer": "Twenty"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Basic Grammar",
+          "lessons": [
+            {
+              "name": "Articles",
+              "questions": [
+                {
+                  "question": [
+                    { "translation": "the (masculine)", "word": "der" }
+                  ],
+                  "type": "sentence",
+                  "options": [
+                    "the (masculine)",
+                    "the (feminine)",
+                    "the (neuter)"
+                  ],
+                  "correctAnswer": "the (masculine)"
+                },
+                {
+                  "question": [
+                    { "translation": "the (feminine)", "word": "die" }
+                  ],
+                  "type": "sentence",
+                  "options": [
+                    "the (feminine)",
+                    "the (masculine)",
+                    "the (neuter)"
+                  ],
+                  "correctAnswer": "the (feminine)"
+                },
+                {
+                  "question": [
+                    { "translation": "the (neuter)", "word": "das" }
+                  ],
+                  "type": "sentence",
+                  "options": [
+                    "the (neuter)",
+                    "the (masculine)",
+                    "the (feminine)"
+                  ],
+                  "correctAnswer": "the (neuter)"
+                },
+                {
+                  "question": [
+                    { "translation": "a/an (masculine)", "word": "ein" }
+                  ],
+                  "type": "sentence",
+                  "options": [
+                    "a/an (masculine)",
+                    "a/an (feminine)",
+                    "a/an (neuter)"
+                  ],
+                  "correctAnswer": "a/an (masculine)"
+                },
+                {
+                  "question": [
+                    { "translation": "a/an (feminine)", "word": "eine" }
+                  ],
+                  "type": "sentence",
+                  "options": [
+                    "a/an (feminine)",
+                    "a/an (masculine)",
+                    "a/an (neuter)"
+                  ],
+                  "correctAnswer": "a/an (feminine)"
+                },
+                {
+                  "question": [
+                    { "translation": "a/an (neuter)", "word": "ein" }
+                  ],
+                  "type": "sentence",
+                  "options": [
+                    "a/an (neuter)",
+                    "a/an (masculine)",
+                    "a/an (feminine)"
+                  ],
+                  "correctAnswer": "a/an (neuter)"
+                }
+              ]
+            },
+            {
+              "name": "Nouns",
+              "questions": [
+                {
+                  "question": [
+                    { "translation": "the (masculine)", "word": "der" },
+                    { "translation": "man", "word": "Mann" }
+                  ],
+                  "type": "sentence",
+                  "options": ["the man", "the woman", "the child"],
+                  "correctAnswer": "the man"
+                },
+                {
+                  "question": [
+                    { "translation": "the (feminine)", "word": "die" },
+                    { "translation": "woman", "word": "Frau" }
+                  ],
+                  "type": "sentence",
+                  "options": ["the woman", "the man", "the child"],
+                  "correctAnswer": "the woman"
+                },
+                {
+                  "question": [
+                    { "translation": "the (neuter)", "word": "das" },
+                    { "translation": "child", "word": "Kind" }
+                  ],
+                  "type": "sentence",
+                  "options": ["the child", "the man", "the woman"],
+                  "correctAnswer": "the child"
+                },
+                {
+                  "question": [
+                    { "translation": "a/an (masculine)", "word": "ein" },
+                    { "translation": "book", "word": "Buch" }
+                  ],
+                  "type": "sentence",
+                  "options": ["a book", "a pen", "a table"],
+                  "correctAnswer": "a book"
+                },
+                {
+                  "question": [
+                    { "translation": "a/an (feminine)", "word": "eine" },
+                    { "translation": "cup", "word": "Tasse" }
+                  ],
+                  "type": "sentence",
+                  "options": ["a cup", "a book", "a chair"],
+                  "correctAnswer": "a cup"
+                },
+                {
+                  "question": [
+                    { "translation": "a/an (neuter)", "word": "ein" },
+                    { "translation": "house", "word": "Haus" }
+                  ],
+                  "type": "sentence",
+                  "options": ["a house", "a car", "a tree"],
+                  "correctAnswer": "a house"
+                }
+              ]
+            },
+            {
+              "name": "Verbs",
+              "questions": [
+                {
+                  "question": [{ "translation": "to be", "word": "sein" }],
+                  "type": "sentence",
+                  "options": ["to be", "to have", "to do"],
+                  "correctAnswer": "to be"
+                },
+                {
+                  "question": [{ "translation": "to have", "word": "haben" }],
+                  "type": "sentence",
+                  "options": ["to have", "to be", "to do"],
+                  "correctAnswer": "to have"
+                },
+                {
+                  "question": [{ "translation": "to do", "word": "machen" }],
+                  "type": "sentence",
+                  "options": ["to do", "to have", "to be"],
+                  "correctAnswer": "to do"
+                },
+                {
+                  "question": [
+                    { "translation": "to speak", "word": "sprechen" }
+                  ],
+                  "type": "sentence",
+                  "options": ["to speak", "to listen", "to read"],
+                  "correctAnswer": "to speak"
+                },
+                {
+                  "question": [{ "translation": "to read", "word": "lesen" }],
+                  "type": "sentence",
+                  "options": ["to read", "to write", "to speak"],
+                  "correctAnswer": "to read"
+                },
+                {
+                  "question": [
+                    { "translation": "to write", "word": "schreiben" }
+                  ],
+                  "type": "sentence",
+                  "options": ["to write", "to read", "to speak"],
+                  "correctAnswer": "to write"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
