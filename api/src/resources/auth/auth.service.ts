@@ -88,10 +88,22 @@ export class AuthService {
       const user = await prisma.user.findFirst({
         where: { id: payload.id },
         omit: { password: true },
+        include: {
+          _count: {
+            select: { paths: true },
+          },
+        },
       });
       if (!user)
         throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
-      return user;
+      const path = await prisma.learningPath.findFirst({
+        where: { userId: user.id },
+        select: {
+          type: true,
+          id: true,
+        },
+      });
+      return { ...user, path };
     } catch (e) {
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }

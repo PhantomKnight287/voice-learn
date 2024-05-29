@@ -1,20 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { S3Service } from './services/s3/s3.service';
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { prisma } from './db';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { createId } from '@paralleldrive/cuid2';
+
 @Injectable()
 export class AppService {
   constructor(
     protected readonly s3: S3Service,
     protected readonly configService: ConfigService,
-  ) {
-    this.saveFlags();
-  }
+  ) {}
   getHello(): string {
     return 'Hello World!';
   }

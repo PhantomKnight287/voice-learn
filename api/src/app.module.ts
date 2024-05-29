@@ -7,19 +7,42 @@ import {
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './resources/auth/auth.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthMiddleware } from './middlewares/auth/auth.middleware';
 import { S3Service } from './services/s3/s3.service';
 import { LanguagesModule } from './resources/languages/languages.module';
+import { OnboardingModule } from './resources/onboarding/onboarding.module';
+import { GeminiService } from './services/gemini/gemini.service';
+import { BullModule } from '@nestjs/bull';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { EventsModule } from './resources/events/events.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
     LanguagesModule,
+    OnboardingModule,
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        redis: {
+          host: configService.getOrThrow('REDIS_HOST'),
+          port: configService.get<number>('REDIS_PORT', 6379),
+          password: configService.getOrThrow('REDIS_PASSWORD'),
+        },
+      }),
+    }),
+    EventEmitterModule.forRoot({
+      verboseMemoryLeak: true,
+      maxListeners: 10,
+      ignoreErrors: false,
+    }),
+    EventsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, S3Service],
+  providers: [AppService, S3Service, GeminiService],
   exports: [S3Service],
 })
 export class AppModule implements NestModule {
@@ -38,6 +61,14 @@ export class AppModule implements NestModule {
         {
           method: RequestMethod.GET,
           path: `/v(.*)/languages`,
+        },
+        {
+          method: RequestMethod.GET,
+          path: '/v(.*)',
+        },
+        {
+          method: RequestMethod.GET,
+          path: '/v(.*)/',
         },
       )
       .forRoutes('*');
