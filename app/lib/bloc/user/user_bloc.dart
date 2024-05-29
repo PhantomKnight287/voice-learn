@@ -10,7 +10,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       : super(
           UserInitial(
             createdAt: '',
-            gems: 0,
+            paths: 0,
             id: '',
             name: '',
             token: '',
@@ -25,7 +25,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           token: event.token,
           email: event.email,
           createdAt: event.createdAt,
-          gems: event.gems,
+          paths: event.paths,
           updatedAt: event.updatedAt,
         ),
       );

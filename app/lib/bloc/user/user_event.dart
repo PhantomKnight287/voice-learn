@@ -6,7 +6,7 @@ abstract class UserEvent extends UserModel {
     required super.id,
     required super.name,
     required super.createdAt,
-    required super.gems,
+    required super.paths,
     required super.updatedAt,
     required super.token,
     super.email,
@@ -20,7 +20,7 @@ class UserLoggedInEvent extends UserEvent {
     required super.token,
     super.email,
     required super.createdAt,
-    required super.gems,
+    required super.paths,
     required super.updatedAt,
   });
 }
@@ -30,7 +30,7 @@ class UserLoggedOutEvent extends UserEvent {
     required super.id,
     required super.name,
     required super.createdAt,
-    required super.gems,
+    required super.paths,
     required super.updatedAt,
     required super.token,
   });

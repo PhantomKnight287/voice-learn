@@ -93,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
             token: response.token,
             email: response.user.email,
             createdAt: response.user.createdAt,
-            gems: response.user.gems,
+            paths: response.user.paths,
             updatedAt: response.user.updatedAt,
           ),
         );

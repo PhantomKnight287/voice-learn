@@ -6,6 +6,7 @@ import 'package:app/constants/main.dart';
 import 'package:app/models/responses/auth/main.dart';
 import 'package:app/screens/auth/login.dart';
 import 'package:app/screens/home/main.dart';
+import 'package:app/screens/onboarding/questions.dart';
 import 'package:app/utils/error.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -98,13 +99,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
             token: response.token,
             email: response.user.email,
             createdAt: response.user.createdAt,
-            gems: response.user.gems,
+            paths: response.user.paths,
             updatedAt: response.user.updatedAt,
           ),
         );
     Navigator.of(context).pushReplacement(
       CupertinoPageRoute(
-        builder: (context) => const HomeScreen(),
+        builder: (context) => const OnboardingQuestionsScreen(),
       ),
     );
   }

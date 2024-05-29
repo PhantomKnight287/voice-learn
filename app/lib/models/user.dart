@@ -2,7 +2,7 @@ class UserModel {
   final String id;
   final String? email;
   final String name;
-  final int gems;
+  final int paths;
   final String updatedAt;
   final String createdAt;
   final String token;
@@ -12,7 +12,7 @@ class UserModel {
     this.email,
     required this.name,
     required this.createdAt,
-    required this.gems,
+    required this.paths,
     required this.updatedAt,
     required this.token,
   });
@@ -23,7 +23,7 @@ class UserModel {
       name: json['name'],
       email: json['email'],
       createdAt: json["createdAt"],
-      gems: json["gems"],
+      paths: json["_count"]["paths"],
       updatedAt: json["updatedAt"],
       token: token,
     );
