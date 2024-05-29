@@ -22,8 +22,99 @@ model User {
 
   gems Int @default(500)
 
+  paths LearningPath[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Analytics {
+  id String @id @unique @default(cuid())
+
+  name String
+
+  users Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model LearningPath {
+  id String @id @unique
+
+  language   Language @relation(fields: [languageId], references: [id])
+  languageId String
+
+  type PathType @default(created)
+
+  reason    String
+  knowledge String
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  modules Module[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Module {
+  id String @id @unique @default(cuid())
+
+  name        String
+  description String?
+
+  lessons Lesson[]
+
+  learningPath   LearningPath? @relation(fields: [learningPathId], references: [id])
+  learningPathId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Lesson {
+  id String @id @unique @default(cuid())
+
+  name        String
+  description String?
+
+  module   Module? @relation(fields: [moduleId], references: [id])
+  moduleId String?
+
+  questions Question[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Question {
+  id String @id @unique @default(cuid())
+
+  lesson   Lesson? @relation(fields: [lessonId], references: [id])
+  lessonId String?
+
+  question Json[]
+
+  type QuestionType
+
+  options String[]
+
+  correctAnswer String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum QuestionType {
+  sentence
+  select_one
+}
+
+enum PathType {
+  generated
+  created
 }
 
 model Language {
@@ -37,4 +128,6 @@ model Language {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  learningPaths LearningPath[]
 }
