@@ -1,13 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CompleteOnBoardingDTO } from './dto/complete-onboarding.dto';
 import { prisma } from 'src/db';
 import { createId } from '@paralleldrive/cuid2';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { CreatePathEvent } from 'src/events';
+import { QueueService } from 'src/services/queue/queue.service';
 
 @Injectable()
 export class OnboardingService {
-  constructor(protected readonly event: EventEmitter2) {}
+  constructor(protected readonly queue: QueueService) {}
   async completeOnboarding(body: CompleteOnBoardingDTO, userId: string) {
     const learningPath = await prisma.learningPath.create({
       data: {
@@ -35,10 +34,28 @@ export class OnboardingService {
         },
       });
     }
-    this.event.emitAsync(
-      'learning_path.create',
-      new CreatePathEvent(learningPath.id),
-    );
+    await this.queue.addLearningPathToQueue(learningPath.id);
+
     return learningPath;
+  }
+
+  async getOnBoardingStatus(id: string, userId: string) {
+    const onboardingRecord = await prisma.learningPath.findFirst({
+      where: { id, userId },
+    });
+    if (!onboardingRecord)
+      throw new HttpException('No path found', HttpStatus.NOT_FOUND);
+    if (onboardingRecord.type === 'generated')
+      return {
+        generated: true,
+        position: null,
+      };
+    else {
+      const inQueue = await this.queue.getPositionInQueue(onboardingRecord.id);
+      return {
+        position: inQueue == -1 ? null : inQueue,
+        generated: false,
+      };
+    }
   }
 }

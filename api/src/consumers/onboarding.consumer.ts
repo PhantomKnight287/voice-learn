@@ -1,43 +1,25 @@
-import {
-  Processor,
-  Process,
-  OnQueueActive,
-  OnQueueCompleted,
-} from '@nestjs/bull';
-import { Job } from 'bull';
-import { Logger } from '@nestjs/common';
-import { ONBOARDING_QUEUE } from 'src/constants';
+import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { CreatePathEvent } from 'src/events';
+import { QueueService } from 'src/services/queue/queue.service';
 
-@Processor(ONBOARDING_QUEUE)
+@Injectable()
 export class OnboardingQueueConsumer {
-  @Process({
-    concurrency: 1,
-  })
-  async processData() {
-    await new Promise((resolve, reject) => {
-      try {
-        setTimeout(
-          () => {
-            resolve('Data processed');
-          },
-          5000 + Math.floor(Math.random() * 5000),
+  constructor(
+    protected queue: QueueService,
+    protected event: EventEmitter2,
+  ) {
+    this.processQueue();
+  }
+
+  async processQueue() {
+    for await (const request of this.queue.getLearningPathToGenerate()) {
+      if (request) {
+        await this.event.emitAsync(
+          'learning_path.create',
+          new CreatePathEvent(request),
         );
-      } catch (error) {
-        reject(error);
       }
-    });
-
-    return { done: true };
-  }
-
-  @OnQueueActive()
-  onActive(job: Job<unknown>) {
-    Logger.log(`Starting job ${job.id} : ${job.data['id']}`);
-  }
-
-  @OnQueueCompleted()
-  onCompleted(job: Job<unknown>) {
-    // Log job completion status
-    Logger.log(`Job ${job.id} has been finished`);
+    }
   }
 }

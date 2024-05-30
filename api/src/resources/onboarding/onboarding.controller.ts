@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { OnboardingService } from './onboarding.service';
 import {
   ApiHeader,
   ApiOkResponse,
+  ApiOperation,
   ApiProperty,
   ApiTags,
 } from '@nestjs/swagger';
@@ -22,12 +23,29 @@ import { Auth } from 'src/decorators/auth/auth.decorator';
 export class OnboardingController {
   constructor(private readonly onboardingService: OnboardingService) {}
 
-  @ApiProperty({})
+  @ApiOperation({})
   @Post('')
   @ApiOkResponse({
     schema: { example: { id: 'string' } },
   })
   completeOnboarding(@Body() body: CompleteOnBoardingDTO, @Auth() user: User) {
     return this.onboardingService.completeOnboarding(body, user.id);
+  }
+
+  @ApiOperation({
+    summary: 'Get queue status',
+    description: 'Get queue status',
+  })
+  @ApiOkResponse({
+    schema: {
+      example: {
+        generated: 'boolean',
+        position: 'number | null',
+      },
+    },
+  })
+  @Get(':id')
+  getOnBoardingStatus(@Param('id') id: string, @Auth() user: User) {
+    return this.onboardingService.getOnBoardingStatus(id, user.id);
   }
 }

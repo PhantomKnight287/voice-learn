@@ -17,7 +17,7 @@ export class EventsController {
 
   @OnEvent('learning_path.create')
   async createLearningPath(body: CreatePathEvent) {
-    console.log(`Got event with id ${body.id}`)
+    console.log(`Got event with id ${body.id}`);
     const path = await prisma.learningPath.findFirst({
       include: { language: true },
       where: { id: body.id },
@@ -49,6 +49,7 @@ export class EventsController {
               description: module.description,
             })),
           },
+          type: 'generated',
         },
       });
       for (const pathModule of path.modules) {
