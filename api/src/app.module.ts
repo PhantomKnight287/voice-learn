@@ -16,6 +16,8 @@ import { GeminiService } from './services/gemini/gemini.service';
 import { BullModule } from '@nestjs/bull';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { EventsModule } from './resources/events/events.module';
+import { QueueService } from './services/queue/queue.service';
+import { OnboardingQueueConsumer } from './consumers/onboarding.consumer';
 
 @Module({
   imports: [
@@ -42,7 +44,13 @@ import { EventsModule } from './resources/events/events.module';
     EventsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, S3Service, GeminiService],
+  providers: [
+    AppService,
+    S3Service,
+    GeminiService,
+    QueueService,
+    OnboardingQueueConsumer,
+  ],
   exports: [S3Service],
 })
 export class AppModule implements NestModule {
@@ -61,10 +69,6 @@ export class AppModule implements NestModule {
         {
           method: RequestMethod.GET,
           path: `/v(.*)/languages`,
-        },
-        {
-          method: RequestMethod.GET,
-          path: '/v(.*)',
         },
         {
           method: RequestMethod.GET,
