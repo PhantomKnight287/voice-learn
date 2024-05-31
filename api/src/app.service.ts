@@ -15,8 +15,14 @@ export class AppService {
     protected readonly s3: S3Service,
     protected readonly configService: ConfigService,
     protected readonly queueService: QueueService,
-  ) {}
+  ) {
+    this.saveFlags();
+  }
   async getHello() {
+    // for(let i = 0 ; i< 20; i++){
+    //   await this.queueService.addLearningPathToQueue(String(i))
+    //   if(i==10) await this.queueService.addLearningPathToQueueWithPriority("priority")
+    // }
     return 'Hello World!';
   }
 
@@ -33,13 +39,15 @@ export class AppService {
         },
       });
       if (savedFlag) continue;
-      const imageFile = readFileSync(flag.path);
+      const imageFile = readFileSync(
+        `${process.cwd()}/public/flags/rounded/${flag.path.replace('.webp', '.png')}`,
+      );
       const fileKey = `${flag.name}-${randomUUID()}`;
       const payload = await this.s3.putObject({
         Bucket: this.configService.getOrThrow('R2_BUCKET_NAME'),
         Key: fileKey,
         Body: imageFile,
-        ContentType: flag.path.endsWith('.png') ? 'image/png' : 'image/webp',
+        ContentType: 'image/png',
       });
       const now = new Date();
       const oneWeekFromNow = new Date(now);

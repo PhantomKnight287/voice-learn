@@ -20,8 +20,6 @@ model User {
   email    String @unique
   password String
 
-  gems Int @default(500)
-
   paths LearningPath[]
 
   createdAt DateTime @default(now())

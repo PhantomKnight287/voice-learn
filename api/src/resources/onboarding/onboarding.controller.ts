@@ -48,4 +48,13 @@ export class OnboardingController {
   getOnBoardingStatus(@Param('id') id: string, @Auth() user: User) {
     return this.onboardingService.getOnBoardingStatus(id, user.id);
   }
+
+  @ApiOperation({
+    description: 'Get learning path',
+    summary: 'Get learning path',
+  })
+  @Get()
+  getLearningPath(@Auth() user: User) {
+    return this.onboardingService.getLearningPath(user.id);
+  }
 }

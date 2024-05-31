@@ -3,6 +3,7 @@ import { CompleteOnBoardingDTO } from './dto/complete-onboarding.dto';
 import { prisma } from 'src/db';
 import { createId } from '@paralleldrive/cuid2';
 import { QueueService } from 'src/services/queue/queue.service';
+import { inspect } from 'util';
 
 @Injectable()
 export class OnboardingService {
@@ -57,5 +58,34 @@ export class OnboardingService {
         generated: false,
       };
     }
+  }
+  async getLearningPath(userId: string) {
+    const path = await prisma.learningPath.findFirst({
+      where: { userId },
+      include: {
+        language: {
+          select: {
+            flagUrl: true,
+            name: true,
+            id: true,
+          },
+        },
+        modules: {
+          select: {
+            name: true,
+            id: true,
+            description: true,
+            lessons: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    return path;
   }
 }
