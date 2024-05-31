@@ -1,166 +1,166 @@
 [
-    {
-        "name": "Afrikaans",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\afrikaans.webp"
-    },
-    {
-        "name": "Arabic",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\arabic.webp"
-    },
-    {
-        "name": "Armenian",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\armenian.webp"
-    },
-    {
-        "name": "Azerbaijani",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\azerbaijani.webp"
-    },
-    {
-        "name": "Belarusian",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\belarusian.webp"
-    },
-    {
-        "name": "Bosnian",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\bosnian.png"
-    },
-    {
-        "name": "Bulgarian",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\bulgarian.webp"
-    },
-    {
-        "name": "Catalan",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\catalan.webp"
-    },
-    {
-        "name": "Chinese",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\chinese.webp"
-    },
-    {
-        "name": "Croatian",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\croatian.webp"
-    },
-    {
-        "name": "Czech",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\czech.png"
-    },
-    {
-        "name": "Danish",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\danish.png"
-    },
-    {
-        "name": "Dutch",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\dutch.png"
-    },
-    {
-        "name": "English",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\english.webp"
-    },
-    {
-        "name": "Estonian",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\estonian.png"
-    },
-    {
-        "name": "Finnish",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\finnish.png"
-    },
-    {
-        "name": "Galician",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\galician.webp"
-    },
-    {
-        "name": "German",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\german.png"
-    },
-    {
-        "name": "Greek",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\greek.png"
-    },
-    {
-        "name": "Hebrew",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\hebrew.webp"
-    },
-    {
-        "name": "Hindi",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\hindi.png"
-    },
-    {
-        "name": "Hungarian",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\hungarian.webp"
-    },
-    {
-        "name": "Icelandic",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\icelandic.png"
-    },
-    {
-        "name": "Indonesian",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\indonesian.webp"
-    },
-    {
-        "name": "Italian",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\italian.png"
-    },
-    {
-        "name": "Japanese",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\japanese.webp"
-    },
-    {
-        "name": "Korean",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\korean.webp"
-    },
-    {
-        "name": "Latvian",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\latvian.webp"
-    },
-    {
-        "name": "Nepali",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\nepali.png"
-    },
-    {
-        "name": "Norwegian",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\norwegian.webp"
-    },
-    {
-        "name": "Polish",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\polish.png"
-    },
-    {
-        "name": "Portugese",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\portugese.png"
-    },
-    {
-        "name": "Romanian",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\romanian.png"
-    },
-    {
-        "name": "Russian",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\russian.png"
-    },
-    {
-        "name": "Serbian",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\serbian.png"
-    },
-    {
-        "name": "Spanish",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\spanish.png"
-    },
-    {
-        "name": "Swedish",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\swedish.png"
-    },
-    {
-        "name": "Thai",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\thai.webp"
-    },
-    {
-        "name": "Turkish",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\turkish.png"
-    },
-    {
-        "name": "Ukrainian",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\ukrainian.png"
-    },
-    {
-        "name": "Vietnamese",
-        "path": "G:\\builds\\voice-learn\\api\\public\\flags\\vietnamese.png"
-    }
+  {
+    "name": "Afrikaans",
+    "path": "afrikaans.webp"
+  },
+  {
+    "name": "Arabic",
+    "path": "arabic.webp"
+  },
+  {
+    "name": "Armenian",
+    "path": "armenian.webp"
+  },
+  {
+    "name": "Azerbaijani",
+    "path": "azerbaijani.webp"
+  },
+  {
+    "name": "Belarusian",
+    "path": "belarusian.webp"
+  },
+  {
+    "name": "Bosnian",
+    "path": "bosnian.png"
+  },
+  {
+    "name": "Bulgarian",
+    "path": "bulgarian.webp"
+  },
+  {
+    "name": "Catalan",
+    "path": "catalan.webp"
+  },
+  {
+    "name": "Chinese",
+    "path": "chinese.webp"
+  },
+  {
+    "name": "Croatian",
+    "path": "croatian.webp"
+  },
+  {
+    "name": "Czech",
+    "path": "czech.png"
+  },
+  {
+    "name": "Danish",
+    "path": "danish.png"
+  },
+  {
+    "name": "Dutch",
+    "path": "dutch.png"
+  },
+  {
+    "name": "English",
+    "path": "english.webp"
+  },
+  {
+    "name": "Estonian",
+    "path": "estonian.png"
+  },
+  {
+    "name": "Finnish",
+    "path": "finnish.png"
+  },
+  {
+    "name": "Galician",
+    "path": "galician.webp"
+  },
+  {
+    "name": "German",
+    "path": "german.png"
+  },
+  {
+    "name": "Greek",
+    "path": "greek.png"
+  },
+  {
+    "name": "Hebrew",
+    "path": "hebrew.webp"
+  },
+  {
+    "name": "Hindi",
+    "path": "hindi.png"
+  },
+  {
+    "name": "Hungarian",
+    "path": "hungarian.webp"
+  },
+  {
+    "name": "Icelandic",
+    "path": "icelandic.png"
+  },
+  {
+    "name": "Indonesian",
+    "path": "indonesian.webp"
+  },
+  {
+    "name": "Italian",
+    "path": "italian.png"
+  },
+  {
+    "name": "Japanese",
+    "path": "japanese.webp"
+  },
+  {
+    "name": "Korean",
+    "path": "korean.webp"
+  },
+  {
+    "name": "Latvian",
+    "path": "latvian.webp"
+  },
+  {
+    "name": "Norwegian",
+    "path": "norwegian.webp"
+  },
+  {
+    "name": "Polish",
+    "path": "polish.png"
+  },
+  {
+    "name": "Portugese",
+    "path": "portugese.png"
+  },
+  {
+    "name": "Romanian",
+    "path": "romanian.png"
+  },
+  {
+    "name": "Russian",
+    "path": "russian.png"
+  },
+  {
+    "name": "Serbian",
+    "path": "serbian.png"
+  },
+  {
+    "name": "Spanish",
+    "path": "spanish.png"
+  },
+  {
+    "name": "Swedish",
+    "path": "swedish.png"
+  },
+  {
+    "name": "Thai",
+    "path": "thai.webp"
+  },
+  {
+    "name": "Turkish",
+    "path": "turkish.png"
+  },
+  {
+    "name": "Ukrainian",
+    "path": "ukrainian.png"
+  },
+  {
+    "name": "Vietnamese",
+    "path": "vietnamese.png"
+  },
+  {
+    "name": "French",
+    "path": "french.png"
+  }
 ]
