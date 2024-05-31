@@ -40,7 +40,7 @@ class _LearningPathLoadingScreenState extends State<LearningPathLoadingScreen> {
           if (body['generated'] == false) {
             if (body['position'] == null) {
               setState(() {
-                message = "You learning path is being generated.";
+                message = "Your learning path is being generated.";
               });
             } else {
               setState(() {

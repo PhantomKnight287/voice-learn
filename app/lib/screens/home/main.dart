@@ -1,12 +1,16 @@
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/learning_path.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:async_builder/async_builder.dart';
+import 'package:shimmer/shimmer.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -40,22 +44,101 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final userBloc = context.read<UserBloc>();
-    return FutureBuilder<LearningPath>(
+    return AsyncBuilder<LearningPath>(
         future: _fetchLearningPath,
-        builder: (context, snapshot) {
-          final data = snapshot.data!;
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-          if (snapshot.hasData == false) return const Text("waiting");
+        waiting: (context) => Scaffold(
+              appBar: AppBar(
+                leading: Shimmer.fromColors(
+                  baseColor: Colors.grey.shade400,
+                  highlightColor: SECONDARY_BG_COLOR,
+                  child: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircleAvatar(
+                      radius: 30,
+                      child: SizedBox(
+                        height: 30,
+                        width: 30,
+                      ),
+                    ),
+                  ),
+                ),
+                actions: [
+                  Shimmer.fromColors(
+                    baseColor: Colors.grey.shade400,
+                    highlightColor: SECONDARY_BG_COLOR,
+                    child: const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: CircleAvatar(
+                        radius: 30,
+                        child: SizedBox(
+                          height: 30,
+                          width: 30,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              body: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Shimmer.fromColors(
+                        baseColor: Colors.grey.shade300,
+                        highlightColor: Colors.grey.shade400,
+                        child: Container(
+                          height: 20,
+                          width: 150,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: BASE_MARGIN * 2,
+                      ),
+                      Shimmer.fromColors(
+                        baseColor: Colors.grey.shade300,
+                        highlightColor: Colors.grey.shade400,
+                        child: Container(
+                          height: 10,
+                          width: 200,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        error: (context, error, stackTrace) => Text("Error! $error"),
+        builder: (context, value) {
+          final data = value!;
           return Stack(
             children: [
               Scaffold(
+                extendBodyBehindAppBar: true,
                 appBar: AppBar(
+                  backgroundColor: Colors.transparent,
+                  scrolledUnderElevation: 0.0,
+                  systemOverlayStyle: SystemUiOverlayStyle.dark,
+                  elevation: 0,
+                  bottom: PreferredSize(
+                    preferredSize: const Size.fromHeight(4.0),
+                    child: Container(
+                      color: PRIMARY_COLOR,
+                      height: 1.0,
+                    ),
+                  ),
                   leading: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(BASE_MARGIN * 2.5),
                     child: Image.network(
                       data.language.flagUrl,
                       width: 30,
@@ -67,7 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.bolt,
                           color: PRIMARY_COLOR,
                           size: 30,
@@ -137,9 +220,74 @@ class _HomeScreenState extends State<HomeScreen> {
                     bloc: userBloc,
                     builder: (context, state) {
                       return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          children: [],
+                        padding: const EdgeInsets.fromLTRB(BASE_MARGIN * 4, 0, BASE_MARGIN * 4, BASE_MARGIN * 4),
+                        child: ListView.builder(
+                          scrollDirection: Axis.vertical,
+                          itemCount: data.modules.length,
+                          shrinkWrap: true,
+                          itemBuilder: (context, index) {
+                            final module = data.modules[index];
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (index == 0)
+                                  const SizedBox(
+                                    height: BASE_MARGIN * 4,
+                                  ),
+                                Text(
+                                  module.name,
+                                  style: TextStyle(
+                                    fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: BASE_MARGIN.toDouble(),
+                                ),
+                                Text(
+                                  "${module.lessons.length} lesson${module.lessons.length > 1 ? "s" : ""}",
+                                  style: TextStyle(
+                                    color: Theme.of(context).textTheme.titleSmall!.color,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: BASE_MARGIN.toDouble(),
+                                ),
+                                Theme(
+                                  data: ThemeData(
+                                    colorScheme: Theme.of(context).colorScheme.copyWith(
+                                          primary: PRIMARY_COLOR,
+                                        ),
+                                  ),
+                                  child: Stepper(
+                                    connectorColor: WidgetStateProperty.all(PRIMARY_COLOR),
+                                    controlsBuilder: (BuildContext context, ControlsDetails controls) {
+                                      return Row(
+                                        children: <Widget>[
+                                          Container(),
+                                        ],
+                                      );
+                                    },
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    steps: module.lessons
+                                        .map(
+                                          (e) => Step(
+                                            title: Text(e.name),
+                                            content: Column(
+                                              children: [
+                                                if (e.description != null) Text(e.description!),
+                                              ],
+                                            ),
+                                            state: StepState.indexed,
+                                            subtitle: e.description != null ? Text(e.description!) : null,
+                                          ),
+                                        )
+                                        .toList(),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       );
                     },
