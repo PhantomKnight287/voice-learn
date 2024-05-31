@@ -64,7 +64,10 @@ class InputField extends StatelessWidget {
         prefixIconColor: Colors.black,
         fillColor: fillColor,
         filled: true,
-        hintStyle: hintStyle,
+        hintStyle: hintStyle ??
+            TextStyle(
+              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+            ),
         suffixIcon: suffixIcon,
         errorStyle: TextStyle(
           color: Colors.red,

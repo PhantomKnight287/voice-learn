@@ -23,7 +23,7 @@ class UserModel {
       name: json['name'],
       email: json['email'],
       createdAt: json["createdAt"],
-      paths: json["_count"]["paths"],
+      paths: json["_count"]?["paths"] ?? 0,
       updatedAt: json["updatedAt"],
       token: token,
     );

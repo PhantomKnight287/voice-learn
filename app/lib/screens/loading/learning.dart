@@ -22,9 +22,10 @@ class LearningPathLoadingScreen extends StatefulWidget {
 }
 
 class _LearningPathLoadingScreenState extends State<LearningPathLoadingScreen> {
-  String message = "Your learning path is being generated";
+  String message = "Your learning path is being generated.";
+  late Timer timer;
   void _fetchStatus() async {
-    Timer.periodic(
+    timer = Timer.periodic(
       const Duration(seconds: 1),
       (timer) async {
         final prefs = await SharedPreferences.getInstance();
@@ -39,11 +40,11 @@ class _LearningPathLoadingScreenState extends State<LearningPathLoadingScreen> {
           if (body['generated'] == false) {
             if (body['position'] == null) {
               setState(() {
-                message = "You learning path is being generted";
+                message = "You learning path is being generated.";
               });
             } else {
               setState(() {
-                message = "You are ${numberToOrdinal(body['position'])} in queue";
+                message = "You are ${numberToOrdinal(body['position'])} in queue.";
               });
             }
           } else {
@@ -64,6 +65,12 @@ class _LearningPathLoadingScreenState extends State<LearningPathLoadingScreen> {
   void initState() {
     _fetchStatus();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
   }
 
   @override
