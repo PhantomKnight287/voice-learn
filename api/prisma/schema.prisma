@@ -65,7 +65,7 @@ model Module {
 
   lessons Lesson[]
 
-  learningPath   LearningPath? @relation(fields: [learningPathId], references: [id])
+  learningPath   LearningPath? @relation(fields: [learningPathId], references: [id], onDelete: Cascade)
   learningPathId String?
 
   createdAt DateTime @default(now())
@@ -78,22 +78,31 @@ model Lesson {
   name        String
   description String?
 
-  module   Module? @relation(fields: [moduleId], references: [id])
+  module   Module? @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   moduleId String?
 
-  questions Question[]
+  questions       Question[]
+  questionsCount  Int             @default(0)
+  questionsStatus QuestionsStatus @default(not_generated)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
+enum QuestionsStatus {
+  not_generated
+  generated
+  generating
+}
+
 model Question {
   id String @id @unique @default(cuid())
 
-  lesson   Lesson? @relation(fields: [lessonId], references: [id])
+  lesson   Lesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   lessonId String?
 
-  question Json[]
+  question    Json[]
+  instruction String
 
   type QuestionType
 
