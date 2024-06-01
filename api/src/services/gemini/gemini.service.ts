@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { generateObject, generateText, streamObject, streamText } from 'ai';
 import { google } from '@ai-sdk/google';
-
+import { openai } from '@ai-sdk/openai';
 @Injectable()
 export class GeminiService {
   constructor(protected readonly configService: ConfigService) {}
@@ -12,7 +12,7 @@ export class GeminiService {
   ) {
     return await streamText({
       ...props,
-      model: google('models/gemini-1.5-flash-latest'),
+      model: google('models/gemini-1.5-pro-latest'),
     });
   }
 
@@ -21,7 +21,7 @@ export class GeminiService {
   ) {
     return await generateText({
       ...props,
-      model: google('models/gemini-1.5-flash-latest'),
+      model: google('models/gemini-1.5-pro-latest'),
     });
   }
 
@@ -30,7 +30,7 @@ export class GeminiService {
   ) {
     return await generateObject({
       ...props,
-      model: google('models/gemini-1.5-flash-latest'),
+      model: google('models/gemini-1.5-pro-latest'),
     });
   }
 
@@ -39,7 +39,7 @@ export class GeminiService {
   ) {
     return await streamObject({
       ...props,
-      model: google('models/gemini-1.5-flash-latest'),
+      model: google('models/gemini-1.5-pro-latest'),
     });
   }
 }

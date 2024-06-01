@@ -19,10 +19,17 @@ export class AppService {
     this.saveFlags();
   }
   async getHello() {
-    // for(let i = 0 ; i< 20; i++){
-    //   await this.queueService.addLearningPathToQueue(String(i))
-    //   if(i==10) await this.queueService.addLearningPathToQueueWithPriority("priority")
-    // }
+    for (let i = 0; i < 20; i++) {
+      await this.queueService.addToQueue({
+        id: String(i),
+        type: 'learning_path',
+      });
+      if (i == 10)
+        await this.queueService.addToQueueWithPriority({
+          id: 'priority',
+          type: 'learning_path',
+        });
+    }
     return 'Hello World!';
   }
 

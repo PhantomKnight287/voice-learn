@@ -35,7 +35,7 @@ export class OnboardingService {
         },
       });
     }
-    await this.queue.addLearningPathToQueue(learningPath.id);
+    await this.queue.addToQueue({ id: learningPath.id, type: 'learning_path' });
 
     return learningPath;
   }
@@ -52,7 +52,10 @@ export class OnboardingService {
         position: null,
       };
     else {
-      const inQueue = await this.queue.getPositionInQueue(onboardingRecord.id);
+      const inQueue = await this.queue.getPositionInQueue({
+        id: onboardingRecord.id,
+        type: 'learning_path',
+      });
       return {
         position: inQueue == -1 ? null : inQueue,
         generated: false,
@@ -80,12 +83,14 @@ export class OnboardingService {
                 id: true,
                 name: true,
                 description: true,
+                questionsCount: true,
               },
             },
           },
         },
       },
     });
+    if (!path) throw new HttpException('No path found', HttpStatus.NOT_FOUND);
     return path;
   }
 }

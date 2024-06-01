@@ -27,3 +27,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzZXJfZXZsd
 ###
 GET {{url}}
 Authorization: Bearer incorrect_token
+
+### 
+GET {{url}}/onboarding
+
+
+### 
+POST {{url}}/onboarding
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzZXJfeGdjNWFvYWx2ajVub2RiZDQwb2d6aXJjIiwiaWF0IjoxNzE3MTQyODc1fQ.UA8aGsG7EdI3T_yZrIl1mbsYKzLxkjzOcWlTNXPMsp4
+Content-Type: application/json
+
+{"reason":"For my education","languageId":"language_pv26fpj5y6n2yn3swsrlpupt","knowledge":"I know some words and phrases","analytics":"VoiceLearn.tech"}

@@ -1,7 +1,8 @@
 import { Redis } from '@upstash/redis';
+import { QueueItemObject } from 'src/types/queue';
 
 export class QueueService extends Redis {
-  protected readonly queue_name = 'learning_path::generate::queue';
+  protected readonly queue_name = 'gemini::queue';
   private requestsThisMinute = 0;
   private readonly maxRequestsPerMinute = 15;
 
@@ -14,10 +15,10 @@ export class QueueService extends Redis {
     setInterval(() => this.resetRequestQuota(), 60000);
   }
 
-  async addLearningPathToQueue(id: string): Promise<void> {
-    await this.rpush(this.queue_name, id);
+  async addToQueue(props: QueueItemObject): Promise<void> {
+    await this.rpush(this.queue_name, JSON.stringify(props));
   }
-  async *getLearningPathToGenerate(): AsyncGenerator<string | null> {
+  async *getQueueItem(): AsyncGenerator<QueueItemObject | null> {
     while (true) {
       if (this.requestsThisMinute < this.maxRequestsPerMinute) {
         const item = await this.lpop<string | null>(this.queue_name);
@@ -25,19 +26,19 @@ export class QueueService extends Redis {
           yield null;
         }
         this.requestsThisMinute++;
-        yield item;
+        yield item as unknown as QueueItemObject;
       } else {
         // Wait until the quota resets
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     }
   }
-  async addLearningPathToQueueWithPriority(id: string): Promise<void> {
-    await this.lpush(this.queue_name, id);
+  async addToQueueWithPriority(props: QueueItemObject): Promise<void> {
+    await this.lpush(this.queue_name, JSON.stringify(props));
   }
 
-  async getPositionInQueue(id: string): Promise<number | null> {
-    const position = await this.lpos(this.queue_name, id);
+  async getPositionInQueue(id: QueueItemObject): Promise<number | null> {
+    const position = await this.lpos(this.queue_name, JSON.stringify(id));
     return position !== null ? position + 1 : -1;
   }
   private resetRequestQuota() {

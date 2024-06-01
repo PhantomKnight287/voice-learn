@@ -18,6 +18,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { EventsModule } from './resources/events/events.module';
 import { QueueService } from './services/queue/queue.service';
 import { OnboardingQueueConsumer } from './consumers/onboarding.consumer';
+import { LessonsModule } from './resources/lessons/lessons.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { OnboardingQueueConsumer } from './consumers/onboarding.consumer';
       ignoreErrors: false,
     }),
     EventsModule,
+    LessonsModule,
   ],
   controllers: [AppController],
   providers: [

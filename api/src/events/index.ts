@@ -5,3 +5,4 @@ export class CreatePathEvent {
     this.id = id;
   }
 }
+

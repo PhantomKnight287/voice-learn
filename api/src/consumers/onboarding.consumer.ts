@@ -13,12 +13,9 @@ export class OnboardingQueueConsumer {
   }
 
   async processQueue() {
-    for await (const request of this.queue.getLearningPathToGenerate()) {
+    for await (const request of this.queue.getQueueItem()) {
       if (request) {
-        await this.event.emitAsync(
-          'learning_path.create',
-          new CreatePathEvent(request),
-        );
+        await this.event.emitAsync('queue.handle', request);
       }
     }
   }
