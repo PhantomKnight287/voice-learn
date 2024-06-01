@@ -8,6 +8,9 @@ dependencies:
   '@ai-sdk/google':
     specifier: ^0.0.17
     version: 0.0.17(zod@3.23.8)
+  '@ai-sdk/openai':
+    specifier: ^0.0.18
+    version: 0.0.18(zod@3.23.8)
   '@aws-sdk/client-s3':
     specifier: ^3.583.0
     version: 3.583.0
@@ -183,6 +186,17 @@ packages:
 
   /@ai-sdk/google@0.0.17(zod@3.23.8):
     resolution: {integrity: sha512-waahzRUSHBGPbCnyB5OM1rq+BLkjmLlM2rHrCGAWjFVl3wcGNNUHQ+MJUY0gaeHYpkJ0lga+2AYcQk/Xt3lJ6Q==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.0.0
+    dependencies:
+      '@ai-sdk/provider': 0.0.8
+      '@ai-sdk/provider-utils': 0.0.11(zod@3.23.8)
+      zod: 3.23.8
+    dev: false
+
+  /@ai-sdk/openai@0.0.18(zod@3.23.8):
+    resolution: {integrity: sha512-5iJ+/mbns0uLbNpACMYGUONUqQmqGJYrPbQvmGC+XVD4DZLvyZqBi0NDoQguOrZTz6u5O7rl51o9PDO+bEtmcA==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.0.0
