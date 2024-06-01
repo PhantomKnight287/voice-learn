@@ -2,27 +2,25 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:app/constants/main.dart';
-import 'package:app/screens/home/main.dart';
 import 'package:app/utils/string.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
-class LearningPathLoadingScreen extends StatefulWidget {
-  final String pathId;
-  const LearningPathLoadingScreen({
+class QuestionsGenerationLoadingScreen extends StatefulWidget {
+  final String lessonId;
+  const QuestionsGenerationLoadingScreen({
     super.key,
-    required this.pathId,
+    required this.lessonId,
   });
 
   @override
-  State<LearningPathLoadingScreen> createState() => _LearningPathLoadingScreenState();
+  State<QuestionsGenerationLoadingScreen> createState() => _QuestionsGenerationLoadingScreenState();
 }
 
-class _LearningPathLoadingScreenState extends State<LearningPathLoadingScreen> {
-  String message = "Your learning path is being generated.";
+class _QuestionsGenerationLoadingScreenState extends State<QuestionsGenerationLoadingScreen> {
+  String message = "Your questions are being generated.";
   late Timer timer;
   void _fetchStatus() async {
     timer = Timer.periodic(
@@ -32,7 +30,7 @@ class _LearningPathLoadingScreenState extends State<LearningPathLoadingScreen> {
         final token = prefs.getString("token")!;
         final req = await http.get(
             Uri.parse(
-              "$API_URL/onboarding/${widget.pathId}",
+              "$API_URL/lessons/${widget.lessonId}",
             ),
             headers: {"Authorization": "Bearer $token"});
         final body = jsonDecode(req.body);
@@ -40,7 +38,7 @@ class _LearningPathLoadingScreenState extends State<LearningPathLoadingScreen> {
           if (body['generated'] == false) {
             if (body['position'] == null) {
               setState(() {
-                message = "Your learning path is being generated.";
+                message = "Your questions are being generated.";
               });
             } else {
               setState(() {
@@ -48,13 +46,13 @@ class _LearningPathLoadingScreenState extends State<LearningPathLoadingScreen> {
               });
             }
           } else {
-            Navigator.of(context).pushReplacement(
-              CupertinoPageRoute(
-                builder: (context) {
-                  return const HomeScreen();
-                },
-              ),
-            );
+            // Navigator.of(context).pushReplacement(
+            //   CupertinoPageRoute(
+            //     builder: (context) {
+            //       return const HomeScreen();
+            //     },
+            //   ),
+            // );
           }
         }
       },
@@ -82,11 +80,11 @@ class _LearningPathLoadingScreenState extends State<LearningPathLoadingScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            "Generating your personalized learning path. Please wait...",
+            "Generating your personalized questions. Please wait...",
             style: Theme.of(context).textTheme.titleMedium,
             textAlign: TextAlign.center,
           ),
-          SizedBox(
+          const SizedBox(
             height: BASE_MARGIN * 3,
           ),
           Text(

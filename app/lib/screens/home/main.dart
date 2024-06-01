@@ -1,9 +1,10 @@
 import 'dart:convert';
-import 'dart:ui';
 
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/learning_path.dart';
+import 'package:app/screens/loading/questions.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:async_builder/async_builder.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:easy_stepper/easy_stepper.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -34,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString("token");
     final req = await http.get(Uri.parse("$API_URL/onboarding"), headers: {"Authorization": "Bearer $token"});
+
     final body = await jsonDecode(req.body);
     if (req.statusCode == 200) {
       return LearningPath.fromJSON(body);
@@ -118,7 +121,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-        error: (context, error, stackTrace) => Text("Error! $error"),
+        error: (context, error, stackTrace) => Scaffold(
+              body: SafeArea(
+                child: Center(
+                  child: Text(error.toString()),
+                ),
+              ),
+            ),
         builder: (context, value) {
           final data = value!;
           return Stack(
@@ -260,7 +269,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                   ),
                                   child: Stepper(
+                                    onStepTapped: (value) {
+                                      Navigator.of(context).push(
+                                        CupertinoPageRoute(
+                                          builder: (context) => QuestionsGenerationLoadingScreen(
+                                            lessonId: module.lessons[value]!.id,
+                                          ),
+                                        ),
+                                      );
+                                    },
                                     connectorColor: WidgetStateProperty.all(PRIMARY_COLOR),
+                                    connectorThickness: 2,
+                                    currentStep: 1,
                                     controlsBuilder: (BuildContext context, ControlsDetails controls) {
                                       return Row(
                                         children: <Widget>[
@@ -272,14 +292,35 @@ class _HomeScreenState extends State<HomeScreen> {
                                     steps: module.lessons
                                         .map(
                                           (e) => Step(
-                                            title: Text(e.name),
-                                            content: Column(
-                                              children: [
-                                                if (e.description != null) Text(e.description!),
-                                              ],
+                                            title: Text(
+                                              e.name,
                                             ),
-                                            state: StepState.indexed,
-                                            subtitle: e.description != null ? Text(e.description!) : null,
+                                            // content: SizedBox(),
+                                            content: Container(
+                                              alignment: Alignment.bottomLeft,
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                children: [
+                                                  if (e.description != null)
+                                                    Text(
+                                                      e.description!,
+                                                    ),
+                                                  Row(
+                                                    children: [
+                                                      Text(
+                                                        "${e.questions} questions • ${(e.questions == 0 ? 1 : e.questions!) * 4} xp",
+                                                        style: TextStyle(
+                                                          color: Theme.of(context).textTheme.titleSmall!.color,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+
+                                            // subtitle: e.description != null ? Text(e.description!) : null,
                                           ),
                                         )
                                         .toList(),

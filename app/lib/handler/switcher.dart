@@ -54,10 +54,18 @@ class _ViewHandlerState extends State<ViewHandler> {
               ),
             );
         if (body['path']?['type'] == 'created') {
-          Navigator.of(context).pushReplacement(CupertinoPageRoute(
-            builder: (context) => LearningPathLoadingScreen(pathId: body['path']['id']),
-          ));
+          Navigator.of(context).pushReplacement(
+            CupertinoPageRoute(
+              builder: (context) => LearningPathLoadingScreen(pathId: body['path']['id']),
+            ),
+          );
           return;
+        } else if (body['path'] == null) {
+          Navigator.of(context).pushReplacement(
+            CupertinoPageRoute(
+              builder: (context) => OnboardingQuestionsScreen(),
+            ),
+          );
         } else {
           setState(() {});
         }
@@ -81,6 +89,7 @@ class _ViewHandlerState extends State<ViewHandler> {
     final state = userBloc.state;
     if (state.id.isNotEmpty) return const HomeScreen();
     if (_showOnBoarding) return const OnboardingScreen();
+    if (state.paths == 0) return const OnboardingQuestionsScreen();
     return const Scaffold(
       appBar: null,
       body: Center(

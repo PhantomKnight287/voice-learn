@@ -9,4 +9,4 @@ const SECONDARY_BG_COLOR = Color(0xffebebeb);
 
 const BASE_MARGIN = 4;
 
-const API_URL = kDebugMode ? "http://192.168.1.11:5000/v1" : "https://api.voicelearn.tech/v1";
+const API_URL = kDebugMode ? "http://10.0.2.2:5000/v1" : "https://api.voicelearn.tech/v1";
