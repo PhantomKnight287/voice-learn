@@ -48,10 +48,12 @@ export class EventsController {
             },
           ],
         });
+        const startTime = new Date().getTime();
+
         await prisma.$transaction([
           prisma.question.createMany({
             data: (data.object as z.infer<typeof questions_schema>).map(
-              (question) => ({
+              (question, idx) => ({
                 correctAnswer: question.correctAnswer,
                 instruction: question.instruction,
                 id: `question_${createId()}`,
@@ -59,6 +61,7 @@ export class EventsController {
                 question: question.questions,
                 options: question.options,
                 type: question.type,
+                createdAt: new Date(startTime + 1000 * idx),
               }),
             ),
           }),
@@ -135,7 +138,7 @@ export class EventsController {
             // content: `
             // Create a JSON structure for a basic ${path.language.name} language learning module. The module should include lessons on greetings, numbers, common phrases, and colors. Each lesson should contain multiple-choice questions with options and correct answers. Provide instructions for each question and include translations for the words in the questions and answers.
             // `,
-            content: `Generate a JSON structure for a ${path.language.name} language learning program. The program should consist of five modules, each containing at least two lessons. Each lesson should a name, description and a "questionsCount" which should be equal to the no of questions that lesson must have. Do not use special characters in names and descriptions. The name and descriptions must be useful and shouldn't include words like "Module 1".`,
+            content: `Generate a JSON structure for a ${path.language.name} language learning program. The program should consist of five modules, each containing at least two lessons. Each lesson should a name, description and a "questionsCount" which should be equal to the no of questions that lesson must have. Do not use special characters in names and descriptions. The name and descriptions must be useful and shouldn't include words like "Module 1". The description should not start with "This Module covers" or "This lesson covers"`,
           },
 
           {
@@ -165,14 +168,16 @@ export class EventsController {
               where: { name: pathModule.name, learningPathId: body.id },
             });
             if (!module) continue;
+            const startTime = new Date().getTime();
             await tx.module.update({
               where: { id: module.id },
               data: {
                 lessons: {
-                  create: pathModule.lessons.map((lesson) => ({
+                  create: pathModule.lessons.map((lesson, idx) => ({
                     name: lesson.name,
                     id: `lesson_${createId()}`,
                     questionsCount: lesson.questionsCount,
+                    createdAt: new Date(startTime + 1000 * idx),
                   })),
                 },
               },

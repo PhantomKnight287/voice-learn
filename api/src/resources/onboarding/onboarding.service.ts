@@ -84,9 +84,20 @@ export class OnboardingService {
                 name: true,
                 description: true,
                 questionsCount: true,
+                questionsStatus: true,
               },
+              orderBy: [
+                {
+                  createdAt: 'asc',
+                },
+              ],
             },
           },
+          orderBy: [
+            {
+              createdAt: 'asc',
+            },
+          ],
         },
       },
     });
