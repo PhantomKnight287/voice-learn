@@ -1,18 +1,21 @@
 import 'dart:convert';
 
 import 'package:app/bloc/user/user_bloc.dart';
+import 'package:app/components/circular_progress.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/learning_path.dart';
+import 'package:app/models/lesson.dart';
 import 'package:app/screens/loading/questions.dart';
+import 'package:app/screens/questions/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:async_builder/async_builder.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:easy_stepper/easy_stepper.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -29,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
     _fetchLearningPath = _fetchLearningPathFuture();
   }
 
@@ -146,41 +150,88 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 1.0,
                     ),
                   ),
-                  leading: Padding(
-                    padding: const EdgeInsets.all(BASE_MARGIN * 2.5),
-                    child: Image.network(
-                      data.language.flagUrl,
-                      width: 30,
-                      height: 30,
-                    ),
-                  ),
-                  title: IconButton(
-                    onPressed: () {},
-                    icon: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.bolt,
-                          color: PRIMARY_COLOR,
-                          size: 30,
-                        ),
-                        Text(
-                          "69",
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                      ],
-                    ),
-                  ),
+                  title: BlocBuilder<UserBloc, UserState>(
+                      bloc: userBloc,
+                      builder: (context, state) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Image.network(
+                              data.language.flagUrl,
+                              width: 30,
+                              height: 30,
+                            ),
+                            IconButton(
+                              onPressed: () {},
+                              icon: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.bolt,
+                                    color: PRIMARY_COLOR,
+                                    size: 30,
+                                  ),
+                                  Text(
+                                    state.lives.toString(),
+                                    style: Theme.of(context).textTheme.titleSmall,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () {},
+                              icon: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    "assets/images/emerald.png",
+                                    width: 25,
+                                    height: 25,
+                                  ),
+                                  const SizedBox(
+                                    width: BASE_MARGIN * 2,
+                                  ),
+                                  Text(
+                                    state.lives.toString(),
+                                    style: Theme.of(context).textTheme.titleSmall,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () {},
+                              icon: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SvgPicture.asset(
+                                    "assets/svgs/heart.svg",
+                                    width: 25,
+                                    height: 25,
+                                  ),
+                                  const SizedBox(
+                                    width: BASE_MARGIN * 2,
+                                  ),
+                                  Text(
+                                    state.lives.toString(),
+                                    style: Theme.of(context).textTheme.titleSmall,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
                   centerTitle: true,
-                  actions: [
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(
-                        Icons.notifications_rounded,
-                        size: 30,
-                      ),
-                    )
-                  ],
+                  // actions: [
+                  //   IconButton(
+                  //     onPressed: () {},
+                  //     icon: const Icon(
+                  //       Icons.notifications_rounded,
+                  //       size: 30,
+                  //     ),
+                  //   )
+                  // ],
                 ),
                 bottomNavigationBar: BottomNavigationBar(
                   currentIndex: _currentIndex,
@@ -228,108 +279,183 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: BlocBuilder<UserBloc, UserState>(
                     bloc: userBloc,
                     builder: (context, state) {
-                      return Padding(
-                        padding: const EdgeInsets.fromLTRB(BASE_MARGIN * 4, 0, BASE_MARGIN * 4, BASE_MARGIN * 4),
-                        child: ListView.builder(
-                          scrollDirection: Axis.vertical,
-                          itemCount: data.modules.length,
-                          shrinkWrap: true,
-                          itemBuilder: (context, index) {
-                            final module = data.modules[index];
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (index == 0)
-                                  const SizedBox(
-                                    height: BASE_MARGIN * 4,
-                                  ),
-                                Text(
-                                  module.name,
-                                  style: TextStyle(
-                                    fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: BASE_MARGIN.toDouble(),
-                                ),
-                                Text(
-                                  "${module.lessons.length} lesson${module.lessons.length > 1 ? "s" : ""}",
-                                  style: TextStyle(
-                                    color: Theme.of(context).textTheme.titleSmall!.color,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: BASE_MARGIN.toDouble(),
-                                ),
-                                Theme(
-                                  data: ThemeData(
-                                    colorScheme: Theme.of(context).colorScheme.copyWith(
-                                          primary: PRIMARY_COLOR,
-                                        ),
-                                  ),
-                                  child: Stepper(
-                                    onStepTapped: (value) {
-                                      Navigator.of(context).push(
-                                        CupertinoPageRoute(
-                                          builder: (context) => QuestionsGenerationLoadingScreen(
-                                            lessonId: module.lessons[value]!.id,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    connectorColor: WidgetStateProperty.all(PRIMARY_COLOR),
-                                    connectorThickness: 2,
-                                    currentStep: 1,
-                                    controlsBuilder: (BuildContext context, ControlsDetails controls) {
-                                      return Row(
+                      return ListView.builder(
+                        scrollDirection: Axis.vertical,
+                        itemCount: data.modules.length,
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          final module = data.modules[index];
+                          final item = ListTile(
+                            leading: CircularProgressAnimated(
+                              maxItems: module.lessons.length.toDouble(),
+                              currentItems: 0,
+                            ),
+                            onTap: () {
+                              showModalBottomSheet<void>(
+                                context: context,
+                                enableDrag: true,
+                                builder: (BuildContext context) {
+                                  return Container(
+                                    height: MediaQuery.of(context).size.height / 0.75,
+                                    width: MediaQuery.of(context).size.width,
+                                    decoration: const BoxDecoration(
+                                      color: SECONDARY_BG_COLOR,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(BASE_MARGIN * 4),
+                                        topRight: Radius.circular(BASE_MARGIN * 4),
+                                      ),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: BASE_MARGIN * 3,
+                                        vertical: BASE_MARGIN * 4,
+                                      ),
+                                      child: ListView(
                                         children: <Widget>[
-                                          Container(),
-                                        ],
-                                      );
-                                    },
-                                    physics: const NeverScrollableScrollPhysics(),
-                                    steps: module.lessons
-                                        .map(
-                                          (e) => Step(
-                                            title: Text(
-                                              e.name,
+                                          Text(
+                                            module.name,
+                                            style: TextStyle(
+                                              fontSize: Theme.of(context).textTheme.titleLarge!.fontSize! * 0.85,
+                                              fontWeight: FontWeight.w600,
                                             ),
-                                            // content: SizedBox(),
-                                            content: Container(
-                                              alignment: Alignment.bottomLeft,
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                children: [
-                                                  if (e.description != null)
-                                                    Text(
-                                                      e.description!,
-                                                    ),
-                                                  Row(
-                                                    children: [
-                                                      Text(
-                                                        "${e.questions} questions • ${(e.questions == 0 ? 1 : e.questions!) * 4} xp",
-                                                        style: TextStyle(
-                                                          color: Theme.of(context).textTheme.titleSmall!.color,
+                                          ),
+                                          const SizedBox(
+                                            height: BASE_MARGIN * 1,
+                                          ),
+                                          Text(
+                                            module.description,
+                                            style: Theme.of(context).textTheme.titleSmall,
+                                          ),
+                                          const SizedBox(
+                                            height: BASE_MARGIN * 3,
+                                          ),
+                                          Text(
+                                            "Lessons",
+                                            style: TextStyle(
+                                              fontSize: Theme.of(context).textTheme.titleLarge!.fontSize! * 0.8,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: BASE_MARGIN * 3,
+                                          ),
+                                          ListView.builder(
+                                            physics: const NeverScrollableScrollPhysics(),
+                                            itemBuilder: (context, index) {
+                                              final lesson = module.lessons[index];
+                                              return ListTile(
+                                                title: Text(
+                                                  lesson.name,
+                                                ),
+                                                onTap: () {
+                                                  if (lesson.status == QuestionsStatus.generated) {
+                                                    Navigator.of(context)
+                                                        .push(
+                                                      CupertinoPageRoute(
+                                                        builder: (context) => QuestionsScreen(
+                                                          lessonId: lesson.id,
                                                         ),
+                                                      ),
+                                                    )
+                                                        .then(
+                                                      (value) {
+                                                        setState(() {
+                                                          _fetchLearningPath = _fetchLearningPathFuture();
+                                                        });
+                                                      },
+                                                    );
+                                                  } else {
+                                                    Navigator.of(context)
+                                                        .push(
+                                                      CupertinoPageRoute(
+                                                        builder: (context) => QuestionsGenerationLoadingScreen(
+                                                          lessonId: lesson.id,
+                                                          status: lesson.status,
+                                                        ),
+                                                      ),
+                                                    )
+                                                        .then(
+                                                      (value) {
+                                                        setState(() {
+                                                          _fetchLearningPath = _fetchLearningPathFuture();
+                                                        });
+                                                      },
+                                                    );
+                                                  }
+                                                },
+                                                subtitle: Text(
+                                                  "${lesson.questions} questions • ${(lesson.questions == 0 ? 1 : lesson.questions!) * 4} xp",
+                                                  style: TextStyle(
+                                                    color: Theme.of(context).textTheme.titleSmall!.color,
+                                                  ),
+                                                ),
+                                                leading: CircularProgressAnimated(
+                                                  currentItems: lesson.questions!.toDouble(),
+                                                  maxItems: lesson.questions!.toDouble(),
+                                                ),
+                                                trailing: SizedBox(
+                                                  width: 40,
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.end,
+                                                    children: [
+                                                      Image.asset(
+                                                        "assets/images/emerald.png",
+                                                        width: 25,
+                                                        height: 25,
+                                                      ),
+                                                      const SizedBox(
+                                                        width: BASE_MARGIN * 1,
+                                                      ),
+                                                      Text(
+                                                        "1",
+                                                        style: Theme.of(context).textTheme.titleSmall,
                                                       ),
                                                     ],
                                                   ),
-                                                ],
-                                              ),
-                                            ),
-
-                                            // subtitle: e.description != null ? Text(e.description!) : null,
-                                          ),
-                                        )
-                                        .toList(),
-                                  ),
+                                                ),
+                                              );
+                                            },
+                                            shrinkWrap: true,
+                                            itemCount: module.lessons.length,
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                            title: Text(
+                              module.name,
+                              maxLines: 1,
+                              softWrap: false,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            subtitle: Text(
+                              module.description,
+                              maxLines: 1,
+                              softWrap: false,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                          );
+                          if (index == 0) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(
+                                  height: BASE_MARGIN * 2,
                                 ),
+                                item
                               ],
                             );
-                          },
-                        ),
+                          }
+                          return item;
+                        },
                       );
                     },
                   ),

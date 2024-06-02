@@ -6,6 +6,8 @@ class UserModel {
   final String updatedAt;
   final String createdAt;
   final String token;
+  final int lives;
+  final int emeralds;
 
   UserModel({
     required this.id,
@@ -15,6 +17,8 @@ class UserModel {
     required this.paths,
     required this.updatedAt,
     required this.token,
+    required this.lives,
+    required this.emeralds,
   });
 
   factory UserModel.fromJSON(Map<String, dynamic> json, String token) {
@@ -26,6 +30,8 @@ class UserModel {
       paths: json["_count"]?["paths"] ?? 0,
       updatedAt: json["updatedAt"],
       token: token,
+      lives: json['lives'],
+      emeralds: json['emeralds'],
     );
   }
 

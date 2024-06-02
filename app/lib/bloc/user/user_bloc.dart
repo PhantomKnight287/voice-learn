@@ -15,6 +15,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
             name: '',
             token: '',
             updatedAt: '',
+            emeralds: -1,
+            lives: -1,
           ),
         ) {
     on<UserLoggedInEvent>((event, emit) {
@@ -27,6 +29,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           createdAt: event.createdAt,
           paths: event.paths,
           updatedAt: event.updatedAt,
+          emeralds: event.emeralds,
+          lives: event.lives,
         ),
       );
     });

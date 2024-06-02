@@ -10,6 +10,8 @@ abstract class UserState extends UserModel {
     required super.updatedAt,
     required super.token,
     super.email,
+    required super.emeralds,
+    required super.lives,
   });
 }
 
@@ -22,6 +24,8 @@ class UserInitial extends UserState {
     required super.updatedAt,
     required super.token,
     super.email,
+    required super.emeralds,
+    required super.lives,
   });
 }
 
@@ -34,6 +38,8 @@ class UserLoggedInState extends UserState {
     required super.updatedAt,
     required super.token,
     super.email,
+    required super.emeralds,
+    required super.lives,
   });
 }
 
@@ -42,9 +48,11 @@ class UserLoggedOutState extends UserState {
     super.id = '',
     super.name = '',
     super.createdAt = '',
-    super.paths = 0,
+    super.paths = -1,
     super.updatedAt = '',
     super.token = '',
     super.email = '',
+    super.emeralds = -1,
+    super.lives = -1,
   });
 }

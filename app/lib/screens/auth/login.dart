@@ -95,6 +95,8 @@ class _LoginScreenState extends State<LoginScreen> {
             createdAt: response.user.createdAt,
             paths: response.user.paths,
             updatedAt: response.user.updatedAt,
+            emeralds: response.user.emeralds,
+            lives: response.user.lives,
           ),
         );
     Navigator.of(context).pushReplacement(

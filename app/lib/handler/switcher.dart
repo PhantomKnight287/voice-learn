@@ -51,6 +51,8 @@ class _ViewHandlerState extends State<ViewHandler> {
                 createdAt: user.createdAt,
                 paths: user.paths,
                 updatedAt: user.updatedAt,
+                emeralds: user.emeralds,
+                lives: user.lives,
               ),
             );
         if (body['path']?['type'] == 'created') {

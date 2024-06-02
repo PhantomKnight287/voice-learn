@@ -21,7 +21,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 20, 8, 8),
+        padding: const EdgeInsets.fromLTRB(
+          BASE_MARGIN * 2,
+          BASE_MARGIN * 5,
+          BASE_MARGIN * 2,
+          BASE_MARGIN * 2,
+        ),
         child: SafeArea(
           child: Center(
             child: Column(
@@ -36,7 +41,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(
-                  height: 20,
+                  height: BASE_MARGIN * 4,
                 ),
                 LayoutBuilder(
                   builder: (context, constraints) {

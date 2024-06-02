@@ -10,6 +10,8 @@ abstract class UserEvent extends UserModel {
     required super.updatedAt,
     required super.token,
     super.email,
+    required super.emeralds,
+    required super.lives,
   });
 }
 
@@ -22,6 +24,8 @@ class UserLoggedInEvent extends UserEvent {
     required super.createdAt,
     required super.paths,
     required super.updatedAt,
+    required super.emeralds,
+    required super.lives,
   });
 }
 
@@ -33,5 +37,7 @@ class UserLoggedOutEvent extends UserEvent {
     required super.paths,
     required super.updatedAt,
     required super.token,
+    required super.emeralds,
+    required super.lives,
   });
 }

@@ -2,17 +2,24 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:app/constants/main.dart';
+import 'package:app/models/lesson.dart';
+import 'package:app/screens/questions/main.dart';
+import 'package:app/utils/error.dart';
 import 'package:app/utils/string.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:toastification/toastification.dart';
 
 class QuestionsGenerationLoadingScreen extends StatefulWidget {
   final String lessonId;
+  final QuestionsStatus status;
   const QuestionsGenerationLoadingScreen({
     super.key,
     required this.lessonId,
+    required this.status,
   });
 
   @override
@@ -46,14 +53,28 @@ class _QuestionsGenerationLoadingScreenState extends State<QuestionsGenerationLo
               });
             }
           } else {
-            // Navigator.of(context).pushReplacement(
-            //   CupertinoPageRoute(
-            //     builder: (context) {
-            //       return const HomeScreen();
-            //     },
-            //   ),
-            // );
+            Navigator.of(context).pushReplacement(
+              CupertinoPageRoute(
+                builder: (context) {
+                  return QuestionsScreen(
+                    lessonId: widget.lessonId,
+                  );
+                },
+              ),
+            );
           }
+        } else {
+          toastification.show(
+            type: ToastificationType.error,
+            style: ToastificationStyle.minimal,
+            autoCloseDuration: const Duration(seconds: 5),
+            title: const Text("An Error Occurred"),
+            description: Text(
+              ApiResponseHelper.getErrorMessage(body),
+            ),
+            alignment: Alignment.topCenter,
+            showProgressBar: false,
+          );
         }
       },
     );
