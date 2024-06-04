@@ -20,6 +20,7 @@ import { QueueService } from './services/queue/queue.service';
 import { OnboardingQueueConsumer } from './consumers/onboarding.consumer';
 import { LessonsModule } from './resources/lessons/lessons.module';
 import { QuestionsModule } from './resources/questions/questions.module';
+import { LivesModule } from './resources/lives/lives.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { QuestionsModule } from './resources/questions/questions.module';
     EventsModule,
     LessonsModule,
     QuestionsModule,
+    LivesModule,
   ],
   controllers: [AppController],
   providers: [
