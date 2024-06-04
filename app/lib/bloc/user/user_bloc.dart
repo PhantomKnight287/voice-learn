@@ -17,6 +17,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
             updatedAt: '',
             emeralds: -1,
             lives: -1,
+            xp: -1,
           ),
         ) {
     on<UserLoggedInEvent>((event, emit) {
@@ -31,12 +32,29 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           updatedAt: event.updatedAt,
           emeralds: event.emeralds,
           lives: event.lives,
+          xp: event.xp,
         ),
       );
     });
     on<UserLoggedOutEvent>((event, emit) {
       emit(
         UserLoggedOutState(),
+      );
+    });
+
+    on<DecreaseUserHeartEvent>((event, emit) {
+      emit(
+        UserLoggedInState(
+          createdAt: event.createdAt,
+          emeralds: event.emeralds,
+          id: event.id,
+          lives: event.lives,
+          name: event.name,
+          paths: event.paths,
+          token: event.token,
+          updatedAt: event.updatedAt,
+          xp: event.xp,
+        ),
       );
     });
   }

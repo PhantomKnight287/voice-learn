@@ -4,10 +4,20 @@ import 'package:app/handler/switcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:toastification/toastification.dart';
+import 'package:fl_query_connectivity_plus_adapter/fl_query_connectivity_plus_adapter.dart';
+import 'package:fl_query/fl_query.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const VoiceLearnApp());
+  await QueryClient.initialize(
+    cachePrefix: 'voice_learn',
+    connectivity: FlQueryConnectivityPlusAdapter(),
+  );
+  runApp(
+    QueryClientProvider(
+      child: const VoiceLearnApp(),
+    ),
+  );
 }
 
 class VoiceLearnApp extends StatelessWidget {

@@ -26,3 +26,11 @@ String numberToOrdinal(int number) {
 
   return '$number$suffix';
 }
+
+String removePunctuation(String input) {
+  // Define a regular expression that matches all punctuation characters
+  RegExp punctuation = RegExp(r'[^\w\s]');
+
+  // Use the replaceAll method to remove all matched characters
+  return input.replaceAll(punctuation, '');
+}

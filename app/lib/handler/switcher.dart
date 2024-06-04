@@ -53,6 +53,7 @@ class _ViewHandlerState extends State<ViewHandler> {
                 updatedAt: user.updatedAt,
                 emeralds: user.emeralds,
                 lives: user.lives,
+                xp: user.xp,
               ),
             );
         if (body['path']?['type'] == 'created') {
@@ -65,7 +66,7 @@ class _ViewHandlerState extends State<ViewHandler> {
         } else if (body['path'] == null) {
           Navigator.of(context).pushReplacement(
             CupertinoPageRoute(
-              builder: (context) => OnboardingQuestionsScreen(),
+              builder: (context) => const OnboardingQuestionsScreen(),
             ),
           );
         } else {

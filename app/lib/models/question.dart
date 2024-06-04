@@ -23,6 +23,7 @@ class Question {
   final String? createdAt;
   final List<QuestionQuestion> question;
   final QuestionType type;
+  final List<String> options;
 
   const Question({
     required this.id,
@@ -32,6 +33,7 @@ class Question {
     this.createdAt,
     required this.question,
     required this.type,
+    required this.options,
   });
 
   factory Question.toJSON(Map<String, dynamic> json) {
@@ -44,6 +46,7 @@ class Question {
       createdAt: json['createdAt'],
       lessonId: json['lessonId'],
       type: json['type'] == "select_one" ? QuestionType.select_one : QuestionType.sentence,
+      options: (json['options'] as List).map((item) => item as String).toList(),
     );
   }
 }

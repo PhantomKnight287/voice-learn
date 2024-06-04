@@ -193,7 +193,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     width: BASE_MARGIN * 2,
                                   ),
                                   Text(
-                                    state.lives.toString(),
+                                    state.emeralds.toString(),
                                     style: Theme.of(context).textTheme.titleSmall,
                                   ),
                                 ],
@@ -291,135 +291,135 @@ class _HomeScreenState extends State<HomeScreen> {
                               currentItems: 0,
                             ),
                             onTap: () {
-                              showModalBottomSheet<void>(
+                              showModalBottomSheet(
                                 context: context,
                                 enableDrag: true,
+                                showDragHandle: true,
                                 builder: (BuildContext context) {
-                                  return Container(
-                                    height: MediaQuery.of(context).size.height / 0.75,
-                                    width: MediaQuery.of(context).size.width,
-                                    decoration: const BoxDecoration(
-                                      color: SECONDARY_BG_COLOR,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(BASE_MARGIN * 4),
-                                        topRight: Radius.circular(BASE_MARGIN * 4),
-                                      ),
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: BASE_MARGIN * 3,
+                                      vertical: BASE_MARGIN * 4,
                                     ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: BASE_MARGIN * 3,
-                                        vertical: BASE_MARGIN * 4,
-                                      ),
-                                      child: ListView(
-                                        children: <Widget>[
-                                          Text(
-                                            module.name,
-                                            style: TextStyle(
-                                              fontSize: Theme.of(context).textTheme.titleLarge!.fontSize! * 0.85,
-                                              fontWeight: FontWeight.w600,
-                                            ),
+                                    child: ListView(
+                                      children: <Widget>[
+                                        Text(
+                                          module.name,
+                                          style: TextStyle(
+                                            fontSize: Theme.of(context).textTheme.titleLarge!.fontSize! * 0.85,
+                                            fontWeight: FontWeight.w600,
                                           ),
-                                          const SizedBox(
-                                            height: BASE_MARGIN * 1,
+                                        ),
+                                        const SizedBox(
+                                          height: BASE_MARGIN * 1,
+                                        ),
+                                        Text(
+                                          module.description,
+                                          style: Theme.of(context).textTheme.titleSmall,
+                                        ),
+                                        const SizedBox(
+                                          height: BASE_MARGIN * 3,
+                                        ),
+                                        Text(
+                                          "Lessons",
+                                          style: TextStyle(
+                                            fontSize: Theme.of(context).textTheme.titleLarge!.fontSize! * 0.8,
+                                            fontWeight: FontWeight.w500,
                                           ),
-                                          Text(
-                                            module.description,
-                                            style: Theme.of(context).textTheme.titleSmall,
-                                          ),
-                                          const SizedBox(
-                                            height: BASE_MARGIN * 3,
-                                          ),
-                                          Text(
-                                            "Lessons",
-                                            style: TextStyle(
-                                              fontSize: Theme.of(context).textTheme.titleLarge!.fontSize! * 0.8,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: BASE_MARGIN * 3,
-                                          ),
-                                          ListView.builder(
-                                            physics: const NeverScrollableScrollPhysics(),
-                                            itemBuilder: (context, index) {
-                                              final lesson = module.lessons[index];
-                                              return ListTile(
-                                                title: Text(
-                                                  lesson.name,
+                                        ),
+                                        const SizedBox(
+                                          height: BASE_MARGIN * 3,
+                                        ),
+                                        ListView.separated(
+                                          separatorBuilder: (context, index) {
+                                            return const SizedBox(
+                                              height: BASE_MARGIN * 2,
+                                            );
+                                          },
+                                          physics: const NeverScrollableScrollPhysics(),
+                                          itemBuilder: (context, index) {
+                                            final lesson = module.lessons[index];
+                                            return ListTile(
+                                              title: Text(
+                                                lesson.name,
+                                              ),
+                                              onTap: () {
+                                                if (lesson.status == QuestionsStatus.generated) {
+                                                  Navigator.of(context)
+                                                      .push(
+                                                    CupertinoPageRoute(
+                                                      builder: (context) => QuestionsScreen(
+                                                        lessonId: lesson.id,
+                                                      ),
+                                                    ),
+                                                  )
+                                                      .then(
+                                                    (value) {
+                                                      setState(() {
+                                                        _fetchLearningPath = _fetchLearningPathFuture();
+                                                      });
+                                                    },
+                                                  );
+                                                } else {
+                                                  Navigator.of(context)
+                                                      .push(
+                                                    CupertinoPageRoute(
+                                                      builder: (context) => QuestionsGenerationLoadingScreen(
+                                                        lessonId: lesson.id,
+                                                        status: lesson.status,
+                                                      ),
+                                                    ),
+                                                  )
+                                                      .then(
+                                                    (value) {
+                                                      setState(() {
+                                                        _fetchLearningPath = _fetchLearningPathFuture();
+                                                      });
+                                                    },
+                                                  );
+                                                }
+                                              },
+                                              subtitle: Text(
+                                                "${lesson.questions} questions • ${(lesson.questions == 0 ? 1 : lesson.questions!) * 4} xp",
+                                                style: TextStyle(
+                                                  color: Theme.of(context).textTheme.titleSmall!.color,
                                                 ),
-                                                onTap: () {
-                                                  if (lesson.status == QuestionsStatus.generated) {
-                                                    Navigator.of(context)
-                                                        .push(
-                                                      CupertinoPageRoute(
-                                                        builder: (context) => QuestionsScreen(
-                                                          lessonId: lesson.id,
-                                                        ),
-                                                      ),
-                                                    )
-                                                        .then(
-                                                      (value) {
-                                                        setState(() {
-                                                          _fetchLearningPath = _fetchLearningPathFuture();
-                                                        });
-                                                      },
-                                                    );
-                                                  } else {
-                                                    Navigator.of(context)
-                                                        .push(
-                                                      CupertinoPageRoute(
-                                                        builder: (context) => QuestionsGenerationLoadingScreen(
-                                                          lessonId: lesson.id,
-                                                          status: lesson.status,
-                                                        ),
-                                                      ),
-                                                    )
-                                                        .then(
-                                                      (value) {
-                                                        setState(() {
-                                                          _fetchLearningPath = _fetchLearningPathFuture();
-                                                        });
-                                                      },
-                                                    );
-                                                  }
-                                                },
-                                                subtitle: Text(
-                                                  "${lesson.questions} questions • ${(lesson.questions == 0 ? 1 : lesson.questions!) * 4} xp",
-                                                  style: TextStyle(
-                                                    color: Theme.of(context).textTheme.titleSmall!.color,
-                                                  ),
+                                              ),
+                                              leading: CircularProgressAnimated(
+                                                currentItems: lesson.questions!.toDouble(),
+                                                maxItems: lesson.questions!.toDouble(),
+                                              ),
+                                              tileColor: SECONDARY_BG_COLOR,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(BASE_MARGIN * 2),
+                                              ),
+                                              enabled: true,
+                                              trailing: SizedBox(
+                                                width: 40,
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.end,
+                                                  children: [
+                                                    Image.asset(
+                                                      "assets/images/emerald.png",
+                                                      width: 25,
+                                                      height: 25,
+                                                    ),
+                                                    const SizedBox(
+                                                      width: BASE_MARGIN * 1,
+                                                    ),
+                                                    Text(
+                                                      "1",
+                                                      style: Theme.of(context).textTheme.titleSmall,
+                                                    ),
+                                                  ],
                                                 ),
-                                                leading: CircularProgressAnimated(
-                                                  currentItems: lesson.questions!.toDouble(),
-                                                  maxItems: lesson.questions!.toDouble(),
-                                                ),
-                                                trailing: SizedBox(
-                                                  width: 40,
-                                                  child: Row(
-                                                    mainAxisAlignment: MainAxisAlignment.end,
-                                                    children: [
-                                                      Image.asset(
-                                                        "assets/images/emerald.png",
-                                                        width: 25,
-                                                        height: 25,
-                                                      ),
-                                                      const SizedBox(
-                                                        width: BASE_MARGIN * 1,
-                                                      ),
-                                                      Text(
-                                                        "1",
-                                                        style: Theme.of(context).textTheme.titleSmall,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                            shrinkWrap: true,
-                                            itemCount: module.lessons.length,
-                                          )
-                                        ],
-                                      ),
+                                              ),
+                                            );
+                                          },
+                                          shrinkWrap: true,
+                                          itemCount: module.lessons.length,
+                                        )
+                                      ],
                                     ),
                                   );
                                 },

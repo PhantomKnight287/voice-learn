@@ -12,6 +12,7 @@ abstract class UserEvent extends UserModel {
     super.email,
     required super.emeralds,
     required super.lives,
+    required super.xp,
   });
 }
 
@@ -26,6 +27,7 @@ class UserLoggedInEvent extends UserEvent {
     required super.updatedAt,
     required super.emeralds,
     required super.lives,
+    required super.xp,
   });
 }
 
@@ -39,5 +41,20 @@ class UserLoggedOutEvent extends UserEvent {
     required super.token,
     required super.emeralds,
     required super.lives,
+    required super.xp,
+  });
+}
+
+class DecreaseUserHeartEvent extends UserEvent {
+  DecreaseUserHeartEvent({
+    required super.id,
+    required super.name,
+    required super.createdAt,
+    required super.paths,
+    required super.updatedAt,
+    required super.token,
+    required super.emeralds,
+    required super.lives,
+    required super.xp,
   });
 }

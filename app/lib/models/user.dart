@@ -8,6 +8,7 @@ class UserModel {
   final String token;
   final int lives;
   final int emeralds;
+  final double xp;
 
   UserModel({
     required this.id,
@@ -19,6 +20,7 @@ class UserModel {
     required this.token,
     required this.lives,
     required this.emeralds,
+    required this.xp,
   });
 
   factory UserModel.fromJSON(Map<String, dynamic> json, String token) {
@@ -32,6 +34,7 @@ class UserModel {
       token: token,
       lives: json['lives'],
       emeralds: json['emeralds'],
+      xp: json['xp'].toDouble(),
     );
   }
 

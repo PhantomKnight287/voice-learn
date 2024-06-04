@@ -12,6 +12,7 @@ abstract class UserState extends UserModel {
     super.email,
     required super.emeralds,
     required super.lives,
+    required super.xp,
   });
 }
 
@@ -26,6 +27,7 @@ class UserInitial extends UserState {
     super.email,
     required super.emeralds,
     required super.lives,
+    required super.xp,
   });
 }
 
@@ -40,6 +42,7 @@ class UserLoggedInState extends UserState {
     super.email,
     required super.emeralds,
     required super.lives,
+    required super.xp,
   });
 }
 
@@ -54,5 +57,6 @@ class UserLoggedOutState extends UserState {
     super.email = '',
     super.emeralds = -1,
     super.lives = -1,
+    super.xp = -1,
   });
 }
