@@ -63,4 +63,50 @@ export class LessonsService {
       };
     }
   }
+
+  async getLessonCompletionStats(questionId: string, userId: string) {
+    const lesson = await prisma.lesson.findFirst({
+      where: {
+        OR: [
+          {
+            questions: {
+              some: {
+                id: questionId,
+              },
+            },
+          },
+          {
+            id: questionId,
+          },
+        ],
+        module: {
+          learningPath: {
+            userId,
+          },
+        },
+      },
+      include: {
+        questions: {
+          include: {
+            answers: {
+              select: {
+                type: true,
+                answer: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!lesson)
+      throw new HttpException('No lesson found', HttpStatus.NOT_FOUND);
+    return {
+      correctAnswers: lesson.correctAnswers,
+      incorrectAnswers: lesson.incorrectAnswers,
+      xpEarned: lesson.correctAnswers * 4,
+      emeraldsEarned: 1,
+      startDate: lesson.startDate,
+      endDate: lesson.endDate,
+    };
+  }
 }

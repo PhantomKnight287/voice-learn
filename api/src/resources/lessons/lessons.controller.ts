@@ -54,4 +54,11 @@ export class LessonsController {
   generateQuestions(@Auth() user: User, @Param('id') id: string) {
     return this.lessonsService.generateLessonQuestions(id, user.id);
   }
+
+  @ApiOperation({})
+  @ApiParam({ name: 'id', description: 'The id of question/lesson' })
+  @Get(':id/stats')
+  getLessonStats(@Auth() user: User, @Param('id') id: string) {
+    return this.lessonsService.getLessonCompletionStats(id, user.id);
+  }
 }

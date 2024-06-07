@@ -1,8 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { createId } from '@paralleldrive/cuid2';
 import { prisma } from 'src/db';
-import { removePunctuation } from 'src/uitls/string';
-import { CreateAnswerDTO } from './answer.dto';
+import { removePunctuation } from 'src/utils/string';
+import { CreateAnswerDTO } from './dto/answer.dto';
+import moment from 'moment';
 
 @Injectable()
 export class QuestionsService {
@@ -55,14 +56,8 @@ export class QuestionsService {
     if (!question)
       throw new HttpException('No question found.', HttpStatus.NOT_FOUND);
     const correct =
-      removePunctuation(body.answer).toLowerCase() ===
-      removePunctuation(question.correctAnswer).toLowerCase();
-
-    console.log({
-      correct,
-      answer: removePunctuation(body.answer).toLowerCase(),
-      actual: removePunctuation(question.correctAnswer).toLowerCase(),
-    });
+      removePunctuation(body.answer.trim()).toLowerCase() ===
+      removePunctuation(question.correctAnswer.trim()).toLowerCase();
 
     let questions = 0;
     if (body.last) {
@@ -79,8 +74,7 @@ export class QuestionsService {
         },
       });
       // subracting 1 as user is submitting the last answer in this req
-      console.log({ answers });
-      if (questions != answers - 1) {
+      if (questions - 1 != answers) {
         throw new HttpException(
           "Not all questions are answered but 'last' is set to true",
           HttpStatus.CONFLICT,
@@ -95,19 +89,87 @@ export class QuestionsService {
         },
       });
     }
-    console.log({ questions });
+    const existingAnswer = await prisma.answer.findFirst({
+      where: { questionId, userId },
+    });
     const user = await prisma.$transaction(async (tx) => {
-      await tx.answer.create({
-        data: {
-          id: `answer_${createId()}`,
-          type: correct ? 'correct' : 'incorrect',
-          userId,
-          questionId,
-        },
-      });
+      if (existingAnswer) {
+        await tx.answer.update({
+          where: {
+            id: existingAnswer.id,
+          },
+          data: {
+            type: correct ? 'correct' : 'incorrect',
+            answer: body.answer,
+            question: {
+              update: {
+                lesson: {
+                  update: {
+                    correctAnswers: { increment: correct ? 1 : 0 },
+                    incorrectAnswers: { increment: !correct ? 1 : 0 },
+                    completed: body.last,
+                    startDate: new Date(body.startDate),
+                    endDate: new Date(body.endDate),
+                  },
+                },
+              },
+            },
+          },
+        });
+      } else {
+        await tx.answer.create({
+          data: {
+            id: `answer_${createId()}`,
+            type: correct ? 'correct' : 'incorrect',
+            userId,
+            questionId,
+            answer: body.answer,
+          },
+        });
+        await tx.lesson.update({
+          where: { id: question.lessonId },
+          data: {
+            correctAnswers: { increment: correct ? 1 : 0 },
+            incorrectAnswers: { increment: !correct ? 1 : 0 },
+            completed: body.last,
+            startDate: new Date(body.startDate),
+            endDate: new Date(body.endDate),
+          },
+        });
+      }
       if (body.last && correct) {
         questions += 1;
+        const currentDateInGMT = moment().utc().startOf('day').toDate();
+        const nextDateInGMT = moment()
+          .utc()
+          .add(1, 'day')
+          .startOf('day')
+          .toDate();
+        const existingStreak = await tx.streak.findFirst({
+          where: {
+            userId,
+            createdAt: {
+              gte: currentDateInGMT,
+              lt: nextDateInGMT,
+            },
+          },
+        });
+        if (!existingStreak)
+          await tx.user.update({
+            where: { id: userId },
+            data: {
+              activeStreaks: {
+                increment: 1,
+              },
+              streaks: {
+                create: {
+                  id: `streak_${createId()}`,
+                },
+              },
+            },
+          });
       }
+
       return await tx.user.update({
         where: { id: userId },
         data: {
@@ -123,12 +185,34 @@ export class QuestionsService {
         },
       });
     });
+    let isStreakActive = false;
+    if (body.last) {
+      const currentDateInGMT = moment().utc().startOf('day').toDate(); // Start of the current day in GMT
+      const nextDateInGMT = moment()
+        .utc()
+        .add(1, 'day')
+        .startOf('day')
+        .toDate(); // Start of the next day in GMT
+
+      const streak = await prisma.streak.findFirst({
+        where: {
+          createdAt: {
+            gte: currentDateInGMT,
+            lt: nextDateInGMT,
+          },
+          userId: user.id,
+        },
+      });
+      isStreakActive = streak ? true : false;
+    }
     return {
       id: questionId,
       correct,
       xp: user.xp,
       emeralds: user.emeralds,
       lives: user.lives,
+      streaks: user.activeStreaks,
+      isStreakActive,
     };
   }
 }

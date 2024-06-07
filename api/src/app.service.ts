@@ -17,6 +17,7 @@ export class AppService {
     protected readonly queueService: QueueService,
   ) {
     this.saveFlags();
+   
   }
   async getHello() {
     for (let i = 0; i < 20; i++) {

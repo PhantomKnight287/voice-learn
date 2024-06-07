@@ -21,6 +21,8 @@ import { OnboardingQueueConsumer } from './consumers/onboarding.consumer';
 import { LessonsModule } from './resources/lessons/lessons.module';
 import { QuestionsModule } from './resources/questions/questions.module';
 import { LivesModule } from './resources/lives/lives.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CronService } from './services/cron/cron.service';
 
 @Module({
   imports: [
@@ -44,6 +46,7 @@ import { LivesModule } from './resources/lives/lives.module';
       maxListeners: 10,
       ignoreErrors: false,
     }),
+    ScheduleModule.forRoot(),
     EventsModule,
     LessonsModule,
     QuestionsModule,
@@ -56,6 +59,7 @@ import { LivesModule } from './resources/lives/lives.module';
     GeminiService,
     QueueService,
     OnboardingQueueConsumer,
+    CronService,
   ],
   exports: [S3Service],
 })

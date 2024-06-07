@@ -85,6 +85,9 @@ export class OnboardingService {
                 description: true,
                 questionsCount: true,
                 questionsStatus: true,
+                incorrectAnswers: true,
+                completed: true,
+                correctAnswers: true,
               },
               orderBy: [
                 {

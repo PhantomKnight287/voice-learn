@@ -33,7 +33,7 @@ GET {{url}}/onboarding
 
 
 ### 
-POST {{url}}/onboarding
+GET {{url}}/onboarding
 Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzZXJfeGdjNWFvYWx2ajVub2RiZDQwb2d6aXJjIiwiaWF0IjoxNzE3MTQyODc1fQ.UA8aGsG7EdI3T_yZrIl1mbsYKzLxkjzOcWlTNXPMsp4
 Content-Type: application/json
 
@@ -42,4 +42,9 @@ Content-Type: application/json
 
 ###
 GET {{url}}/questions/lesson_usjunjz9bi0q4fbf79dkz6x0
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzZXJfeGdjNWFvYWx2ajVub2RiZDQwb2d6aXJjIiwiaWF0IjoxNzE3MTQyODc1fQ.UA8aGsG7EdI3T_yZrIl1mbsYKzLxkjzOcWlTNXPMsp4
+
+
+###
+GET {{url}}/lessons/question_h3zw093rxvt95aq0qdjt5mzx/stats
 Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzZXJfeGdjNWFvYWx2ajVub2RiZDQwb2d6aXJjIiwiaWF0IjoxNzE3MTQyODc1fQ.UA8aGsG7EdI3T_yZrIl1mbsYKzLxkjzOcWlTNXPMsp4

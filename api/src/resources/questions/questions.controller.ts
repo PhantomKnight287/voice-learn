@@ -10,7 +10,7 @@ import {
 } from '@nestjs/swagger';
 import { Auth } from 'src/decorators/auth/auth.decorator';
 import { User } from '@prisma/client';
-import { CreateAnswerDTO } from './answer.dto';
+import { CreateAnswerDTO } from './dto/answer.dto';
 
 @Controller('questions')
 @ApiTags('Questions')

@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { SignupDTO } from './dto/signup.dto';
 import { createId } from '@paralleldrive/cuid2';
 import { prisma } from 'src/db';
+import moment from 'moment';
 
 @Injectable()
 export class AuthService {
@@ -96,6 +97,22 @@ export class AuthService {
       });
       if (!user)
         throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+      const currentDateInGMT = moment().utc().startOf('day').toDate(); // Start of the current day in GMT
+      const nextDateInGMT = moment()
+        .utc()
+        .add(1, 'day')
+        .startOf('day')
+        .toDate(); // Start of the next day in GMT
+
+      const streak = await prisma.streak.findFirst({
+        where: {
+          createdAt: {
+            gte: currentDateInGMT,
+            lt: nextDateInGMT,
+          },
+          userId: user.id,
+        },
+      });
       const path = await prisma.learningPath.findFirst({
         where: { userId: user.id },
         select: {
@@ -103,7 +120,7 @@ export class AuthService {
           id: true,
         },
       });
-      return { ...user, path };
+      return { ...user, path, isStreakActive: streak ? true : false };
     } catch (e) {
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
