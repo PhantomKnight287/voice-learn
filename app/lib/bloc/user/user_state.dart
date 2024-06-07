@@ -13,6 +13,8 @@ abstract class UserState extends UserModel {
     required super.emeralds,
     required super.lives,
     required super.xp,
+    required super.streaks,
+    super.isStreakActive,
   });
 }
 
@@ -28,6 +30,8 @@ class UserInitial extends UserState {
     required super.emeralds,
     required super.lives,
     required super.xp,
+    required super.streaks,
+    super.isStreakActive,
   });
 }
 
@@ -43,6 +47,8 @@ class UserLoggedInState extends UserState {
     required super.emeralds,
     required super.lives,
     required super.xp,
+    required super.streaks,
+    super.isStreakActive,
   });
 }
 
@@ -58,5 +64,7 @@ class UserLoggedOutState extends UserState {
     super.emeralds = -1,
     super.lives = -1,
     super.xp = -1,
+    super.streaks = -1,
+    super.isStreakActive = false,
   });
 }

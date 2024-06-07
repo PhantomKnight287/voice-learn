@@ -55,11 +55,9 @@ class _QuestionsGenerationLoadingScreenState extends State<QuestionsGenerationLo
           } else {
             Navigator.of(context).pushReplacement(
               CupertinoPageRoute(
-                builder: (context) {
-                  return QuestionsScreen(
-                    lessonId: widget.lessonId,
-                  );
-                },
+                builder: (context) => QuestionsScreen(
+                  lessonId: widget.lessonId,
+                ),
               ),
             );
           }

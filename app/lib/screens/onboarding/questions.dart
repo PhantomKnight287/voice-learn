@@ -275,6 +275,7 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                         return const Center(child: Text('No languages found.'));
                       } else {
                         final languages = snapshot.data!;
+
                         return Expanded(
                           child: ListView.separated(
                             separatorBuilder: (context, index) {
@@ -309,8 +310,8 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                                 ),
                                 title: Text(
                                   language.name,
-                                  style: TextStyle(
-                                    color: Theme.of(context).textTheme.titleSmall!.color,
+                                  style: const TextStyle(
+                                    color: Colors.black,
                                     fontSize: 20,
                                   ),
                                 ),
@@ -364,8 +365,8 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                         ListTile(
                           title: Text(
                             item.message,
-                            style: TextStyle(
-                              color: Theme.of(context).textTheme.titleSmall!.color,
+                            style: const TextStyle(
+                              color: Colors.black,
                               fontSize: 20,
                             ),
                           ),
@@ -408,8 +409,8 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                         ListTile(
                           title: Text(
                             item.reason,
-                            style: TextStyle(
-                              color: Theme.of(context).textTheme.titleSmall!.color,
+                            style: const TextStyle(
+                              color: Colors.black,
                               fontSize: 20,
                             ),
                           ),
@@ -456,8 +457,8 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                         ListTile(
                           title: Text(
                             item.reason,
-                            style: TextStyle(
-                              color: Theme.of(context).textTheme.titleSmall!.color,
+                            style: const TextStyle(
+                              color: Colors.black,
                               fontSize: 20,
                             ),
                           ),

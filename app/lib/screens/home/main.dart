@@ -1,21 +1,27 @@
 import 'dart:convert';
 
 import 'package:app/bloc/user/user_bloc.dart';
+import 'package:app/components/bottom_bar.dart';
 import 'package:app/components/circular_progress.dart';
 import 'package:app/constants/main.dart';
+import 'package:app/main.dart';
 import 'package:app/models/learning_path.dart';
 import 'package:app/models/lesson.dart';
 import 'package:app/screens/loading/questions.dart';
+import 'package:app/screens/profile/main.dart';
+import 'package:app/screens/questions/complete.dart';
 import 'package:app/screens/questions/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:heroicons/heroicons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:async_builder/async_builder.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -24,7 +30,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with RouteAware {
   int _currentIndex = 0;
 
   late Future<LearningPath> _fetchLearningPath;
@@ -34,6 +40,29 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
 
     _fetchLearningPath = _fetchLearningPathFuture();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(
+      this,
+      ModalRoute.of(context)!,
+    );
+  }
+
+  @override
+  void didPopNext() {
+    print("popped");
+    setState(() {
+      _fetchLearningPath = _fetchLearningPathFuture();
+    });
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
   }
 
   Future<LearningPath> _fetchLearningPathFuture() async {
@@ -51,6 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final userBloc = context.read<UserBloc>();
+
     return AsyncBuilder<LearningPath>(
         future: _fetchLearningPath,
         waiting: (context) => Scaffold(
@@ -134,6 +164,19 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
         builder: (context, value) {
           final data = value!;
+          if (_currentIndex == 3) {
+            return Scaffold(
+              body: const ProfileScreen(),
+              bottomNavigationBar: BottomBar(
+                currentIndex: _currentIndex,
+                onPress: (index) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                },
+              ),
+            );
+          }
           return Stack(
             children: [
               Scaffold(
@@ -167,13 +210,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               icon: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(
-                                    Icons.bolt,
+                                  HeroIcon(
+                                    HeroIcons.bolt,
                                     color: PRIMARY_COLOR,
                                     size: 30,
+                                    style: state.isStreakActive ? HeroIconStyle.solid : HeroIconStyle.outline,
                                   ),
                                   Text(
-                                    state.lives.toString(),
+                                    state.streaks.toString(),
                                     style: Theme.of(context).textTheme.titleSmall,
                                   ),
                                 ],
@@ -233,47 +277,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   //   )
                   // ],
                 ),
-                bottomNavigationBar: BottomNavigationBar(
+                bottomNavigationBar: BottomBar(
                   currentIndex: _currentIndex,
-                  onTap: (value) => {
+                  onPress: (index) {
                     setState(() {
-                      _currentIndex = value;
-                    })
+                      _currentIndex = index;
+                    });
                   },
-                  selectedItemColor: PRIMARY_COLOR,
-                  type: BottomNavigationBarType.fixed,
-                  selectedLabelStyle: const TextStyle(
-                    color: Colors.black,
-                  ),
-                  unselectedLabelStyle: const TextStyle(
-                    color: Colors.black,
-                  ),
-                  items: const [
-                    BottomNavigationBarItem(
-                      icon: Icon(
-                        Icons.home_rounded,
-                      ),
-                      label: "Home",
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(
-                        Icons.leaderboard_rounded,
-                      ),
-                      label: "Leaderboard",
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(
-                        Icons.chat_rounded,
-                      ),
-                      label: "Chat",
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(
-                        Icons.person_rounded,
-                      ),
-                      label: "Profile",
-                    )
-                  ],
                 ),
                 body: SafeArea(
                   child: BlocBuilder<UserBloc, UserState>(
@@ -288,7 +298,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           final item = ListTile(
                             leading: CircularProgressAnimated(
                               maxItems: module.lessons.length.toDouble(),
-                              currentItems: 0,
+                              currentItems: module.lessons.where((lesson) => lesson.completed).length.toDouble(),
                             ),
                             onTap: () {
                               showModalBottomSheet(
@@ -345,37 +355,30 @@ class _HomeScreenState extends State<HomeScreen> {
                                               ),
                                               onTap: () {
                                                 if (lesson.status == QuestionsStatus.generated) {
-                                                  Navigator.of(context)
-                                                      .push(
-                                                    CupertinoPageRoute(
-                                                      builder: (context) => QuestionsScreen(
-                                                        lessonId: lesson.id,
-                                                      ),
-                                                    ),
-                                                  )
-                                                      .then(
-                                                    (value) {
-                                                      setState(() {
-                                                        _fetchLearningPath = _fetchLearningPathFuture();
-                                                      });
-                                                    },
+                                                  Navigator.pop(context);
+                                                  Navigator.of(context).push(
+                                                    lesson.completed
+                                                        ? CupertinoPageRoute(
+                                                            builder: (context) => LessonCompleteScreen(
+                                                              questionId: lesson.id,
+                                                              showAd: false,
+                                                            ),
+                                                          )
+                                                        : CupertinoPageRoute(
+                                                            builder: (context) => QuestionsScreen(
+                                                              lessonId: lesson.id,
+                                                            ),
+                                                          ),
                                                   );
                                                 } else {
-                                                  Navigator.of(context)
-                                                      .push(
+                                                  Navigator.pop(context);
+                                                  Navigator.of(context).push(
                                                     CupertinoPageRoute(
                                                       builder: (context) => QuestionsGenerationLoadingScreen(
                                                         lessonId: lesson.id,
                                                         status: lesson.status,
                                                       ),
                                                     ),
-                                                  )
-                                                      .then(
-                                                    (value) {
-                                                      setState(() {
-                                                        _fetchLearningPath = _fetchLearningPathFuture();
-                                                      });
-                                                    },
                                                   );
                                                 }
                                               },
@@ -386,8 +389,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 ),
                                               ),
                                               leading: CircularProgressAnimated(
-                                                currentItems: lesson.questions!.toDouble(),
+                                                currentItems: lesson.correctAnswers.toDouble(),
                                                 maxItems: lesson.questions!.toDouble(),
+                                                bgColor: lesson.questions!.toDouble() > lesson.incorrectAnswers.toDouble() && lesson.correctAnswers.toDouble() > 1 ? Colors.red : null,
                                               ),
                                               tileColor: SECONDARY_BG_COLOR,
                                               shape: RoundedRectangleBorder(
@@ -451,6 +455,43 @@ class _HomeScreenState extends State<HomeScreen> {
                                   height: BASE_MARGIN * 2,
                                 ),
                                 item
+                              ],
+                            );
+                          }
+                          if (index == data.modules.length - 1) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                item,
+                                const SizedBox(
+                                  height: BASE_MARGIN * 2,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(
+                                    BASE_MARGIN * 4,
+                                  ),
+                                  child: ElevatedButton(
+                                    onPressed: () {},
+                                    style: ButtonStyle(
+                                      alignment: Alignment.center,
+                                      foregroundColor: WidgetStateProperty.all(Colors.black),
+                                      backgroundColor: WidgetStateProperty.all(SECONDARY_BG_COLOR),
+                                      padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
+                                        (Set<WidgetState> states) {
+                                          return const EdgeInsets.all(15);
+                                        },
+                                      ),
+                                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                                        RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      "Generate more",
+                                    ),
+                                  ),
+                                ),
                               ],
                             );
                           }

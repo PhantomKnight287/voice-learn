@@ -18,6 +18,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
             emeralds: -1,
             lives: -1,
             xp: -1,
+            streaks: -1,
+            isStreakActive: false,
           ),
         ) {
     on<UserLoggedInEvent>((event, emit) {
@@ -33,6 +35,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           emeralds: event.emeralds,
           lives: event.lives,
           xp: event.xp,
+          streaks: event.streaks,
+          isStreakActive: event.isStreakActive,
         ),
       );
     });
@@ -54,6 +58,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           token: event.token,
           updatedAt: event.updatedAt,
           xp: event.xp,
+          streaks: event.streaks,
+          isStreakActive: event.isStreakActive,
         ),
       );
     });

@@ -104,6 +104,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             emeralds: response.user.emeralds,
             lives: response.user.lives,
             xp: response.user.xp,
+            streaks: response.user.streaks,
           ),
         );
     Navigator.of(context).pushReplacement(

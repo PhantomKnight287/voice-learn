@@ -5,11 +5,13 @@ class CircularProgressAnimated extends StatefulWidget {
   final double maxItems;
   final double currentItems;
   final Color? color;
+  final Color? bgColor;
   const CircularProgressAnimated({
     super.key,
     required this.maxItems,
     required this.currentItems,
     this.color,
+    this.bgColor,
   });
 
   @override
@@ -23,6 +25,7 @@ class _CircularProgressAnimatedState extends State<CircularProgressAnimated> wit
   @override
   void initState() {
     super.initState();
+
     controller = AnimationController(
       vsync: this,
       duration: const Duration(
@@ -58,7 +61,7 @@ class _CircularProgressAnimatedState extends State<CircularProgressAnimated> wit
                 child: CircularProgressIndicator(
                   value: animation.value / widget.maxItems,
                   strokeWidth: 3,
-                  backgroundColor: Colors.grey.shade300,
+                  backgroundColor: widget.bgColor ?? Colors.grey.shade300,
                   color: widget.color ?? Colors.green.shade500,
                 ),
               ),

@@ -13,6 +13,8 @@ abstract class UserEvent extends UserModel {
     required super.emeralds,
     required super.lives,
     required super.xp,
+    required super.streaks,
+    super.isStreakActive,
   });
 }
 
@@ -28,6 +30,8 @@ class UserLoggedInEvent extends UserEvent {
     required super.emeralds,
     required super.lives,
     required super.xp,
+    required super.streaks,
+    super.isStreakActive,
   });
 }
 
@@ -42,6 +46,8 @@ class UserLoggedOutEvent extends UserEvent {
     required super.emeralds,
     required super.lives,
     required super.xp,
+    required super.streaks,
+    super.isStreakActive,
   });
 }
 
@@ -55,6 +61,8 @@ class DecreaseUserHeartEvent extends UserEvent {
     required super.token,
     required super.emeralds,
     required super.lives,
+    required super.streaks,
     required super.xp,
+    super.isStreakActive,
   });
 }

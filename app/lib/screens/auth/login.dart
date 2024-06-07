@@ -98,6 +98,8 @@ class _LoginScreenState extends State<LoginScreen> {
             emeralds: response.user.emeralds,
             lives: response.user.lives,
             xp: response.user.xp,
+            streaks: response.user.streaks,
+            isStreakActive: response.user.isStreakActive,
           ),
         );
     Navigator.of(context).pushReplacement(

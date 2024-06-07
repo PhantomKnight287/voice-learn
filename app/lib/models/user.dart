@@ -9,6 +9,8 @@ class UserModel {
   final int lives;
   final int emeralds;
   final double xp;
+  final int streaks;
+  final bool isStreakActive;
 
   UserModel({
     required this.id,
@@ -21,6 +23,8 @@ class UserModel {
     required this.lives,
     required this.emeralds,
     required this.xp,
+    required this.streaks,
+    this.isStreakActive = false,
   });
 
   factory UserModel.fromJSON(Map<String, dynamic> json, String token) {
@@ -35,6 +39,8 @@ class UserModel {
       lives: json['lives'],
       emeralds: json['emeralds'],
       xp: json['xp'].toDouble(),
+      streaks: json['activeStreaks'],
+      isStreakActive: json['isStreakActive'] ?? false,
     );
   }
 

@@ -1,3 +1,5 @@
+import 'package:app/models/answer.dart';
+
 enum QuestionType { select_one, sentence }
 
 class QuestionQuestion {
@@ -24,6 +26,7 @@ class Question {
   final List<QuestionQuestion> question;
   final QuestionType type;
   final List<String> options;
+  final Answer? answer;
 
   const Question({
     required this.id,
@@ -34,10 +37,13 @@ class Question {
     required this.question,
     required this.type,
     required this.options,
+    this.answer,
   });
 
   factory Question.toJSON(Map<String, dynamic> json) {
     List<QuestionQuestion> questionArray = (json['question'] as List).map((q) => QuestionQuestion.toJSON(q)).toList();
+    Answer? answer = (json['answers'] != null && json['answers'].length > 0) ? Answer.fromJSON(json['answers'][0]) : null;
+
     return Question(
       id: json['id'],
       instruction: json['instruction'],
@@ -47,6 +53,7 @@ class Question {
       lessonId: json['lessonId'],
       type: json['type'] == "select_one" ? QuestionType.select_one : QuestionType.sentence,
       options: (json['options'] as List).map((item) => item as String).toList(),
+      answer: answer,
     );
   }
 }

@@ -34,3 +34,19 @@ String removePunctuation(String input) {
   // Use the replaceAll method to remove all matched characters
   return input.replaceAll(punctuation, '');
 }
+
+String calculateTimeDifference(String isoString1, String isoString2) {
+  // Parse the ISO strings into DateTime objects
+  DateTime dateTime1 = DateTime.parse(isoString1);
+  DateTime dateTime2 = DateTime.parse(isoString2);
+
+  // Calculate the difference between the two DateTime objects
+  Duration difference = dateTime2.difference(dateTime1);
+
+  // Extract minutes and seconds from the Duration object
+  int minutes = difference.inMinutes;
+  int seconds = difference.inSeconds.remainder(60);
+
+  // Return the time difference as a formatted string
+  return '$minutes:$seconds';
+}
