@@ -24,8 +24,39 @@ model User {
   emeralds Int @default(100)
   xp       Int @default(0)
 
-  paths   LearningPath[]
-  answers Answer[]
+  paths              LearningPath[]
+  answers            Answer[]
+  streaks            Streak[]
+  generationRequests GenerationRequest[]
+
+  /// the current active streaks, will increase or reset based on completing a lesson
+  activeStreaks Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model GenerationRequest {
+  id String @id @unique
+
+  type GenerationRequestType
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum GenerationRequestType {
+  learning_path
+}
+
+model Streak {
+  id String @id @unique
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -86,9 +117,14 @@ model Lesson {
   module   Module? @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   moduleId String?
 
-  questions       Question[]
-  questionsCount  Int             @default(0)
-  questionsStatus QuestionsStatus @default(not_generated)
+  questions        Question[]
+  questionsCount   Int             @default(0)
+  questionsStatus  QuestionsStatus @default(not_generated)
+  correctAnswers   Int             @default(0)
+  incorrectAnswers Int             @default(0)
+  completed        Boolean         @default(false)
+  startDate        DateTime?
+  endDate          DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -124,7 +160,8 @@ model Question {
 model Answer {
   id String @id @unique
 
-  type AnswerType
+  type   AnswerType
+  answer String?
 
   question   Question? @relation(fields: [questionId], references: [id])
   questionId String?
@@ -159,6 +196,9 @@ model Language {
 
   /// flag url expire time
   flagUrlExpireTimestamp DateTime
+
+  ///flag file key
+  key String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
