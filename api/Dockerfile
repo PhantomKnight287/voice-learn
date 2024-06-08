@@ -2,7 +2,7 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-ENV DATABASE_URL=postgres://postgres:postgres@voice_learn_postgres/postgres
+ENV DATABASE_URL=postgres://postgres:postgres@voice-learn-postgres/postgres
 
 COPY package.json pnpm-lock.yaml ./prisma ./
 

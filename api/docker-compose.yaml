@@ -14,7 +14,7 @@ services:
 
   postgres:
     image: postgres:latest
-    container_name: voice_learn_postgres
+    container_name: voice-learn-postgres
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
