@@ -8,6 +8,7 @@ services:
     ports:
       - 5000:5000
     restart: always
+    container_name: voice_learn_backend
 
   postgres:
     image: postgres:latest
