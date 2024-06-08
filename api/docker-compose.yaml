@@ -11,7 +11,10 @@ services:
     container_name: voice-learn-backend
     networks:
       - config-manager_proxy
+    depends_on:
+      - postgres
 
+      
   postgres:
     image: postgres:latest
     container_name: voice-learn-postgres
