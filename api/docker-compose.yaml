@@ -9,6 +9,8 @@ services:
       - 5000:5000
     restart: always
     container_name: voice-learn-backend
+    networks:
+      - config-manager_proxy
 
   postgres:
     image: postgres:latest
