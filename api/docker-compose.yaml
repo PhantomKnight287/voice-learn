@@ -5,8 +5,6 @@ services:
       dockerfile: Dockerfile
     env_file:
       - .env
-    environment:
-      - DATABASE_URL=postgres://postgres:postgres@voice_learn_postgres/postgres
     ports:
       - 5000:5000
     restart: always
@@ -18,7 +16,17 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 networks:
   config-manager_proxy:
     external: true
+  postgres_data:

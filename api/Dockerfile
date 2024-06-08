@@ -1,10 +1,6 @@
 # Stage 1: Build
 FROM node:20-alpine AS builder
 
-ARG DATABASE_URL
-
-ENV DATABASE_URL=${DATABASE_URL}
-
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 
