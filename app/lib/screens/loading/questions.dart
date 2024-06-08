@@ -1,13 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/lesson.dart';
+import 'package:app/screens/home/main.dart';
 import 'package:app/screens/questions/main.dart';
 import 'package:app/utils/error.dart';
 import 'package:app/utils/string.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -53,6 +56,27 @@ class _QuestionsGenerationLoadingScreenState extends State<QuestionsGenerationLo
               });
             }
           } else {
+            final userState = context.read<UserBloc>().state;
+            if (userState.lives < 1) {
+              toastification.show(
+                type: ToastificationType.warning,
+                style: ToastificationStyle.minimal,
+                autoCloseDuration: const Duration(seconds: 5),
+                title: const Text("Not enough lives"),
+                description: const Text(
+                  "You don't have enough lives.",
+                ),
+                alignment: Alignment.topCenter,
+                showProgressBar: false,
+              );
+              Navigator.of(context).pushReplacement(
+                CupertinoPageRoute(
+                  builder: (context) => const HomeScreen(),
+                ),
+              );
+              return;
+            }
+
             Navigator.of(context).pushReplacement(
               CupertinoPageRoute(
                 builder: (context) => QuestionsScreen(

@@ -248,6 +248,8 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
         ),
       );
       final body = jsonDecode(req.body);
+      print(body);
+
       if (req.statusCode == 201) {
         userBloc.add(
           DecreaseUserHeartEvent(
@@ -264,9 +266,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
             isStreakActive: body['isStreakActive'] ?? state.isStreakActive,
           ),
         );
-      } else {
-        print(body);
-      }
+      } else {}
     } catch (e) {
       debugPrint(e.toString());
     }

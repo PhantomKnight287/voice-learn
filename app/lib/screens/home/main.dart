@@ -7,6 +7,7 @@ import 'package:app/constants/main.dart';
 import 'package:app/main.dart';
 import 'package:app/models/learning_path.dart';
 import 'package:app/models/lesson.dart';
+import 'package:app/screens/generations/modules.dart';
 import 'package:app/screens/loading/questions.dart';
 import 'package:app/screens/profile/main.dart';
 import 'package:app/screens/questions/complete.dart';
@@ -21,7 +22,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:async_builder/async_builder.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:toastification/toastification.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -38,8 +39,23 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
   @override
   void initState() {
     super.initState();
-
+    _setUpPusher();
     _fetchLearningPath = _fetchLearningPathFuture();
+  }
+
+  Future<void> _setUpPusher() async {
+    await pusher.init(apiKey: PUSHER_API_KEY, cluster: PUSHER_CLUSTER);
+    await pusher.subscribe(
+        channelName: 'modules',
+        onEvent: (event) {
+          print("Events $event");
+          if (context.read<UserBloc>().state.id == event['data']) {
+            setState(() {
+              _fetchLearningPath = _fetchLearningPathFuture();
+            });
+          }
+        });
+    await pusher.connect();
   }
 
   @override
@@ -53,7 +69,6 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
 
   @override
   void didPopNext() {
-    print("popped");
     setState(() {
       _fetchLearningPath = _fetchLearningPathFuture();
     });
@@ -63,6 +78,9 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
   void dispose() {
     routeObserver.unsubscribe(this);
     super.dispose();
+    pusher.disconnect().then(
+          (value) {},
+        );
   }
 
   Future<LearningPath> _fetchLearningPathFuture() async {
@@ -216,6 +234,9 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                     size: 30,
                                     style: state.isStreakActive ? HeroIconStyle.solid : HeroIconStyle.outline,
                                   ),
+                                  const SizedBox(
+                                    width: BASE_MARGIN * 2,
+                                  ),
                                   Text(
                                     state.streaks.toString(),
                                     style: Theme.of(context).textTheme.titleSmall,
@@ -355,6 +376,21 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                               ),
                                               onTap: () {
                                                 if (lesson.status == QuestionsStatus.generated) {
+                                                  final userState = context.read<UserBloc>().state;
+                                                  if (userState.lives < 1 && lesson.completed == false) {
+                                                    toastification.show(
+                                                      type: ToastificationType.warning,
+                                                      style: ToastificationStyle.minimal,
+                                                      autoCloseDuration: const Duration(seconds: 5),
+                                                      title: const Text("Not enough lives"),
+                                                      description: const Text(
+                                                        "You don't have enough lives.",
+                                                      ),
+                                                      alignment: Alignment.topCenter,
+                                                      showProgressBar: false,
+                                                    );
+                                                    return;
+                                                  }
                                                   Navigator.pop(context);
                                                   Navigator.of(context).push(
                                                     lesson.completed
@@ -471,7 +507,15 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                     BASE_MARGIN * 4,
                                   ),
                                   child: ElevatedButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      Navigator.of(context).push(
+                                        CupertinoPageRoute(
+                                          builder: (context) {
+                                            return const GenerationsScreen();
+                                          },
+                                        ),
+                                      );
+                                    },
                                     style: ButtonStyle(
                                       alignment: Alignment.center,
                                       foregroundColor: WidgetStateProperty.all(Colors.black),

@@ -7,7 +7,6 @@ import 'package:app/screens/home/main.dart';
 import 'package:app/screens/loading/learning.dart';
 import 'package:app/screens/onboarding/main.dart';
 import 'package:app/screens/onboarding/questions.dart';
-import 'package:app/screens/questions/complete.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
