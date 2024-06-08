@@ -169,7 +169,7 @@ export class QuestionsService {
             },
           });
       }
-
+      const user = await tx.user.findFirst({ where: { id: userId } });
       return await tx.user.update({
         where: { id: userId },
         data: {
@@ -177,7 +177,7 @@ export class QuestionsService {
             increment: questions * 4,
           },
           lives: {
-            decrement: correct === false ? 1 : 0,
+            decrement: user.lives === 0 ? 0 : correct === false ? 1 : 0,
           },
           emeralds: {
             increment: body.last ? 1 : 0,

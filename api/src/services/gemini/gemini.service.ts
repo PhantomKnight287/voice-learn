@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { generateObject, generateText, streamObject, streamText } from 'ai';
 import { google } from '@ai-sdk/google';
 import { openai } from '@ai-sdk/openai';
+import { z } from 'zod';
 @Injectable()
 export class GeminiService {
   constructor(protected readonly configService: ConfigService) {}
@@ -28,7 +29,7 @@ export class GeminiService {
   async generateObject(
     props: Omit<Parameters<Awaited<typeof generateObject>>[0], 'model'>,
   ) {
-    return await generateObject({
+    return await generateObject<z.infer<typeof props.schema>>({
       ...props,
       model: google('models/gemini-1.5-pro-latest'),
     });

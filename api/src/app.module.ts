@@ -23,6 +23,8 @@ import { QuestionsModule } from './resources/questions/questions.module';
 import { LivesModule } from './resources/lives/lives.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronService } from './services/cron/cron.service';
+import { GenerationsModule } from './resources/generations/generations.module';
+import { ProfileModule } from './resources/profile/profile.module';
 
 @Module({
   imports: [
@@ -51,6 +53,8 @@ import { CronService } from './services/cron/cron.service';
     LessonsModule,
     QuestionsModule,
     LivesModule,
+    GenerationsModule,
+    ProfileModule,
   ],
   controllers: [AppController],
   providers: [

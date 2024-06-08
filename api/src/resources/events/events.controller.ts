@@ -4,11 +4,16 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { CreatePathEvent } from 'src/events';
 import { prisma } from 'src/db';
 import { GeminiService } from 'src/services/gemini/gemini.service';
-import { learning_path_schema, questions_schema } from 'src/schemas';
+import {
+  learning_path_schema,
+  modules_schema,
+  questions_schema,
+} from 'src/schemas';
 import { z } from 'zod';
 import { createId } from '@paralleldrive/cuid2';
 import { queue } from 'src/services/queue/queue.service';
 import { QueueItemObject } from 'src/types/queue';
+import { pusher } from 'src/constants';
 
 @Controller('events')
 export class EventsController {
@@ -40,7 +45,40 @@ export class EventsController {
           messages: [
             {
               role: 'system',
-              content: `Generate a JSON ARRAY structure for questions of ${lesson.module.learningPath.language.name} language learning program and for lesson with name ${lesson.name} and description ${lesson.description}. There must be ${lesson.questionsCount} questions. The "instruction" should be the instruction to student on how to solve the question(for example: Translate this sentence to English.), type must either be 'sentence' or 'select_one'. If type is 'select_one', the "options" array must not be empty. The "correctAnswer" should be the correct answer of the question and should not include any special characters including "...". The "question" can be an empty array if type is 'sentence' else it must be an array of objects of words in question. For example, if question is "Guten Tag" then the "question" array must be [{"word":"guten","translation":"good",},{"word":"tag","translation":"day"}]. Do not return excess whitespace, escape characters and punctuation in your response.`,
+              content: `Generate a JSON ARRAY structure for questions of ${lesson.module.learningPath.language.name} language learning program and for lesson with name ${lesson.name} and description ${lesson.description}. There must be ${lesson.questionsCount} questions. The "instruction" should be the instruction to student on how to solve the question(for example: Translate this sentence to English.), type must either be 'sentence' or 'select_one'. The "options" array must never be empty. The "correctAnswer" should be the correct answer of the question and should not include any special characters including "...". The "question" can be an empty array if type is 'sentence' else it must be an array of objects of words in question. For example, if question is "Guten Tag" then the "question" array must be [{"word":"guten","translation":"good",},{"word":"tag","translation":"day"}]. Do not return excess whitespace, escape characters and punctuation in your response.
+              
+              Below are examples of questions:
+
+                [
+              {
+                "instruction":"What is the meaning of given word in English.",
+                "options":["Good Morning","Good Evening", "Good Bye"],
+                "correctAnswer":"Good Morning",
+                "question":[
+                  {
+                    "word":"Guten","translation":"Good",
+                  },
+                  {
+                    "word":"Morgen","translation":"Morning"
+                  }
+                ]
+              },
+              {
+              "instruction":"Translate the given word in German.",
+                "options":["zwei","eins", "drei"],
+                "correctAnswer":"drei",
+                "question":[
+                  {
+                    "word":"3","translation":"drei",
+                  },
+                ]
+              }
+            ]
+
+
+
+            Do not generate any escape characters and options must never be empty.
+              `,
             },
             {
               role: 'user',
@@ -70,7 +108,101 @@ export class EventsController {
             data: { questionsStatus: 'generated' },
           }),
         ]);
+        return await pusher.trigger(
+          'modules',
+          'module_generated',
+          lesson.module.learningPath.userId,
+        );
         return;
+      } else if (body.type === 'modules') {
+        const request = await prisma.generationRequest.findFirst({
+          where: { id: body.id },
+        });
+        if (!request) return;
+        const learningPath = await prisma.learningPath.findFirst({
+          where: {
+            userId: request.userId,
+          },
+          select: {
+            id: true,
+            language: {
+              select: {
+                name: true,
+              },
+            },
+            modules: {
+              select: {
+                name: true,
+                description: true,
+              },
+            },
+            reason: true,
+            knowledge: true,
+          },
+        });
+        const messages: Parameters<
+          Awaited<typeof this.geminiService.generateObject>
+        >['0']['messages'] = [
+          {
+            role: 'system',
+            content: `
+Generate a JSON structure for a ${learningPath.language.name} language learning program. The program should consist of 10 modules, each containing at least 3 lessons. Each lesson should a name, description and a "questionsCount" which should be equal to the no of questions that lesson must have. Do not use special characters in names and descriptions. The name and descriptions must be useful and shouldn't include words like "Module 1". The description should not start with "This Module covers" or "This lesson covers".
+
+User wants to learn ${learningPath.language.name} for ${learningPath.reason} and ${learningPath.knowledge}.
+ 
+User has already studied ${learningPath.modules.join(', ')}
+
+
+Do not generate already generated modules.
+
+Only generate array of modules and no escape characters. 
+
+`,
+          },
+        ];
+        if (request.prompt) {
+          messages.push({
+            role: 'user',
+            content: request.prompt,
+          });
+        }
+        const data = await this.geminiService.generateObject({
+          schema: modules_schema,
+          messages,
+        });
+        const response = data.object as z.infer<typeof modules_schema>;
+        await prisma.$transaction(async (tx) => {
+          await tx.generationRequest.update({
+            where: { id: request.id },
+            data: { completed: true },
+          });
+          for (const module of response) {
+            await tx.module.create({
+              data: {
+                id: `module_${createId()}`,
+                description: module.description,
+                name: module.name,
+                learningPathId: learningPath.id,
+                lessons: {
+                  createMany: {
+                    data: module.lessons.map((lesson) => ({
+                      name: lesson.name,
+                      id: `lesson_${createId()}`,
+                      completed: false,
+                      description: lesson.description,
+                      questionsCount: lesson.questionsCount,
+                    })),
+                  },
+                },
+              },
+            });
+          }
+        });
+        return await pusher.trigger(
+          'modules',
+          'module_generated',
+          request.userId,
+        );
       }
       const path = await prisma.learningPath.findFirst({
         include: { language: true },
@@ -201,7 +333,7 @@ export class EventsController {
       console.log(error);
       await queue.addToQueueWithPriority({
         id: body.id,
-        type: 'learning_path',
+        type: body.type,
       });
     }
   }

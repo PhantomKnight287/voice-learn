@@ -1,4 +1,4 @@
-export type QueueItemType = 'question' | 'learning_path';
+export type QueueItemType = 'question' | 'learning_path' | 'modules';
 
 export type QueueItemObject = {
   id: string;

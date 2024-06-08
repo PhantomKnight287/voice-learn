@@ -87,3 +87,28 @@ export const questions_schema = z.array(
     ),
   }),
 );
+
+export const modules_schema = z
+  .array(
+    z.object({
+      name: z.string().describe('The name of the module, must be in english'),
+      description: z
+        .string()
+        .describe(
+          'The description of the module, must be in english. Must tell users what they will learn in this module.',
+        ),
+      lessons: z.array(
+        z.object({
+          name: z
+            .string()
+            .describe(
+              'The name of the lesson, must be in english and as short as possible.',
+            ),
+
+          questionsCount: z.number(),
+          description: z.string(),
+        }),
+      ),
+    }),
+  )
+  .describe('The modules for user.');

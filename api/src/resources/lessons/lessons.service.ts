@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import moment from 'moment';
 import { prisma } from 'src/db';
 import { queue } from 'src/services/queue/queue.service';
 
@@ -100,6 +101,23 @@ export class LessonsService {
     });
     if (!lesson)
       throw new HttpException('No lesson found', HttpStatus.NOT_FOUND);
+
+    const currentDateInGMT = moment().utc().startOf('day').toDate(); // Start of the current day in GMT
+    const nextDateInGMT = moment().utc().add(1, 'day').startOf('day').toDate(); // Start of the next day in GMT
+
+    const streak = await prisma.streak.findFirst({
+      where: {
+        createdAt: {
+          gte: currentDateInGMT,
+          lt: nextDateInGMT,
+        },
+        userId: userId,
+      },
+      include: {
+        user: true,
+      },
+    });
+   
     return {
       correctAnswers: lesson.correctAnswers,
       incorrectAnswers: lesson.incorrectAnswers,
@@ -107,6 +125,13 @@ export class LessonsService {
       emeraldsEarned: 1,
       startDate: lesson.startDate,
       endDate: lesson.endDate,
+      user: {
+        xp: streak.user.xp,
+        emeralds: streak.user.emeralds,
+        lives: streak.user.lives,
+        isStreakActive: streak ? true : false,
+        streaks: streak.user.activeStreaks,
+      },
     };
   }
 }
