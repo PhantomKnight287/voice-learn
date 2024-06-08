@@ -13,6 +13,7 @@ WORKDIR /app
 
 # Copy package.json and package-lock.json
 COPY package.json pnpm-lock.yaml ./
+COPY ./prisma ./
 
 # Install dependencies
 RUN corepack enable && pnpm install
