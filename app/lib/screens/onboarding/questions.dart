@@ -276,78 +276,76 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                       } else {
                         final languages = snapshot.data!;
 
-                        return Expanded(
-                          child: ListView.separated(
-                            separatorBuilder: (context, index) {
-                              return const SizedBox(
-                                height: BASE_MARGIN * 4,
-                              );
-                            },
-                            shrinkWrap: true,
-                            itemCount: languages.length,
-                            padding: const EdgeInsets.all(0),
-                            itemBuilder: (context, index) {
-                              final language = languages[index];
-                              final tile = ListTile(
-                                onTap: () {
-                                  setState(() {
-                                    _selectedLanguageId = language.id;
-                                    _selectedLanguage = language;
-                                  });
-                                },
-                                splashColor: Colors.transparent,
-                                tileColor: SECONDARY_BG_COLOR,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  side: _selectedLanguageId == language.id
-                                      ? BorderSide(
-                                          color: Colors.green.shade500,
-                                          strokeAlign: 2,
-                                          style: BorderStyle.solid,
-                                          width: 2,
-                                        )
-                                      : BorderSide.none,
+                        return ListView.separated(
+                          separatorBuilder: (context, index) {
+                            return const SizedBox(
+                              height: BASE_MARGIN * 4,
+                            );
+                          },
+                          shrinkWrap: true,
+                          itemCount: languages.length,
+                          padding: const EdgeInsets.all(0),
+                          itemBuilder: (context, index) {
+                            final language = languages[index];
+                            final tile = ListTile(
+                              onTap: () {
+                                setState(() {
+                                  _selectedLanguageId = language.id;
+                                  _selectedLanguage = language;
+                                });
+                              },
+                              splashColor: Colors.transparent,
+                              tileColor: SECONDARY_BG_COLOR,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: _selectedLanguageId == language.id
+                                    ? BorderSide(
+                                        color: Colors.green.shade500,
+                                        strokeAlign: 2,
+                                        style: BorderStyle.solid,
+                                        width: 2,
+                                      )
+                                    : BorderSide.none,
+                              ),
+                              title: Text(
+                                language.name,
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 20,
                                 ),
-                                title: Text(
-                                  language.name,
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 20,
+                              ),
+                              leading: Image.network(
+                                language.flagUrl,
+                                width: 50,
+                                height: 50,
+                              ),
+                            );
+                            if (index == 0) {
+                              return Column(
+                                children: [
+                                  Text(
+                                    "What would you like to learn?",
+                                    style: Theme.of(context).textTheme.titleLarge,
                                   ),
-                                ),
-                                leading: Image.network(
-                                  language.flagUrl,
-                                  width: 50,
-                                  height: 50,
-                                ),
+                                  const SizedBox(
+                                    height: BASE_MARGIN * 6,
+                                  ),
+                                  tile
+                                ],
                               );
-                              if (index == 0) {
-                                return Column(
-                                  children: [
-                                    Text(
-                                      "What would you like to learn?",
-                                      style: Theme.of(context).textTheme.titleLarge,
-                                    ),
-                                    const SizedBox(
-                                      height: BASE_MARGIN * 6,
-                                    ),
-                                    tile
-                                  ],
-                                );
-                              }
-                              if (index == snapshot.data!.length - 1) {
-                                return Column(
-                                  children: [
-                                    tile,
-                                    const SizedBox(
-                                      height: 100,
-                                    ),
-                                  ],
-                                );
-                              }
-                              return tile;
-                            },
-                          ),
+                            }
+                            if (index == snapshot.data!.length - 1) {
+                              return Column(
+                                children: [
+                                  tile,
+                                  const SizedBox(
+                                    height: 100,
+                                  ),
+                                ],
+                              );
+                            }
+                            return tile;
+                          },
                         );
                       }
                     },
