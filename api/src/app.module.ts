@@ -25,6 +25,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { CronService } from './services/cron/cron.service';
 import { GenerationsModule } from './resources/generations/generations.module';
 import { ProfileModule } from './resources/profile/profile.module';
+import { LoggingMiddleware } from './middlewares/logging/logging.middleware';
 
 @Module({
   imports: [
@@ -90,5 +91,7 @@ export class AppModule implements NestModule {
         },
       )
       .forRoutes('*');
+
+    consumer.apply(LoggingMiddleware).forRoutes('*');
   }
 }
