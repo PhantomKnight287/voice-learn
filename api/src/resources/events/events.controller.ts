@@ -72,6 +72,16 @@ export class EventsController {
                     "word":"3","translation":"drei",
                   },
                 ]
+              },
+              {
+                "instruction":"What is the German word for Dog",
+                "options":["Katze","Hund","Fisch"],
+                "correctAnswer":"Hund",
+                "question":[
+                    {
+                        "word":"Dog","translation":"Hund",  
+                    }
+                  ]
               }
             ]
 
