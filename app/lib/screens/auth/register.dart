@@ -99,7 +99,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             token: response.token,
             email: response.user.email,
             createdAt: response.user.createdAt,
-            paths: response.user.paths,
+            paths: 0,
             updatedAt: response.user.updatedAt,
             emeralds: response.user.emeralds,
             lives: response.user.lives,
