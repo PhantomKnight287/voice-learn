@@ -45,7 +45,7 @@ export class EventsController {
           messages: [
             {
               role: 'system',
-              content: `Generate a JSON ARRAY structure for questions of ${lesson.module.learningPath.language.name} language learning program and for lesson with name ${lesson.name} and description ${lesson.description}. There must be ${lesson.questionsCount} questions. The "instruction" should be the instruction to student on how to solve the question(for example: Translate this sentence to English.), type must either be 'sentence' or 'select_one'. The "options" array must never be empty. The "correctAnswer" should be the correct answer of the question and should not include any special characters including "...". The "question" can be an empty array if type is 'sentence' else it must be an array of objects of words in question. For example, if question is "Guten Tag" then the "question" array must be [{"word":"guten","translation":"good",},{"word":"tag","translation":"day"}]. Do not return excess whitespace, escape characters and punctuation in your response.
+              content: `Generate a JSON ARRAY structure for questions of ${lesson.module.learningPath.language.name} language learning program and for lesson with name ${lesson.name} and description ${lesson.description}. There must be ${lesson.questionsCount} questions. The "instruction" should be the instruction to student on how to solve the question(for example: Translate this sentence to English.), type must either be 'sentence' or 'select_one'. The "options" array must never be empty. The "correctAnswer" should be the correct answer of the question and should not include any special characters including "...". The "question" must be an array of objects of words in question. Do not return excess whitespace, escape characters and punctuation in your response.
               
               Below are examples of questions:
 
@@ -77,7 +77,7 @@ export class EventsController {
 
 
 
-            Do not generate any escape characters and options must never be empty.
+            Do not generate any escape characters and options must never be empty. The instructions must not include the question.
               `,
             },
             {
@@ -151,7 +151,6 @@ Generate a JSON structure for a ${learningPath.language.name} language learning 
 User wants to learn ${learningPath.language.name} for ${learningPath.reason} and ${learningPath.knowledge}.
  
 User has already studied ${learningPath.modules.join(', ')}
-
 
 Do not generate already generated modules.
 
@@ -270,7 +269,7 @@ Only generate array of modules and no escape characters.
             // content: `
             // Create a JSON structure for a basic ${path.language.name} language learning module. The module should include lessons on greetings, numbers, common phrases, and colors. Each lesson should contain multiple-choice questions with options and correct answers. Provide instructions for each question and include translations for the words in the questions and answers.
             // `,
-            content: `Generate a JSON structure for a ${path.language.name} language learning program. The program should consist of five modules, each containing at least two lessons. Each lesson should a name, description and a "questionsCount" which should be equal to the no of questions that lesson must have. Do not use special characters in names and descriptions. The name and descriptions must be useful and shouldn't include words like "Module 1". The description should not start with "This Module covers" or "This lesson covers"`,
+            content: `Generate a JSON structure for a ${path.language.name} language learning program. The program should consist of five modules, each containing at least 6 lessons. Each lesson should a name, description and a "questionsCount" which should be equal to the no of questions that lesson must have. Do not use special characters in names and descriptions. The name and descriptions must be useful and shouldn't include words like "Module 1". The description should not start with "This Module covers" or "This lesson covers". Do not generated words like "pronunciation"`,
           },
 
           {

@@ -14,7 +14,6 @@ export const envSchema = z.object({
   JWT_SECRET: z.string(),
   R2_BUCKET_NAME: z.string(),
   R2_KEY_ID: z.string(),
-
   CF_ACCOUNT_ID: z.string(),
   GOOGLE_GENERATIVE_AI_API_KEY: z.string(),
   REDIS_HOST: z.string(),
@@ -24,6 +23,8 @@ export const envSchema = z.object({
   PUSHER_APP_KEY: z.string(),
   PUSHER_SECRET: z.string(),
   PUSHER_CLUSTER: z.string(),
+  LOGSTRAP_PATH: z.string().optional(),
+  LOGSTRAP_KEY: z.string().optional(),
 });
 
 const safeParseResult = envSchema.safeParse(process.env);
@@ -40,3 +41,6 @@ declare global {
     interface ProcessEnv extends z.infer<typeof envSchema> {}
   }
 }
+
+
+export const errorSubject$ = new Subject<any>();
