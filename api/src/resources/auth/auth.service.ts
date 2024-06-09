@@ -16,6 +16,11 @@ export class AuthService {
     const { password, email } = body;
     const user = await prisma.user.findFirst({
       where: { email: { equals: email, mode: 'insensitive' } },
+      include: {
+        _count: {
+          select: { paths: true },
+        },
+      },
     });
     if (!user)
       throw new HttpException(
@@ -29,9 +34,21 @@ export class AuthService {
 
     delete user.password;
     const token = sign({ id: user.id }, this.service.get('JWT_SECRET'));
+
+    const currentDateInGMT = moment().utc().startOf('day').toDate(); // Start of the current day in GMT
+    const nextDateInGMT = moment().utc().add(1, 'day').startOf('day').toDate();
+    const streak = await prisma.streak.findFirst({
+      where: {
+        createdAt: {
+          gte: currentDateInGMT,
+          lt: nextDateInGMT,
+        },
+        userId: user.id,
+      },
+    });
     return {
       token,
-      user,
+      user: { ...user, isStreakActive: streak ? true : false },
     };
   }
 
