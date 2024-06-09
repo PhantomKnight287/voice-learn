@@ -37,6 +37,15 @@ export class AuthService {
 
     const currentDateInGMT = moment().utc().startOf('day').toDate(); // Start of the current day in GMT
     const nextDateInGMT = moment().utc().add(1, 'day').startOf('day').toDate();
+    const path = await prisma.learningPath.findFirst({
+      where: {
+        id: user.id,
+      },
+      select: {
+        type: true,
+        id: true,
+      },
+    });
     const streak = await prisma.streak.findFirst({
       where: {
         createdAt: {
@@ -49,6 +58,7 @@ export class AuthService {
     return {
       token,
       user: { ...user, isStreakActive: streak ? true : false },
+      path,
     };
   }
 

@@ -6,6 +6,8 @@ import 'package:app/constants/main.dart';
 import 'package:app/models/responses/auth/main.dart';
 import 'package:app/screens/auth/register.dart';
 import 'package:app/screens/home/main.dart';
+import 'package:app/screens/loading/learning.dart';
+import 'package:app/screens/onboarding/questions.dart';
 import 'package:app/utils/error.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -102,11 +104,27 @@ class _LoginScreenState extends State<LoginScreen> {
             isStreakActive: response.user.isStreakActive,
           ),
         );
-    Navigator.of(context).pushReplacement(
-      CupertinoPageRoute(
-        builder: (context) => const HomeScreen(),
-      ),
-    );
+
+    if (body['path']?['type'] == 'created') {
+      Navigator.of(context).pushReplacement(
+        CupertinoPageRoute(
+          builder: (context) => LearningPathLoadingScreen(pathId: body['path']['id']),
+        ),
+      );
+      return;
+    } else if (body['path'] == null) {
+      Navigator.of(context).pushReplacement(
+        CupertinoPageRoute(
+          builder: (context) => const OnboardingQuestionsScreen(),
+        ),
+      );
+    } else {
+      Navigator.of(context).pushReplacement(
+        CupertinoPageRoute(
+          builder: (context) => const HomeScreen(),
+        ),
+      );
+    }
   }
 
   @override
