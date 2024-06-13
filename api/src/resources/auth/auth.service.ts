@@ -39,7 +39,7 @@ export class AuthService {
     const nextDateInGMT = moment().utc().add(1, 'day').startOf('day').toDate();
     const path = await prisma.learningPath.findFirst({
       where: {
-        id: user.id,
+        userId: user.id,
       },
       select: {
         type: true,
