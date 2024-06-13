@@ -9,7 +9,13 @@ import 'package:http/http.dart' as http;
 import 'package:toastification/toastification.dart';
 
 class GenerationsScreen extends StatefulWidget {
-  const GenerationsScreen({super.key});
+  final String type;
+  final String? id;
+  const GenerationsScreen({
+    super.key,
+    required this.type,
+    this.id,
+  });
 
   @override
   State<GenerationsScreen> createState() => _GenerationsScreenState();
@@ -32,8 +38,13 @@ class _GenerationsScreenState extends State<GenerationsScreen> {
         ),
         body: jsonEncode({
           "prompt": _promptController.text,
+          "type": widget.type,
+          "id": widget.id,
         }),
-        headers: {"Authorization": "Bearer $token"});
+        headers: {
+          "Authorization": "Bearer $token",
+          "content-type": "application/json",
+        });
     final body = jsonDecode(req.body);
     setState(() {
       _loading = false;
@@ -43,8 +54,12 @@ class _GenerationsScreenState extends State<GenerationsScreen> {
         type: ToastificationType.success,
         style: ToastificationStyle.minimal,
         autoCloseDuration: const Duration(seconds: 5),
-        description: const Text("Your modules will be generated shortly."),
-        title: Text(body['existing'] ? "Modules already generating." : "Generation added to queue"),
+        description: Text(
+          "Your ${widget.type} will be generated shortly.",
+        ),
+        title: Text(
+          body['existing'] ? "${widget.type.replaceFirst(widget.type[0], widget.type[0].toUpperCase())} already generating." : "Generation added to queue",
+        ),
         alignment: Alignment.topCenter,
         showProgressBar: false,
       );
@@ -79,7 +94,7 @@ class _GenerationsScreenState extends State<GenerationsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Generate More Modules",
+          "Generate More ${widget.type.replaceFirst(widget.type[0], widget.type[0].toUpperCase())}",
           style: Theme.of(context).textTheme.titleMedium,
         ),
       ),
@@ -101,7 +116,7 @@ class _GenerationsScreenState extends State<GenerationsScreen> {
               height: BASE_MARGIN * 2,
             ),
             InputField(
-              hintText: "Tell AI if you want to generate modules on specific topic(optional).",
+              hintText: "Tell AI if you want to generate ${widget.type} on specific topic(optional).",
               keyboardType: TextInputType.text,
               controller: _promptController,
               maxLines: 5,

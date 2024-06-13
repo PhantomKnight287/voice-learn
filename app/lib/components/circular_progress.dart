@@ -1,4 +1,3 @@
-import 'package:app/constants/main.dart';
 import 'package:flutter/material.dart';
 
 class CircularProgressAnimated extends StatefulWidget {

@@ -1,5 +1,6 @@
 import 'package:app/constants/main.dart';
 import 'package:flutter/material.dart';
+import 'package:heroicons/heroicons.dart';
 
 class BottomBar extends StatefulWidget {
   final int currentIndex;
@@ -28,28 +29,32 @@ class _BottomNavigationBarState extends State<BottomBar> {
       unselectedLabelStyle: const TextStyle(
         color: Colors.black,
       ),
-      items: const [
+      items: [
         BottomNavigationBarItem(
-          icon: Icon(
-            Icons.home_rounded,
+          icon: HeroIcon(
+            HeroIcons.home,
+            style: widget.currentIndex == 0 ? HeroIconStyle.solid : null,
           ),
           label: "Home",
         ),
         BottomNavigationBarItem(
-          icon: Icon(
-            Icons.leaderboard_rounded,
+          icon: HeroIcon(
+            HeroIcons.chartBar,
+            style: widget.currentIndex == 1 ? HeroIconStyle.solid : null,
           ),
           label: "Leaderboard",
         ),
         BottomNavigationBarItem(
-          icon: Icon(
-            Icons.chat_rounded,
+          icon: HeroIcon(
+            HeroIcons.chatBubbleBottomCenterText,
+            style: widget.currentIndex == 2 ? HeroIconStyle.solid : null,
           ),
           label: "Chat",
         ),
         BottomNavigationBarItem(
-          icon: Icon(
-            Icons.person_rounded,
+          icon: HeroIcon(
+            HeroIcons.user,
+            style: widget.currentIndex == 3 ? HeroIconStyle.solid : null,
           ),
           label: "Profile",
         )

@@ -3,6 +3,7 @@ import 'package:app/components/circular_progress.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/lesson.dart';
 import 'package:app/models/module.dart';
+import 'package:app/screens/generations/modules.dart';
 import 'package:app/screens/loading/questions.dart';
 import 'package:app/screens/questions/complete.dart';
 import 'package:app/screens/questions/main.dart';
@@ -36,7 +37,7 @@ class _LessonsListScreenState extends State<LessonsListScreen> {
               vertical: BASE_MARGIN * 0,
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 Text(
                   module.name,
@@ -161,7 +162,42 @@ class _LessonsListScreenState extends State<LessonsListScreen> {
                   },
                   shrinkWrap: true,
                   itemCount: module.lessons.length,
-                )
+                ),
+                const SizedBox(
+                  height: BASE_MARGIN * 4,
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      CupertinoPageRoute(
+                        builder: (context) {
+                          return GenerationsScreen(
+                            type: "lessons",
+                            id: module.id,
+                          );
+                        },
+                      ),
+                    );
+                  },
+                  style: ButtonStyle(
+                    alignment: Alignment.center,
+                    foregroundColor: WidgetStateProperty.all(Colors.black),
+                    backgroundColor: WidgetStateProperty.all(SECONDARY_BG_COLOR),
+                    padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
+                      (Set<WidgetState> states) {
+                        return const EdgeInsets.all(15);
+                      },
+                    ),
+                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  child: const Text(
+                    "Generate more",
+                  ),
+                ),
               ],
             ),
           ),

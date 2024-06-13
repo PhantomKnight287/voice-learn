@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/utils/error.dart';
-import 'package:async_builder/async_builder.dart';
+import 'package:fl_query/fl_query.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -68,15 +68,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(10),
-            child: AsyncBuilder(
-              future: _getUserProfile(),
-              waiting: (context) {
-                return _buildBaseProfile(userState, context, monthName, dateTime);
-              },
-              error: (context, error, stackTrace) {
-                return _buildBaseProfile(userState, context, monthName, dateTime);
-              },
-              builder: (context, value) {
+            child: QueryBuilder<dynamic, dynamic>(
+              'profile_stats',
+              _getUserProfile,
+              builder: (context, query) {
+                if (query.isLoading) return _buildBaseProfile(userState, context, monthName, dateTime);
+                if (query.hasError) return _buildBaseProfile(userState, context, monthName, dateTime);
+                final data = query.data;
+                if (data == null) {
+                  return const SizedBox();
+                }
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -85,9 +86,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       context,
                       monthName,
                       dateTime,
-                      flags: value?['paths']?[0]?['language']?['flagUrl'] != null
+                      flags: data?['paths']?[0]?['language']?['flagUrl'] != null
                           ? [
-                              value?['paths']?[0]?['language']?['flagUrl'],
+                              data?['paths']?[0]?['language']?['flagUrl'],
                             ]
                           : [],
                     ),
@@ -136,7 +137,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    value['activeStreaks'].toString(),
+                                    data['activeStreaks'].toString(),
                                     style: TextStyle(
                                       fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                                       fontWeight: FontWeight.bold,
@@ -186,7 +187,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    value['xp'].toString(),
+                                    data['xp'].toString(),
                                     style: TextStyle(
                                       fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                                       fontWeight: FontWeight.bold,
@@ -240,7 +241,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    value['emeralds'].toString(),
+                                    data['emeralds'].toString(),
                                     style: TextStyle(
                                       fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                                       fontWeight: FontWeight.bold,
@@ -301,7 +302,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(
                   height: BASE_MARGIN * 2,
                 ),
-                Text("Joined $monthName ${dateTime.year}"),
+                Text(
+                  "Joined $monthName ${dateTime.year}",
+                  style: const TextStyle(
+                    color: SECONDARY_TEXT_COLOR,
+                  ),
+                ),
                 const SizedBox(
                   height: BASE_MARGIN * 2,
                 ),

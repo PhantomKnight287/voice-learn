@@ -27,46 +27,8 @@ class LessonCompleteScreen extends StatefulWidget {
 }
 
 class LessonCompleteScreenState extends State<LessonCompleteScreen> {
-  InterstitialAd? _interstitialAd;
-
-  void loadAd() {
-    InterstitialAd.load(
-        adUnitId: LESSON_COMPLETION_AD_ID,
-        request: const AdRequest(),
-        adLoadCallback: InterstitialAdLoadCallback(
-          // Called when an ad is successfully received.
-          onAdLoaded: (ad) {
-            ad.fullScreenContentCallback = FullScreenContentCallback(
-                // Called when the ad showed the full screen content.
-                onAdShowedFullScreenContent: (ad) {},
-                // Called when an impression occurs on the ad.
-                onAdImpression: (ad) {},
-                // Called when the ad failed to show full screen content.
-                onAdFailedToShowFullScreenContent: (ad, err) {
-                  // Dispose the ad here to free resources.
-                  ad.dispose();
-                },
-                // Called when the ad dismissed full screen content.
-                onAdDismissedFullScreenContent: (ad) {
-                  ad.dispose();
-                  Navigator.pop(context);
-                },
-                // Called when a click is recorded for an ad.
-                onAdClicked: (ad) {});
-            debugPrint('$ad loaded.');
-            // Keep a reference to the ad so you can show it later.
-            _interstitialAd = ad;
-          },
-          // Called when an ad request failed.
-          onAdFailedToLoad: (LoadAdError error) {
-            debugPrint('InterstitialAd failed to load: $error');
-          },
-        ));
-  }
-
   @override
   void dispose() {
-    _interstitialAd?.dispose();
     super.dispose();
   }
 
@@ -103,9 +65,6 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.showAd) {
-      loadAd();
-    }
   }
 
   @override
@@ -118,9 +77,6 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
         ),
         leading: IconButton(
           onPressed: () async {
-            if (_interstitialAd != null && widget.showAd) {
-              return await _interstitialAd?.show();
-            }
             Navigator.pop(context);
           },
           icon: const Icon(
@@ -343,9 +299,6 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
               ),
               ElevatedButton(
                 onPressed: () async {
-                  if (_interstitialAd != null && widget.showAd) {
-                    return await _interstitialAd?.show();
-                  }
                   Navigator.pop(context);
                 },
                 style: ButtonStyle(

@@ -37,11 +37,11 @@ class _ViewHandlerState extends State<ViewHandler> {
         headers: {"Authorization": "Bearer $token"},
       );
       final body = jsonDecode(req.body);
-      final user = UserModel.fromJSON(
-        body,
-        token,
-      );
       if (req.statusCode == 200) {
+        final user = UserModel.fromJSON(
+          body,
+          token,
+        );
         context.read<UserBloc>().add(
               UserLoggedInEvent(
                 id: user.id,
@@ -74,6 +74,11 @@ class _ViewHandlerState extends State<ViewHandler> {
         } else {
           setState(() {});
         }
+      } else if (req.statusCode == 401 || req.statusCode == 403) {
+        await prefs.remove("token");
+        setState(() {
+          _showOnBoarding = true;
+        });
       }
     } else {
       setState(() {

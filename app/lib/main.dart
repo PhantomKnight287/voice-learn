@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/handler/switcher.dart';
+import 'package:fl_query_devtools/fl_query_devtools.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -21,7 +22,7 @@ void main() async {
   );
   runApp(
     QueryClientProvider(
-      child: const VoiceLearnApp(),
+      child: VoiceLearnApp(),
     ),
   );
 }
