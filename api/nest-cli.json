@@ -10,6 +10,6 @@
       },
       "type": "swc"
     },
-    "typeCheck": false
+    "typeCheck": true
   }
 }
