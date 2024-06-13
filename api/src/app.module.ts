@@ -26,6 +26,8 @@ import { CronService } from './services/cron/cron.service';
 import { GenerationsModule } from './resources/generations/generations.module';
 import { ProfileModule } from './resources/profile/profile.module';
 import { LoggingMiddleware } from './middlewares/logging/logging.middleware';
+import { APP_FILTER } from '@nestjs/core';
+import { AllExceptionsFilter } from './filters/all/all.filter';
 
 @Module({
   imports: [
@@ -65,6 +67,10 @@ import { LoggingMiddleware } from './middlewares/logging/logging.middleware';
     QueueService,
     OnboardingQueueConsumer,
     CronService,
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
   ],
   exports: [S3Service],
 })

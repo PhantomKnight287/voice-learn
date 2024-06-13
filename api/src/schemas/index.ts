@@ -112,3 +112,11 @@ export const modules_schema = z
     }),
   )
   .describe('The modules for user.');
+
+export const lessons_schema = z.array(
+  z.object({
+    name: z.string(),
+    questionsCount: z.number(),
+    description: z.string(),
+  }),
+);

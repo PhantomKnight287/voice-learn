@@ -2,7 +2,7 @@ import { Redis } from '@upstash/redis';
 import { QueueItemObject } from 'src/types/queue';
 
 export class QueueService extends Redis {
-  protected readonly queue_name = 'gemini::queue';
+  protected readonly queue_name = 'gemini::queue::dev';
   private requestsThisMinute = 0;
   private readonly maxRequestsPerMinute = 15;
 
@@ -24,6 +24,7 @@ export class QueueService extends Redis {
         const item = await this.lpop<string | null>(this.queue_name);
         if (item === null) {
           yield null;
+          continue;
         }
         this.requestsThisMinute++;
         yield item as unknown as QueueItemObject;

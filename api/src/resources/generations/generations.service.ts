@@ -10,33 +10,52 @@ export class GenerationsService {
     body: CreateMoreLessonsGenerationDTO,
     userId: string,
   ) {
+    if (body.type === 'lessons' && !body.id)
+      throw new HttpException('Please provide Id', HttpStatus.BAD_REQUEST);
     const request = await prisma.generationRequest.findFirst({
       where: {
-        type: 'modules',
+        type: body.type,
         userId,
       },
     });
     if (request && request.completed == false)
       return {
         id: request.id,
-        existing:true,
+        existing: true,
       };
 
+    if (body.type == 'lessons') {
+      const module = await prisma.module.findFirst({
+        where: {
+          id: body.id,
+          learningPath: {
+            userId,
+          },
+        },
+      });
+      if (!module)
+        throw new HttpException('No Module found', HttpStatus.NOT_FOUND);
+    }
     const newRequest = await prisma.generationRequest.create({
       data: {
-        id: `generation_request_${createId()}`,
-        type: 'modules',
+        id: `gr_${createId()}`,
+        type: body.type,
         userId,
         prompt: body.prompt,
+        ...(body.id
+          ? {
+              moduleId: body.id,
+            }
+          : undefined),
       },
     });
     await queue.addToQueue({
       id: newRequest.id,
-      type: 'modules',
+      type: body.type,
     });
     return {
       id: newRequest.id,
-      existing:false,
+      existing: false,
     };
   }
 }

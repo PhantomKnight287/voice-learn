@@ -117,7 +117,12 @@ export class LessonsService {
         user: true,
       },
     });
-   
+
+    const user = await prisma.user.findFirst({
+      where: {
+        id: userId,
+      },
+    });
     return {
       correctAnswers: lesson.correctAnswers,
       incorrectAnswers: lesson.incorrectAnswers,
@@ -126,11 +131,11 @@ export class LessonsService {
       startDate: lesson.startDate,
       endDate: lesson.endDate,
       user: {
-        xp: streak.user.xp,
-        emeralds: streak.user.emeralds,
-        lives: streak.user.lives,
+        xp: user.xp,
+        emeralds: user.emeralds,
+        lives: user.lives,
         isStreakActive: streak ? true : false,
-        streaks: streak.user.activeStreaks,
+        streaks: user.activeStreaks,
       },
     };
   }

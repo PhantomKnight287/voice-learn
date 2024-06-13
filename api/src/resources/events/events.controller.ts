@@ -6,6 +6,7 @@ import { prisma } from 'src/db';
 import { GeminiService } from 'src/services/gemini/gemini.service';
 import {
   learning_path_schema,
+  lessons_schema,
   modules_schema,
   questions_schema,
 } from 'src/schemas';
@@ -118,12 +119,11 @@ export class EventsController {
             data: { questionsStatus: 'generated' },
           }),
         ]);
-        return await pusher.trigger(
+        await pusher.trigger(
           'modules',
           'module_generated',
           lesson.module.learningPath.userId,
         );
-        return;
       } else if (body.type === 'modules') {
         const request = await prisma.generationRequest.findFirst({
           where: { id: body.id },
@@ -185,7 +185,9 @@ Only generate array of modules and no escape characters.
             where: { id: request.id },
             data: { completed: true },
           });
+
           for (const module of response) {
+            const startTime = new Date().getTime();
             await tx.module.create({
               data: {
                 id: `module_${createId()}`,
@@ -194,12 +196,13 @@ Only generate array of modules and no escape characters.
                 learningPathId: learningPath.id,
                 lessons: {
                   createMany: {
-                    data: module.lessons.map((lesson) => ({
+                    data: module.lessons.map((lesson, index) => ({
                       name: lesson.name,
                       id: `lesson_${createId()}`,
                       completed: false,
                       description: lesson.description,
                       questionsCount: lesson.questionsCount,
+                      createdAt: new Date(startTime + 1000 * index),
                     })),
                   },
                 },
@@ -207,12 +210,97 @@ Only generate array of modules and no escape characters.
             });
           }
         });
-        return await pusher.trigger(
+         await pusher.trigger(
+          'modules',
+          'module_generated',
+          request.userId,
+        );
+      } else if (body.type === 'lessons') {
+        const request = await prisma.generationRequest.findFirst({
+          where: { id: body.id },
+        });
+        if (!request) return;
+        const module = await prisma.module.findFirst({
+          where: {
+            id: request.moduleId,
+          },
+          include: {
+            learningPath: {
+              select: {
+                language: {
+                  select: {
+                    name: true,
+                  },
+                },
+                reason: true,
+                knowledge: true,
+              },
+            },
+            lessons: {
+              select: {
+                name: true,
+                description: true,
+                questionsCount: true,
+              },
+            },
+          },
+        });
+        const messages: Parameters<
+          Awaited<typeof this.geminiService.generateObject>
+        >['0']['messages'] = [
+          {
+            role: 'system',
+            content: `
+Generate a JSON structure for lessons belonging to ${module.learningPath.language.name} language learning program. You must generate 4 lessons. Each lesson should have a name, description and a "questionsCount" which should be equal to the no of questions that lesson must have. Do not use special characters in names and descriptions. The name and descriptions must be useful and shouldn't include words like "Module 1". The description should not start with "This Module covers" or "This lesson covers".
+
+User wants to learn ${module.learningPath.language.name} for ${module.learningPath.reason} and ${module.learningPath.knowledge}.
+ 
+User has already studied ${module.lessons.join('\n, ')}
+
+Do not generate already generated lessons.
+
+Only generate array of lessons and no escape characters. 
+
+`,
+          },
+        ];
+        if (request.prompt) {
+          messages.push({
+            role: 'user',
+            content: request.prompt,
+          });
+        }
+        const data = await this.geminiService.generateObject({
+          schema: lessons_schema,
+          messages,
+        });
+        const response = data.object as z.infer<typeof lessons_schema>;
+        await prisma.$transaction(async (tx) => {
+          await tx.generationRequest.update({
+            where: { id: request.id },
+            data: { completed: true },
+          });
+          const startTime = new Date().getTime();
+
+          await tx.lesson.createMany({
+            data: response.map((response, index) => ({
+              id: `lesson_${createId()}`,
+              description: response.description,
+              questionsCount: response.questionsCount,
+              name: response.name,
+              createdAt: new Date(startTime + 1000 * index),
+              moduleId: module.id,
+            })),
+          });
+        });
+         await pusher.trigger(
           'modules',
           'module_generated',
           request.userId,
         );
       }
+      else{
+
       const path = await prisma.learningPath.findFirst({
         include: { language: true },
         where: { id: String(body.id) },
@@ -224,61 +312,6 @@ Only generate array of modules and no escape characters.
         messages: [
           {
             role: 'system',
-            // content: `
-            // You are a language teacher proficient in ${path.language.name}. Your job is to create lessons for your learners so that they can learn that language.
-
-            // Take a look at each structure of objects and construct your final response accordingly.
-            // The final response MUST follow this JSON structure.
-
-            // ---
-            // {
-            //   "paths":[
-            //     {
-            //       "type": it will be always "generated",
-            //       "modules": an array of Objects where each object is an ModulesObject (take a look at below to see the structure of ModulesObject)
-            //     }
-            // }
-            // ---
-
-            // Here is how ModulesObject will look like:
-            // ---
-            // {
-            //  "name" : name of module
-            //  "description": description of module
-            //  "lessons": it will be an array of Objects where each object is a LessonsObject (take a look at below to see the structure of LessonsObject)
-            // }
-            // ---
-
-            // Here is how LessonsObject will look like:
-            // ---
-            // {
-            //  "name": name of lesson
-            //  "description": description of lesson
-            //  "questions": it will be an array of Objects where each object is a QuestionObject (take a look at below to see the structure of QuestionObject)
-            // }
-            // ---
-
-            // Here is how QuestionObject will look like:
-            // ---
-            // {
-            //  "type": type of question, it can be "select_one" or "sentence"
-            //  "options": if the question type is "select_one" then it will be an array of 4 options else keep it empty array
-            //  "instruction": It will be the instruction to user on how to solve a question
-            //  "correctAnswer": correct answer of the question
-            //  "question": it will be an array of objects where each object have 3 properties: 1) word(a single word in the given language) 2) translation(translation of that single word in English) 3) new (it will be true if the word was already present in other questions else keep it false)
-            // }
-            // ---
-
-            // Make sure to follow all the instructions given above else the validation will fail. The response must be a valid parsable JSON
-
-            // Note: Each module should have ATLEAST 4 lessons and each lesson should have ATLEAST 8 questions
-            // `,
-            // content: `You are a language teacher proficient in ${path.language.name}. Your job is to create language learning modules for users based on how much language they already know and for what they want to learn the language.
-
-            // You must return the response as an object. The first object must have a "paths" array which should be objects having "type" key which should always be "generated". The same object where "type" is specified should also have modules, which is an array. It should have at least 5 modules but can be more than 5 in any case. Each module must have a "name" which should be the name in English, a description of the module like what the user will learn in this module. Each module object should have "lessons" which is an array of objects. Each lesson must have a "name" which should be the name in English, a description of the lesson like what the user will learn in this lesson. Each lesson object should have "questions" which is an array of objects. There must be at least 8 questions. Each question should have "type" which can be either 'sentence' or 'select_one', an "instruction" which should tell the user what to do in this question to solve it, an "options" array which should be an array of strings having options (in case of 'sentence', it can be empty) and a "question" array which should have at least 1 object. The object must have a "word" which should be equal to the word in ${path.language.name} and a "translated" which should be equal to the translation of the word in English.`,
-            // content: `
-            // Create a JSON structure for a basic ${path.language.name} language learning module. The module should include lessons on greetings, numbers, common phrases, and colors. Each lesson should contain multiple-choice questions with options and correct answers. Provide instructions for each question and include translations for the words in the questions and answers.
-            // `,
             content: `Generate a JSON structure for a ${path.language.name} language learning program. The program should consist of five modules, each containing at least 6 lessons. Each lesson should a name, description and a "questionsCount" which should be equal to the no of questions that lesson must have. Do not use special characters in names and descriptions. The name and descriptions must be useful and shouldn't include words like "Module 1". The description should not start with "This Module covers" or "This lesson covers". Do not generated words like "pronunciation"`,
           },
 
@@ -336,8 +369,9 @@ Only generate array of modules and no escape characters.
           }
         });
       }
+    }
 
-      console.log('generated');
+      console.log('generated ' + body.type);
     } catch (error) {
       console.log(error);
       await queue.addToQueueWithPriority({
