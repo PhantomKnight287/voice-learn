@@ -17,6 +17,7 @@ class InputField extends StatelessWidget {
   final Color? fillColor;
   final Color? prefixIconColor;
   final InputBorder? enabledBorder;
+  final bool? enabled;
 
   const InputField({
     required this.hintText,
@@ -35,6 +36,7 @@ class InputField extends StatelessWidget {
     this.fillColor,
     this.prefixIconColor,
     this.enabledBorder,
+    this.enabled,
     super.key,
   });
 

@@ -50,3 +50,7 @@ String calculateTimeDifference(String isoString1, String isoString2) {
   // Return the time difference as a formatted string
   return '$minutes:$seconds';
 }
+
+String removeVersionAndTrailingSlash(String url) {
+  return url.replaceAll(RegExp(r'/v\d+$'), '').replaceAll(RegExp(r'/$'), '');
+}

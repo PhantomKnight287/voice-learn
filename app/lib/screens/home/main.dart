@@ -71,6 +71,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
   void didPopNext() {
     QueryClient.of(context).refreshQuery('learning_path');
     QueryClient.of(context).refreshQuery('profile_stats');
+    QueryClient.of(context).refreshQuery('chats');
   }
 
   Future<LearningPath> _fetchLearningPathFuture() async {

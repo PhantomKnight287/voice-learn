@@ -84,7 +84,6 @@ class _VoicesScreenState extends State<VoicesScreen> {
           ),
         ),
       ),
-      extendBodyBehindAppBar: true,
       body: Padding(
         padding: const EdgeInsets.all(10),
         child: QueryBuilder(

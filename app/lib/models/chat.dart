@@ -23,7 +23,11 @@ class Chat {
       name: json['name'],
       initialPrompt: json['initialPrompt'],
       language: json['language']['name'],
-      lastMessage: (json['messages'] != null && json['messages'].isNotEmpty) ? json['messages'][0] : '',
+      lastMessage: (json['messages'] != null && json['messages'].isNotEmpty)
+          ? (json['messages'][json['messages'].length - 1]['content'] as List).map((e) => e['word']).join(
+                " ",
+              )
+          : '',
       flag: json['language']['flagUrl'],
       voice: json['voice']['name'],
     );

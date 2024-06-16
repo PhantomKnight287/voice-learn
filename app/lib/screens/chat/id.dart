@@ -3,29 +3,15 @@ import 'dart:convert';
 import 'package:app/components/input.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/chat.dart';
+import 'package:app/models/message.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:shimmer/shimmer.dart';
-
-class ChatProvider extends ChangeNotifier {
-  List<ChatMessage> _messages = [];
-
-  List<ChatMessage> get messages => _messages;
-
-  void addMessage(ChatMessage message) {
-    _messages.add(message);
-    notifyListeners();
-  }
-}
-
-class ChatMessage {
-  final String text;
-  final bool isSentByMe;
-
-  ChatMessage({required this.text, required this.isSentByMe});
-}
+import 'package:app/utils/string.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:uuid/uuid.dart';
 
 class ChatScreen extends StatefulWidget {
   final String id;
@@ -38,9 +24,38 @@ class ChatScreen extends StatefulWidget {
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   final TextEditingController _controller = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   bool _isWriting = false;
+  late IO.Socket? socket;
+
+  String? lastMessageId;
+  List<Message> messages = [];
+  bool disabled = false;
+  bool eolReceived = true;
+  String botResponse = "";
+  final uuid = const Uuid();
+
+  @override
+  void didChangeMetrics() {
+    super.didChangeMetrics();
+    if (mounted) {
+      if (View.of(context).viewInsets.bottom > 0.0) {
+        _scrollToBottom();
+      }
+    }
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOut,
+      );
+    });
+  }
 
   Future<Chat> _fetchChat() async {
     final prefs = await SharedPreferences.getInstance();
@@ -52,22 +67,120 @@ class _ChatScreenState extends State<ChatScreen> {
     final body = jsonDecode(
       req.body,
     );
+    final messages = (body['messages'] as List).map((e) => Message.fromJSON(e)).toList();
+    if (context.mounted) {
+      setState(() {
+        this.messages = messages.reversed.toList();
+      });
+      _scrollToBottom();
+    }
     return Chat.fromJSON(body);
+  }
+
+  Future<void> _initSocket() async {
+    final storage = await SharedPreferences.getInstance();
+    final token = storage.getString("token");
+
+    socket = IO.io(
+      removeVersionAndTrailingSlash(API_URL),
+      IO.OptionBuilder()
+          .setTransports(['websocket']) // for Flutter or Dart VM
+          .enableAutoConnect()
+          .setQuery({
+            'chatId': widget.id,
+          })
+          .setAuth({"token": token})
+          .build(),
+    );
+    socket!.connect();
+    socket!.onConnect((data) => {print("connected")});
+    socket!.on(
+      "message",
+      (data) async {
+        await Future.delayed(
+          const Duration(seconds: 10),
+        );
+        if (data['refId'] == lastMessageId) {
+          if (context.mounted) {
+            setState(() {
+              lastMessageId = '';
+              disabled = true;
+              eolReceived = false;
+            });
+          }
+        }
+      },
+    );
+    socket!.on("response", (data) async {
+      setState(() {
+        botResponse += jsonEncode(data);
+        eolReceived = false;
+      });
+    });
+    socket!.on("response_end", (data) async {
+      if (context.mounted) {
+        setState(() {
+          lastMessageId = '';
+          disabled = false;
+          eolReceived = true;
+          botResponse = '';
+        });
+        messages.add(
+          Message.fromJSON(
+            data,
+          ),
+        );
+        _scrollToBottom();
+      }
+    });
+    socket!.on("error", (data) {
+      print("err $data");
+    });
+  }
+
+  void _fetchOlderMessages() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString("token");
+
+    final req = await http.get(Uri.parse("$API_URL/chats/${widget.id}/messages?id=${this.messages.first.id}"), headers: {
+      "Authorization": "Bearer $token",
+    });
+    final body = jsonDecode(
+      req.body,
+    );
+    final messages = (body as List).map((e) => Message.fromJSON(e)).toList();
+    if (context.mounted) {
+      this.messages.insertAll(0, messages);
+      setState(() {});
+    }
   }
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _initSocket();
     _controller.addListener(() {
       setState(() {
         _isWriting = _controller.text.isNotEmpty;
       });
     });
+    _scrollController.addListener(() {
+      if (_scrollController.position.atEdge) {
+        bool isTop = _scrollController.position.pixels == 0;
+        if (isTop) {
+          _fetchOlderMessages();
+        }
+      }
+    });
   }
 
   @override
   void dispose() {
+    socket?.disconnect();
+    socket?.dispose();
     _controller.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -76,6 +189,12 @@ class _ChatScreenState extends State<ChatScreen> {
     return QueryBuilder(
       'chat_${widget.id}',
       _fetchChat,
+      refreshConfig: RefreshConfig.withDefaults(
+        context,
+        staleDuration: const Duration(
+          seconds: 0,
+        ),
+      ),
       builder: (context, query) {
         if (query.isLoading) {
           return _buildLoader();
@@ -101,7 +220,9 @@ class _ChatScreenState extends State<ChatScreen> {
         final data = query.data;
         if (data == null) return _buildLoader();
         return Scaffold(
+          resizeToAvoidBottomInset: true,
           appBar: AppBar(
+            forceMaterialTransparency: true,
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(4.0),
               child: Container(
@@ -118,9 +239,18 @@ class _ChatScreenState extends State<ChatScreen> {
                     fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
                   ),
                 ),
-                Text(
-                  data.voice,
-                  style: Theme.of(context).textTheme.titleSmall,
+                Row(
+                  children: [
+                    Text(
+                      data.voice,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    if (eolReceived == false)
+                      Text(
+                        " • Typing",
+                        style: Theme.of(context).textTheme.titleSmall,
+                      )
+                  ],
                 ),
               ],
             ),
@@ -128,7 +258,45 @@ class _ChatScreenState extends State<ChatScreen> {
           body: Column(
             children: [
               Expanded(
-                child: ListView(),
+                child: ListView.separated(
+                    controller: _scrollController,
+                    itemBuilder: (context, index) {
+                      final message = messages[index];
+                      final bubble = ChatBubble(
+                        text: message.content,
+                        isSentByMe: message.author == MessageAuthor.User,
+                        sent: message.id == lastMessageId ? false : true,
+                      );
+                      if (index != messages.length - 1) {
+                        return bubble;
+                      } else {
+                        if (eolReceived == true) {
+                          return bubble;
+                        } else if (botResponse.isEmpty) {
+                          return bubble;
+                        } else {
+                          return Column(
+                            children: [
+                              bubble,
+                              const SizedBox(
+                                height: BASE_MARGIN * 2,
+                              ),
+                              ChatBubble(
+                                text: botResponse,
+                                isSentByMe: false,
+                                sent: true,
+                              ),
+                            ],
+                          );
+                        }
+                      }
+                    },
+                    separatorBuilder: (context, index) {
+                      return const SizedBox(
+                        height: BASE_MARGIN * 0,
+                      );
+                    },
+                    itemCount: messages.length),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -137,8 +305,11 @@ class _ChatScreenState extends State<ChatScreen> {
                     Expanded(
                       child: InputField(
                         controller: _controller,
-                        hintText: "Message ${data.voice}",
+                        hintText: "Send a message",
                         keyboardType: TextInputType.text,
+                        enabled: !disabled,
+                        maxLines: 5,
+                        minLines: 1,
                       ),
                     ),
                     const SizedBox(
@@ -149,23 +320,42 @@ class _ChatScreenState extends State<ChatScreen> {
                       child: _isWriting
                           ? Container(
                               key: const ValueKey('send'),
-                              decoration: const BoxDecoration(
-                                color: Colors.blue,
+                              decoration: BoxDecoration(
+                                color: disabled == false ? Colors.blue : Colors.blue.shade200,
                                 shape: BoxShape.circle,
                               ),
                               child: IconButton(
                                 icon: const Icon(Icons.send, color: Colors.white),
                                 onPressed: () {
+                                  if (disabled == true) return;
                                   if (_controller.text.isNotEmpty) {
+                                    final refId = uuid.v4();
+                                    setState(() {
+                                      disabled = true;
+                                      lastMessageId = refId;
+                                      botResponse = "";
+                                      eolReceived = false;
+                                    });
+                                    socket?.emit("message", {
+                                      "message": _controller.text,
+                                      "refId": refId,
+                                    });
+                                    messages.add(Message(
+                                      author: MessageAuthor.User,
+                                      content: _controller.text.split(" ").map((e) => {"word": e}).toList(),
+                                      createdAt: DateTime.now().toIso8601String(),
+                                      id: refId,
+                                    ));
                                     _controller.clear();
+                                    _scrollToBottom();
                                   }
                                 },
                               ),
                             )
                           : Container(
                               key: const ValueKey('mic'),
-                              decoration: const BoxDecoration(
-                                color: Colors.blue,
+                              decoration: BoxDecoration(
+                                color: disabled == false ? Colors.blue : Colors.blue.shade200,
                                 shape: BoxShape.circle,
                               ),
                               child: IconButton(
@@ -234,10 +424,16 @@ class _ChatScreenState extends State<ChatScreen> {
 }
 
 class ChatBubble extends StatelessWidget {
-  final String text;
+  final dynamic text;
   final bool isSentByMe;
+  final bool? sent;
 
-  ChatBubble({required this.text, required this.isSentByMe});
+  const ChatBubble({
+    super.key,
+    required this.text,
+    required this.isSentByMe,
+    this.sent,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -248,14 +444,50 @@ class ChatBubble extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(10.0),
           decoration: BoxDecoration(
-            color: isSentByMe ? Colors.teal : Colors.grey[300],
-            borderRadius: BorderRadius.circular(15.0),
+            color: isSentByMe ? PRIMARY_COLOR : Colors.grey[300],
+            borderRadius: isSentByMe
+                ? const BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                    bottomLeft: Radius.circular(10),
+                    bottomRight: Radius.circular(0),
+                  )
+                : const BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                    bottomLeft: Radius.circular(0),
+                    bottomRight: Radius.circular(10),
+                  ),
           ),
-          child: Text(
-            text,
-            style: TextStyle(
-              color: isSentByMe ? Colors.white : Colors.black,
-            ),
+          child: Wrap(
+            children: [
+              Wrap(
+                alignment: WrapAlignment.start,
+                children: [
+                  for (var word in text) ...{
+                    if (word != null)
+                      word['translation'] != null
+                          ? Tooltip(
+                              message: word['translation'],
+                              triggerMode: TooltipTriggerMode.tap,
+                              child: Text(
+                                word['word'],
+                                style: const TextStyle(
+                                  decoration: TextDecoration.underline,
+                                  decorationStyle: TextDecorationStyle.dashed,
+                                ),
+                              ),
+                            )
+                          : Text(
+                              word['word'],
+                            ),
+                    SizedBox(
+                      width: BASE_MARGIN.toDouble(),
+                    ),
+                  },
+                ],
+              ),
+            ],
           ),
         ),
       ),

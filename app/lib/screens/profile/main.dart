@@ -11,6 +11,7 @@ import 'package:heroicons/heroicons.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_gravatar/flutter_gravatar.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -72,12 +73,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
               'profile_stats',
               _getUserProfile,
               builder: (context, query) {
-                if (query.isLoading) return _buildBaseProfile(userState, context, monthName, dateTime);
-                if (query.hasError) return _buildBaseProfile(userState, context, monthName, dateTime);
+                if (query.isLoading) {
+                  return _buildBaseProfile(
+                    userState,
+                    context,
+                    monthName,
+                    dateTime,
+                    "https://api.dicebear.com/8.x/initials/png?seed=${userState.name}",
+                  );
+                }
+                if (query.hasError) {
+                  return _buildBaseProfile(
+                    userState,
+                    context,
+                    monthName,
+                    dateTime,
+                    "https://api.dicebear.com/8.x/initials/png?seed=${userState.name}",
+                  );
+                }
                 final data = query.data;
                 if (data == null) {
                   return const SizedBox();
                 }
+                final gravatar = Gravatar(data['email']);
+                final url = gravatar.imageUrl();
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -86,6 +105,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       context,
                       monthName,
                       dateTime,
+                      url,
                       flags: data?['paths']?[0]?['language']?['flagUrl'] != null
                           ? [
                               data?['paths']?[0]?['language']?['flagUrl'],
@@ -275,7 +295,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     UserState userState,
     BuildContext context,
     String monthName,
-    DateTime dateTime, {
+    DateTime dateTime,
+    String profileUrl, {
     List<String>? flags,
   }) {
     return Column(
@@ -317,7 +338,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               radius: 40,
               backgroundColor: Colors.grey.shade800,
               backgroundImage: NetworkImage(
-                "https://api.dicebear.com/8.x/initials/png?seed=${userState.name}",
+                profileUrl,
               ),
             )
           ],

@@ -46,6 +46,10 @@ class VoiceLearnApp extends StatelessWidget {
             fontFamily: "Geist",
             brightness: Brightness.light,
             primaryColor: PRIMARY_COLOR,
+            appBarTheme: const AppBarTheme(
+              elevation: 0,
+              scrolledUnderElevation: 0,
+            ),
             textTheme: const TextTheme(
               titleLarge: TextStyle(
                 fontSize: 32,

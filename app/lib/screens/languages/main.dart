@@ -70,7 +70,6 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
           ),
         ),
       ),
-      extendBodyBehindAppBar: true,
       body: Padding(
         padding: const EdgeInsets.all(10),
         child: QueryBuilder(
