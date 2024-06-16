@@ -28,6 +28,9 @@ import { ProfileModule } from './resources/profile/profile.module';
 import { LoggingMiddleware } from './middlewares/logging/logging.middleware';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './filters/all/all.filter';
+import { ChatsModule } from './resources/chats/chats.module';
+import { VoicesModule } from './resources/voices/voices.module';
+import { ChatModule } from './gateways/chat/chat.module';
 
 @Module({
   imports: [
@@ -58,6 +61,9 @@ import { AllExceptionsFilter } from './filters/all/all.filter';
     LivesModule,
     GenerationsModule,
     ProfileModule,
+    ChatsModule,
+    VoicesModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [
@@ -95,6 +101,10 @@ export class AppModule implements NestModule {
           method: RequestMethod.GET,
           path: '/v(.*)/',
         },
+        {
+          method:RequestMethod.GET,
+          path:"/v(.*)/voices"
+        }
       )
       .forRoutes('*');
 

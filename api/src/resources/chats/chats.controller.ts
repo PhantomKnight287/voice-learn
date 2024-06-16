@@ -54,4 +54,26 @@ export class ChatsController {
   getChatInfo(@Auth() auth: User, @Param('id') id: string) {
     return this.chatsService.getChatInfo(auth.id, id);
   }
+
+  @ApiOperation({})
+  @Get(':id/messages')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  @ApiQuery({
+    name: 'id',
+    type: String,
+    required: false,
+  })
+  getChatMessages(
+    @Auth() auth: User,
+    @Param('id') id: string,
+    @Query('id') lastMessageId: string,
+  ) {
+    if (lastMessageId)
+      return this.chatsService.fetchOlderMessages(auth.id, id, lastMessageId);
+    else return this.chatsService.getLatestMessages(auth.id, id);
+  }
 }

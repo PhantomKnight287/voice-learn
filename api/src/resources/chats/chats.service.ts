@@ -25,6 +25,9 @@ export class ChatsService {
               createdAt: 'desc',
             },
           ],
+          select: {
+            content: true,
+          },
         },
         language: {
           select: {
@@ -77,7 +80,7 @@ export class ChatsService {
       },
       include: {
         messages: {
-          take: 1,
+          take: 20,
           orderBy: [
             {
               createdAt: 'desc',
@@ -99,5 +102,57 @@ export class ChatsService {
     });
     if (!chat) throw new HttpException('No Chat Found.', HttpStatus.NOT_FOUND);
     return chat;
+  }
+
+  async getLatestMessages(userId: string, chatId: string) {
+    const chat = await prisma.chat.findFirst({
+      where: {
+        userId,
+        id: chatId,
+      },
+    });
+    if (!chat) throw new HttpException('No Chat Found.', HttpStatus.NOT_FOUND);
+    const messages = await prisma.message.findMany({
+      where: {
+        chat: {
+          userId,
+          id: chatId,
+        },
+      },
+      take: 20,
+    });
+    return messages;
+  }
+
+  async fetchOlderMessages(
+    userId: string,
+    chatId: string,
+    lastMessageId: string,
+  ) {
+    if(!lastMessageId) throw new HttpException("Please provide last message id",HttpStatus.BAD_REQUEST);
+    const chat = await prisma.chat.findFirst({
+      where: {
+        userId,
+        id: chatId,
+      },
+    });
+    if (!chat) throw new HttpException('No Chat Found.', HttpStatus.NOT_FOUND);
+    const messages = await prisma.message.findMany({
+      where: {
+        chat: {
+          userId,
+          id: chatId,
+        },
+      },
+      take: -20,
+      skip: 1,
+      cursor: {
+        id: lastMessageId,
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
+    return messages;
   }
 }

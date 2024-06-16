@@ -79,6 +79,7 @@ export class AppService {
           flagUrlExpireTimestamp: oneWeekFromNow,
           id: `language_${createId()}`,
           name: flag.name,
+          key:fileKey,
         },
       });
     }

@@ -25,9 +25,15 @@ export const envSchema = z.object({
   PUSHER_CLUSTER: z.string(),
   LOGSTRAP_PATH: z.string().optional(),
   LOGSTRAP_KEY: z.string().optional(),
+  ELEVENLABS_API_KEY:z.string(),
 });
 
 const safeParseResult = envSchema.safeParse(process.env);
+if (safeParseResult.success === false) {
+  throw new Error(
+    `${safeParseResult.error.errors[0].path} is required in .env`,
+  );
+}
 
 export const pusher = new _pusher({
   appId: process.env.PUSHER_APP_ID,

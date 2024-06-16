@@ -10,7 +10,6 @@ export class ProfileService {
       },
       omit: {
         password: true,
-        email: true,
       },
       include: {
         paths: {
