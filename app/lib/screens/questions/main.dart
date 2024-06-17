@@ -11,6 +11,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:heroicons/heroicons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:shimmer/shimmer.dart';
@@ -29,6 +31,8 @@ class QuestionsScreen extends StatefulWidget {
 class _QuestionsScreenState extends State<QuestionsScreen> {
   int _currentStep = 0;
   String _selectedStep = '';
+  FlutterTts flutterTts = FlutterTts();
+  bool ttsSetup = false;
 
   late Future<List<Question>> _fetchQuestions;
   final _pageController = PageController();
@@ -37,6 +41,18 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
   bool? correct;
   bool _valueEntered = false;
   final startDate = DateTime.now().toIso8601String();
+
+  void _getLanguages(
+    String locale,
+  ) async {
+    final exists = await flutterTts.isLanguageAvailable(locale);
+    if (exists) {
+      await flutterTts.setLanguage(locale);
+      setState(() {
+        ttsSetup = true;
+      });
+    }
+  }
 
   Future<List<Question>> _fetchQuestionsFuture() async {
     final prefs = await SharedPreferences.getInstance();
@@ -47,7 +63,8 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
         ),
         headers: {"Authorization": "Bearer $token"});
     final body = jsonDecode(req.body);
-    return (body as List).map((q) => Question.toJSON(q)).toList();
+    _getLanguages(body['locale']);
+    return (body['questions'] as List).map((q) => Question.toJSON(q)).toList();
   }
 
   Future<void> _onCorrectAnswer(bool last, String questionId, String answer, {bool submit = true}) async {
@@ -573,11 +590,25 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                               const Spacer(),
                               Wrap(
                                 alignment: WrapAlignment.center,
+                                crossAxisAlignment: WrapCrossAlignment.center,
                                 children: [
+                                  if (ttsSetup)
+                                    IconButton(
+                                      onPressed: () async {
+                                        await flutterTts.speak(question.question.map((q) => q.word).join(" "));
+                                      },
+                                      icon: const HeroIcon(
+                                        HeroIcons.speakerWave,
+                                      ),
+                                    ),
                                   for (var word in question.question) ...{
                                     Tooltip(
                                       message: word.translation,
                                       triggerMode: TooltipTriggerMode.tap,
+                                      onTriggered: () async {
+                                        if (ttsSetup == false) return;
+                                        await flutterTts.speak(word.word);
+                                      },
                                       child: Text(
                                         word.word,
                                         style: TextStyle(
@@ -655,10 +686,13 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                       ),
                                       enableFeedback: true,
                                       enabled: true,
-                                      onTap: () {
+                                      onTap: () async {
                                         setState(() {
                                           _selectedStep = option;
                                         });
+                                        if (ttsSetup) {
+                                          await flutterTts.speak(option);
+                                        }
                                       },
                                     );
                                   },

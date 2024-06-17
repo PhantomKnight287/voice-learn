@@ -1,17 +1,24 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:app/components/input.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/chat.dart';
 import 'package:app/models/message.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:record/record.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:shimmer/shimmer.dart';
 import 'package:app/utils/string.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:toastification/toastification.dart';
 import 'package:uuid/uuid.dart';
+import 'package:path_provider/path_provider.dart';
 
 class ChatScreen extends StatefulWidget {
   final String id;
@@ -29,13 +36,22 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   final ScrollController _scrollController = ScrollController();
   bool _isWriting = false;
   late IO.Socket? socket;
-
+  final record = AudioRecorder();
   String? lastMessageId;
   List<Message> messages = [];
   bool disabled = false;
   bool eolReceived = true;
   String botResponse = "";
   final uuid = const Uuid();
+  String queueMessage = "";
+  Timer? timer;
+  String? lastMessageReceivedId;
+  bool _isRecording = false;
+  int _recordingDuration = 0;
+  Timer? _recordingTimer;
+  bool _isPreview = false;
+  final audio = AudioPlayer();
+  String filePath = "";
 
   @override
   void didChangeMetrics() {
@@ -106,14 +122,21 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
               lastMessageId = '';
               disabled = true;
               eolReceived = false;
+              lastMessageReceivedId = data['id'];
             });
           }
         }
+        timer = Timer.periodic(
+          const Duration(seconds: 5),
+          (timer) {
+            socket?.emit("queue");
+          },
+        );
       },
     );
-    socket!.on("response", (data) async {
+    socket!.on("queue", (data) async {
       setState(() {
-        botResponse += jsonEncode(data);
+        queueMessage = data == -1 ? " • Typing..." : " • You are ${numberToOrdinal(data)} in queue.";
         eolReceived = false;
       });
     });
@@ -124,7 +147,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           disabled = false;
           eolReceived = true;
           botResponse = '';
+          lastMessageReceivedId = "";
         });
+        timer?.cancel();
         messages.add(
           Message.fromJSON(
             data,
@@ -155,6 +180,68 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     }
   }
 
+  void _startRecording() async {
+    print('recording started');
+    Map<Permission, PermissionStatus> permissions = await [
+      Permission.storage,
+      Permission.microphone,
+    ].request();
+
+    bool granted = permissions[Permission.storage]!.isGranted && permissions[Permission.microphone]!.isGranted;
+
+    if (granted) {
+      final directory = (await getApplicationDocumentsDirectory()).path;
+      String recording = '$directory/recordings';
+      Directory appFolder = Directory(recording);
+      bool appFolderExists = await appFolder.exists();
+      if (!appFolderExists) {
+        await appFolder.create(recursive: true);
+      }
+
+      final filepath = '$recording/${DateTime.now().millisecondsSinceEpoch}.mp3';
+
+      const config = RecordConfig();
+
+      await record.start(
+        config,
+        path: filepath,
+      );
+
+      setState(() {
+        _isRecording = true;
+        filePath = filepath;
+        _recordingDuration = 0;
+      });
+
+      _recordingTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        setState(() {
+          _recordingDuration += 1;
+        });
+        if (_recordingDuration >= 10) {
+          _stopRecording();
+        }
+      });
+    } else {
+      // Handle permission denied
+    }
+  }
+
+  void _stopRecording() async {
+    _recordingTimer?.cancel();
+    final str = await record.stop();
+
+    if (str != null && _recordingDuration >= 2) {
+      setState(() {
+        _isRecording = false;
+        _isPreview = true;
+      });
+    } else {
+      setState(() {
+        _isRecording = false;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -179,6 +266,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   void dispose() {
     socket?.disconnect();
     socket?.dispose();
+    timer?.cancel();
+    _recordingTimer?.cancel();
     _controller.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -245,9 +334,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                       data.voice,
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
-                    if (eolReceived == false)
+                    if (eolReceived == false && queueMessage.isNotEmpty)
                       Text(
-                        " • Typing",
+                        queueMessage,
                         style: Theme.of(context).textTheme.titleSmall,
                       )
                   ],
@@ -303,14 +392,49 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                 child: Row(
                   children: [
                     Expanded(
-                      child: InputField(
-                        controller: _controller,
-                        hintText: "Send a message",
-                        keyboardType: TextInputType.text,
-                        enabled: !disabled,
-                        maxLines: 5,
-                        minLines: 1,
-                      ),
+                      child: _isRecording
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                // Replace with your waveform widget
+                                // YourWaveformWidget(filepath: _recordingPath),
+                                Text('Recording... ${_recordingDuration}s'),
+                              ],
+                            )
+                          : _isPreview
+                              ? Row(
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.play_arrow),
+                                      onPressed: () async {
+                                        print(filePath);
+                                        if (filePath.isNotEmpty) {
+                                          await audio.play(
+                                            DeviceFileSource(filePath),
+                                            volume: 1,
+                                          );
+                                          audio.onPlayerComplete.listen(
+                                            (event) {
+                                              print("played");
+                                            },
+                                          );
+                                        }
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.send),
+                                      onPressed: () {},
+                                    ),
+                                  ],
+                                )
+                              : InputField(
+                                  controller: _controller,
+                                  hintText: "Send a message",
+                                  keyboardType: TextInputType.text,
+                                  enabled: !disabled,
+                                  maxLines: 5,
+                                  minLines: 1,
+                                ),
                     ),
                     const SizedBox(
                       width: BASE_MARGIN * 2,
@@ -352,17 +476,22 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                 },
                               ),
                             )
-                          : Container(
+                          : GestureDetector(
                               key: const ValueKey('mic'),
-                              decoration: BoxDecoration(
-                                color: disabled == false ? Colors.blue : Colors.blue.shade200,
-                                shape: BoxShape.circle,
-                              ),
-                              child: IconButton(
-                                icon: const Icon(Icons.mic, color: Colors.white),
-                                onPressed: () {
-                                  // Handle mic button press
-                                },
+                              onLongPressStart: (_) => _startRecording(),
+                              onLongPressEnd: (_) => _stopRecording(),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: disabled == false ? Colors.blue : Colors.blue.shade200,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: IconButton(
+                                  icon: Icon(
+                                    _isPreview ? Icons.send : Icons.mic,
+                                    color: Colors.white,
+                                  ),
+                                  onPressed: () {}, // Disable onPressed to use onLongPress instead
+                                ),
                               ),
                             ),
                     ),
