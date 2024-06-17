@@ -51,21 +51,17 @@ dependencies:
   fl_query_hooks: ^1.1.0
   fl_query_devtools: ^0.1.0+1
   fl_query_connectivity_plus_adapter: ^0.1.0+1
-  sliding_sheet: ^0.5.2
-  super_tooltip: ^2.0.7
   audioplayers: ^6.0.0
-  gif_view: ^0.4.3
   google_mobile_ads: ^5.1.0
   confetti: ^0.7.0
-  flutter_timezone: ^1.0.8
   heroicons: ^0.10.0
-  pusher_channels_flutter: ^2.2.1
   intl: ^0.19.0
   flutter_gravatar: ^2.0.2
   socket_io_client: ^2.0.3+1
   uuid: ^4.4.0
   record: ^5.1.1
   permission_handler: ^11.3.1
+  flutter_tts: 3.8.5
 
 
 dev_dependencies:

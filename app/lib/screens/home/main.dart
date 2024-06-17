@@ -38,15 +38,15 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
   }
 
   Future<void> _setUpPusher() async {
-    await pusher.init(apiKey: PUSHER_API_KEY, cluster: PUSHER_CLUSTER);
-    await pusher.subscribe(
-        channelName: 'modules',
-        onEvent: (event) {
-          if (context.read<UserBloc>().state.id == event.data) {
-            QueryClient.of(context).refreshQuery('learning_path');
-          }
-        });
-    await pusher.connect();
+    // await pusher.init(apiKey: PUSHER_API_KEY, cluster: PUSHER_CLUSTER);
+    // await pusher.subscribe(
+    //     channelName: 'modules',
+    //     onEvent: (event) {
+    //       if (context.read<UserBloc>().state.id == event.data) {
+    //         QueryClient.of(context).refreshQuery('learning_path');
+    //       }
+    //     });
+    // await pusher.connect();
   }
 
   @override
@@ -62,9 +62,9 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
   void dispose() {
     routeObserver.unsubscribe(this);
     super.dispose();
-    pusher.disconnect().then(
-          (value) {},
-        );
+    // pusher.disconnect().then(
+    //       (value) {},
+    //     );
   }
 
   @override
