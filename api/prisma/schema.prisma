@@ -25,6 +25,21 @@ model User {
   generationRequests GenerationRequest[]
   paths              LearningPath[]
   streaks            Streak[]
+  uploads            Upload[]
+}
+
+model Upload {
+  id  String @id @unique
+  key String @unique
+
+  url String @unique
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  updatedAt DateTime @updatedAt
 }
 
 model GenerationRequest {
