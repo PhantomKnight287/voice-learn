@@ -61,4 +61,11 @@ export class LessonsController {
   getLessonStats(@Auth() user: User, @Param('id') id: string) {
     return this.lessonsService.getLessonCompletionStats(id, user.id);
   }
+
+  @ApiOperation({})
+  @ApiParam({ name: 'id', description: 'The id of module' })
+  @Get(':id/lessons')
+  getModuleLessons(@Auth() user: User, @Param('id') id: string) {
+    return this.lessonsService.getLessons(user.id, id);
+  }
 }

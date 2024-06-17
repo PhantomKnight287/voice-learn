@@ -4,6 +4,7 @@ import { prisma } from 'src/db';
 import { removePunctuation } from 'src/utils/string';
 import { CreateAnswerDTO } from './dto/answer.dto';
 import moment from 'moment';
+import { locales } from 'src/constants';
 
 @Injectable()
 export class QuestionsService {
@@ -16,6 +17,19 @@ export class QuestionsService {
             updatedAt: true,
           },
         },
+        module: {
+          select: {
+            learningPath: {
+              select: {
+                language: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
     if (!lesson)
@@ -26,7 +40,10 @@ export class QuestionsService {
         HttpStatus.NOT_FOUND,
       );
 
-    return lesson.questions;
+    return {
+      questions: lesson.questions,
+      locale: locales[lesson.module.learningPath.language.name],
+    };
   }
 
   async answerQuestion(

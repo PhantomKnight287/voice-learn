@@ -1,7 +1,7 @@
 import { Redis } from '@upstash/redis';
 import { QueueItemObject } from 'src/types/queue';
 
-export class QueueService extends Redis {
+class QueueService extends Redis {
   protected readonly queue_name = 'gemini::queue::dev';
   private requestsThisMinute = 0;
   private readonly maxRequestsPerMinute = 15;
@@ -11,12 +11,11 @@ export class QueueService extends Redis {
       url: process.env['REDIS_HOST'],
       token: process.env['REDIS_PASSWORD'],
     });
-
     setInterval(() => this.resetRequestQuota(), 60000);
   }
 
-  async addToQueue(props: QueueItemObject): Promise<void> {
-    await this.rpush(this.queue_name, JSON.stringify(props));
+  async addToQueue(props: QueueItemObject) {
+    return await this.rpush(this.queue_name, JSON.stringify(props));
   }
   async *getQueueItem(): AsyncGenerator<QueueItemObject | null> {
     while (true) {
@@ -34,7 +33,7 @@ export class QueueService extends Redis {
       }
     }
   }
-  async addToQueueWithPriority(props: QueueItemObject): Promise<void> {
+  async addToQueueWithPriority(props: QueueItemObject) {
     await this.lpush(this.queue_name, JSON.stringify(props));
   }
 

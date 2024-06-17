@@ -4,7 +4,13 @@ export type QueueItemType =
   | 'modules'
   | 'lessons';
 
-export type QueueItemObject = {
-  id: string;
-  type: QueueItemType;
-};
+export type QueueItemObject =
+  | {
+      id: string;
+      type: QueueItemType;
+    }
+  | {
+      id: string;
+      type: 'chat';
+      messageId: string;
+    };

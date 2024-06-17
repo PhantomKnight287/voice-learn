@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { prisma } from 'src/db';
 import { CreateChatDTO } from './dto/create-chat.dto';
 import { createId } from '@paralleldrive/cuid2';
+import { locales } from 'src/constants';
 
 @Injectable()
 export class ChatsService {
@@ -101,7 +102,7 @@ export class ChatsService {
       },
     });
     if (!chat) throw new HttpException('No Chat Found.', HttpStatus.NOT_FOUND);
-    return chat;
+    return { ...chat, locale: locales[chat.language.name] };
   }
 
   async getLatestMessages(userId: string, chatId: string) {
@@ -129,7 +130,11 @@ export class ChatsService {
     chatId: string,
     lastMessageId: string,
   ) {
-    if(!lastMessageId) throw new HttpException("Please provide last message id",HttpStatus.BAD_REQUEST);
+    if (!lastMessageId)
+      throw new HttpException(
+        'Please provide last message id',
+        HttpStatus.BAD_REQUEST,
+      );
     const chat = await prisma.chat.findFirst({
       where: {
         userId,

@@ -5,6 +5,7 @@ import { Subject } from 'rxjs';
 import _pusher from 'pusher';
 import 'dotenv/config';
 import { z } from 'zod';
+import { Message } from '@prisma/client';
 export const ONBOARDING_QUEUE = 'onboarding';
 
 export const PATH_GENERATION_SUBJECT = new Subject<string>();
@@ -25,7 +26,7 @@ export const envSchema = z.object({
   PUSHER_CLUSTER: z.string(),
   LOGSTRAP_PATH: z.string().optional(),
   LOGSTRAP_KEY: z.string().optional(),
-  ELEVENLABS_API_KEY:z.string(),
+  ELEVENLABS_API_KEY: z.string(),
 });
 
 const safeParseResult = envSchema.safeParse(process.env);
@@ -48,5 +49,52 @@ declare global {
   }
 }
 
-
 export const errorSubject$ = new Subject<any>();
+
+export const locales = {
+  Afrikaans: 'af-ZA',
+  Arabic: 'ar-SA',
+  Armenian: 'hy-AM',
+  Azerbaijani: 'az-AZ',
+  Belarusian: 'be-BY',
+  Bosnian: 'bs-BA',
+  Bulgarian: 'bg-BG',
+  Catalan: 'ca-ES',
+  Chinese: 'zh-CN',
+  Croatian: 'hr-HR',
+  Czech: 'cs-CZ',
+  Danish: 'da-DK',
+  Dutch: 'nl-NL',
+  English: 'en-US',
+  Estonian: 'et-EE',
+  Finnish: 'fi-FI',
+  Galician: 'gl-ES',
+  German: 'de-DE',
+  Greek: 'el-GR',
+  Hebrew: 'he-IL',
+  Hindi: 'hi-IN',
+  Hungarian: 'hu-HU',
+  Icelandic: 'is-IS',
+  Indonesian: 'id-ID',
+  Italian: 'it-IT',
+  Japanese: 'ja-JP',
+  Korean: 'ko-KR',
+  Latvian: 'lv-LV',
+  Norwegian: 'no-NO',
+  Polish: 'pl-PL',
+  Portuguese: 'pt-PT',
+  Romanian: 'ro-RO',
+  Russian: 'ru-RU',
+  Serbian: 'sr-RS',
+  Spanish: 'es-ES',
+  Swedish: 'sv-SE',
+  Thai: 'th-TH',
+  Turkish: 'tr-TR',
+  Ukrainian: 'uk-UA',
+  Vietnamese: 'vi-VN',
+  French: 'fr-FR',
+};
+
+export const messageSubject = new Subject<Message>();
+
+export const queuePositionSubject = new Subject<number>();

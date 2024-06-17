@@ -16,7 +16,6 @@ import { GeminiService } from './services/gemini/gemini.service';
 import { BullModule } from '@nestjs/bull';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { EventsModule } from './resources/events/events.module';
-import { QueueService } from './services/queue/queue.service';
 import { OnboardingQueueConsumer } from './consumers/onboarding.consumer';
 import { LessonsModule } from './resources/lessons/lessons.module';
 import { QuestionsModule } from './resources/questions/questions.module';
@@ -31,6 +30,7 @@ import { AllExceptionsFilter } from './filters/all/all.filter';
 import { ChatsModule } from './resources/chats/chats.module';
 import { VoicesModule } from './resources/voices/voices.module';
 import { ChatModule } from './gateways/chat/chat.module';
+import { UploadsModule } from './resources/uploads/uploads.module';
 
 @Module({
   imports: [
@@ -64,13 +64,13 @@ import { ChatModule } from './gateways/chat/chat.module';
     ChatsModule,
     VoicesModule,
     ChatModule,
+    UploadsModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
     S3Service,
     GeminiService,
-    QueueService,
     OnboardingQueueConsumer,
     CronService,
     {
@@ -102,9 +102,9 @@ export class AppModule implements NestModule {
           path: '/v(.*)/',
         },
         {
-          method:RequestMethod.GET,
-          path:"/v(.*)/voices"
-        }
+          method: RequestMethod.GET,
+          path: '/v(.*)/voices',
+        },
       )
       .forRoutes('*');
 

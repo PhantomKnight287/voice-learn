@@ -2,12 +2,10 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CompleteOnBoardingDTO } from './dto/complete-onboarding.dto';
 import { prisma } from 'src/db';
 import { createId } from '@paralleldrive/cuid2';
-import { QueueService } from 'src/services/queue/queue.service';
-import { inspect } from 'util';
+import { queue } from 'src/services/queue/queue.service';
 
 @Injectable()
 export class OnboardingService {
-  constructor(protected readonly queue: QueueService) {}
   async completeOnboarding(body: CompleteOnBoardingDTO, userId: string) {
     const learningPath = await prisma.learningPath.create({
       data: {
@@ -35,7 +33,7 @@ export class OnboardingService {
         },
       });
     }
-    await this.queue.addToQueue({ id: learningPath.id, type: 'learning_path' });
+    await queue.addToQueue({ id: learningPath.id, type: 'learning_path' });
 
     return learningPath;
   }
@@ -52,7 +50,7 @@ export class OnboardingService {
         position: null,
       };
     else {
-      const inQueue = await this.queue.getPositionInQueue({
+      const inQueue = await queue.getPositionInQueue({
         id: onboardingRecord.id,
         type: 'learning_path',
       });

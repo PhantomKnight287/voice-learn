@@ -14,7 +14,8 @@ import { z } from 'zod';
 import { createId } from '@paralleldrive/cuid2';
 import { queue } from 'src/services/queue/queue.service';
 import { QueueItemObject } from 'src/types/queue';
-import { pusher } from 'src/constants';
+import { messageSubject, pusher } from 'src/constants';
+import { llmTextResponse } from 'src/gateways/chat/schema/response';
 
 @Controller('events')
 export class EventsController {
@@ -210,11 +211,7 @@ Only generate array of modules and no escape characters.
             });
           }
         });
-         await pusher.trigger(
-          'modules',
-          'module_generated',
-          request.userId,
-        );
+        await pusher.trigger('modules', 'module_generated', request.userId);
       } else if (body.type === 'lessons') {
         const request = await prisma.generationRequest.findFirst({
           where: { id: body.id },
@@ -293,91 +290,139 @@ Only generate array of lessons and no escape characters.
             })),
           });
         });
-         await pusher.trigger(
-          'modules',
-          'module_generated',
-          request.userId,
-        );
-      }
-      else{
-
-      const path = await prisma.learningPath.findFirst({
-        include: { language: true },
-        where: { id: String(body.id) },
-      });
-      if (!path) return;
-
-      const data = await this.geminiService.generateObject({
-        schema: learning_path_schema,
-        messages: [
-          {
-            role: 'system',
-            content: `Generate a JSON structure for a ${path.language.name} language learning program. The program should consist of five modules, each containing at least 6 lessons. Each lesson should a name, description and a "questionsCount" which should be equal to the no of questions that lesson must have. Do not use special characters in names and descriptions. The name and descriptions must be useful and shouldn't include words like "Module 1". The description should not start with "This Module covers" or "This lesson covers". Do not generated words like "pronunciation"`,
+        await pusher.trigger('modules', 'module_generated', request.userId);
+      } else if (body.type === 'chat') {
+        const chat = await prisma.chat.findFirst({
+          where: {
+            id: body.id,
           },
-
-          {
-            role: 'user',
-            content: `I want to learn ${path.language.name} and ${path.knowledge}. I want to learn ${path.language.name} for ${path.reason}`,
+          include: {
+            language: true,
+            messages: true,
           },
-        ],
-      });
-      const object: z.infer<typeof learning_path_schema> = data.object;
+        });
 
-      for (const path of object.paths) {
-        await prisma.$transaction(async (tx) => {
-          await tx.learningPath.update({
-            where: { id: body.id },
-            data: {
-              modules: {
-                create: path.modules.map((module) => ({
-                  name: module.name,
-                  id: `module_${createId()}`,
-                  description: module.description,
-                })),
-              },
+        const userMessage = await prisma.message.findFirst({
+          where: { id: body.messageId },
+        });
+        const res = await this.geminiService.generateObject({
+          schema: llmTextResponse,
+          messages: [
+            {
+              role: 'system',
+              content: `${chat.initialPrompt}. ${
+                chat.language.name.toLocaleLowerCase() === 'multiple'
+                  ? 'Reply in language the question is asked'
+                  : `Reply in ${chat.language.name}`
+              }. The actions or expressions are inside asterisks. Try to add some expressions into your message as well. You are only allowed to do textual conversations and not provide any code help. You are free to tell others that you are made by OpenAI. `,
             },
-          });
-          for (const pathModule of path.modules) {
-            const module = await tx.module.findFirst({
-              where: { name: pathModule.name, learningPathId: body.id },
-            });
-            if (!module) continue;
-            const startTime = new Date().getTime();
-            await tx.module.update({
-              where: { id: module.id },
+            {
+              role: 'system',
+              content: `Your response must be an array of objects where 'word' will be the actual word in ${chat.language.name} and 'translation' will be translation in english. Example: [{"word":"Guten","translation":"Good",},{"word":"morgen","translation":"morning"}]
+              
+              Do not generate escape characters
+              `,
+            },
+            //@ts-expect-error
+            ...chat.messages.map((message) => ({
+              role: message.author === 'Bot' ? 'assistant' : 'user',
+              content: message.content
+                .map((message) => (message as { word: string }).word)
+                .join(' '),
+            })),
+            {
+              content: userMessage.content
+                .map((e) => (e as { word: string }).word)
+                .join(' '),
+              //@ts-expect-error
+              role: 'user',
+            },
+          ],
+        });
+
+        const llmMessage = await prisma.message.create({
+          data: {
+            id: `message_${createId()}`,
+            content: res.object as z.infer<typeof llmTextResponse>,
+            author: 'Bot',
+            chatId: body.id,
+          },
+        });
+        messageSubject.next(llmMessage);
+      } else {
+        const path = await prisma.learningPath.findFirst({
+          include: { language: true },
+          where: { id: String(body.id) },
+        });
+        if (!path) return;
+
+        const data = await this.geminiService.generateObject({
+          schema: learning_path_schema,
+          messages: [
+            {
+              role: 'system',
+              content: `Generate a JSON structure for a ${path.language.name} language learning program. The program should consist of five modules, each containing at least 6 lessons. Each lesson should a name, description and a "questionsCount" which should be equal to the no of questions that lesson must have. Do not use special characters in names and descriptions. The name and descriptions must be useful and shouldn't include words like "Module 1". The description should not start with "This Module covers" or "This lesson covers". Do not generated words like "pronunciation"`,
+            },
+
+            {
+              role: 'user',
+              content: `I want to learn ${path.language.name} and ${path.knowledge}. I want to learn ${path.language.name} for ${path.reason}`,
+            },
+          ],
+        });
+        const object: z.infer<typeof learning_path_schema> = data.object;
+
+        for (const path of object.paths) {
+          await prisma.$transaction(async (tx) => {
+            await tx.learningPath.update({
+              where: { id: body.id },
               data: {
-                lessons: {
-                  create: pathModule.lessons.map((lesson, idx) => ({
-                    name: lesson.name,
-                    id: `lesson_${createId()}`,
-                    questionsCount: lesson.questionsCount,
-                    createdAt: new Date(startTime + 1000 * idx),
+                modules: {
+                  create: path.modules.map((module) => ({
+                    name: module.name,
+                    id: `module_${createId()}`,
+                    description: module.description,
                   })),
                 },
               },
             });
-            if (
-              pathModule.name === path.modules[path.modules.length - 1].name
-            ) {
-              await tx.learningPath.update({
-                data: { type: 'generated' },
-                where: {
-                  id: body.id,
+            for (const pathModule of path.modules) {
+              const module = await tx.module.findFirst({
+                where: { name: pathModule.name, learningPathId: body.id },
+              });
+              if (!module) continue;
+              const startTime = new Date().getTime();
+              await tx.module.update({
+                where: { id: module.id },
+                data: {
+                  lessons: {
+                    create: pathModule.lessons.map((lesson, idx) => ({
+                      name: lesson.name,
+                      id: `lesson_${createId()}`,
+                      questionsCount: lesson.questionsCount,
+                      createdAt: new Date(startTime + 1000 * idx),
+                    })),
+                  },
                 },
               });
+              if (
+                pathModule.name === path.modules[path.modules.length - 1].name
+              ) {
+                await tx.learningPath.update({
+                  data: { type: 'generated' },
+                  where: {
+                    id: body.id,
+                  },
+                });
+              }
             }
-          }
-        });
+          });
+        }
       }
-    }
 
       console.log('generated ' + body.type);
     } catch (error) {
-      console.log(error);
-      await queue.addToQueueWithPriority({
-        id: body.id,
-        type: body.type,
-      });
+      await queue.addToQueueWithPriority(body);
     }
   }
 }

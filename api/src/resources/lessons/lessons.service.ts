@@ -139,4 +139,28 @@ export class LessonsService {
       },
     };
   }
+
+  async getLessons(userId: string, moduleId: string) {
+    const module = await prisma.module.findFirst({
+      where: { id: moduleId, learningPath: { userId } },
+    });
+    if (!module)
+      throw new HttpException('No module found', HttpStatus.NOT_FOUND);
+    const lessons = await prisma.lesson.findMany({
+      where: { moduleId },
+      omit: {
+        createdAt: true,
+        endDate: true,
+        startDate: true,
+        moduleId: true,
+        updatedAt: true,
+      },
+      orderBy: [
+        {
+          createdAt: 'asc',
+        },
+      ],
+    });
+    return lessons;
+  }
 }
