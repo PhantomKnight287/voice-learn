@@ -5,11 +5,19 @@ import morgan from 'morgan';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import './constants';
-import { errorSubject$ } from './constants';
+import { ELEVENLABS_API_URL, errorSubject$ } from './constants';
+
+import { prisma } from './db';
+import { Voice } from './types/voice';
+import { createId } from '@paralleldrive/cuid2';
+
+const OPENAI_VOICES = ['Alloy', 'Echo', 'Fable', 'Onyx', 'Nova', 'Shimmer'];
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(morgan('dev'), helmet());
+  await fetchVoices();
+  await loadOpenAiVoices();
   const config = new DocumentBuilder()
     .setTitle('Voice Learn')
     .setDescription('The Voice Learn Api')
@@ -41,3 +49,69 @@ async function bootstrap() {
   await app.listen(5000);
 }
 bootstrap();
+
+async function fetchVoices() {
+  const req = await fetch(`${ELEVENLABS_API_URL}/voices?page_size=100`, {
+    headers: {
+      'xi-api-key': process.env.ELEVENLABS_API_KEY,
+    },
+  });
+  const body = await req.json();
+  if (!req.ok) {
+    console.error(body);
+    return;
+  }
+  const voices = body.voices as Voice[];
+  for (const voice of voices) {
+    await prisma.voice.upsert({
+      where: {
+        id: voice.voice_id,
+      },
+      update: {
+        description: voice.description,
+        name: voice.name,
+        previewUrl: voice.preview_url,
+        accent: voice.labels.accent,
+        gender: voice?.labels?.gender,
+        provider: 'XILabs',
+      },
+      create: {
+        description: voice.description,
+        id: voice.voice_id,
+        name: voice.name,
+        previewUrl: voice.preview_url,
+        accent: voice.labels.accent,
+        gender: voice?.labels?.gender,
+        provider: 'XILabs',
+      },
+    });
+  }
+}
+
+async function loadOpenAiVoices() {
+  for (const voice of OPENAI_VOICES) {
+    const voiceInDB = await prisma.voice.findFirst({
+      where: { name: voice, provider: 'OpenAI' },
+    });
+    if (voiceInDB) {
+      await prisma.voice.update({
+        where: {
+          id: voiceInDB.id,
+        },
+        data: {
+          name: voice,
+          previewUrl: `https://cdn.openai.com/API/docs/audio/${voice.toLowerCase()}.wav`,
+        },
+      });
+    } else {
+      await prisma.voice.create({
+        data: {
+          name: voice,
+          id: `voice_${createId()}`,
+          previewUrl: `https://cdn.openai.com/API/docs/audio/${voice.toLowerCase()}.wav`,
+          provider: 'OpenAI',
+        },
+      });
+    }
+  }
+}
