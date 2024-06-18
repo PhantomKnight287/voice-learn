@@ -21,7 +21,7 @@ class ViewHandler extends StatefulWidget {
 }
 
 class _ViewHandlerState extends State<ViewHandler> {
-  bool _showOnBoarding = false;
+  bool _showOnBoarding = true;
   String pathId = '';
   void _checkOnBoardingStatus() async {
     final prefs = await SharedPreferences.getInstance();

@@ -227,11 +227,10 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   void _startRecording() async {
     Map<Permission, PermissionStatus> permissions = await [
-      Permission.storage,
       Permission.microphone,
     ].request();
 
-    bool granted = permissions[Permission.storage]!.isGranted && permissions[Permission.microphone]!.isGranted;
+    bool granted = permissions[Permission.microphone]!.isGranted;
 
     if (granted) {
       final directory = (await getApplicationDocumentsDirectory()).path;

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/bottom_bar.dart';
@@ -20,6 +21,7 @@ import 'package:heroicons/heroicons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:shimmer/shimmer.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -30,11 +32,158 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with RouteAware {
   int _currentIndex = 0;
+  final streaksKey = GlobalKey();
+  final emeraldsKey = GlobalKey();
+  final livesKey = GlobalKey();
+  List<TargetFocus> targets = [];
 
   @override
   void initState() {
     super.initState();
     _setUpPusher();
+  }
+
+  Future<void> _setupTutorial() async {
+    final prefs = await SharedPreferences.getInstance();
+    final shown = prefs.getBool("tutorial_shown");
+    if (shown == null || !shown) {
+      TutorialCoachMark tutorial = TutorialCoachMark(
+        colorShadow: Colors.white,
+        textSkip: "SKIP",
+        textStyleSkip: const TextStyle(
+          color: Colors.green,
+        ),
+        paddingFocus: 10,
+        opacityShadow: 0.5,
+        imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        targets: [
+          TargetFocus(
+            keyTarget: streaksKey,
+            identify: "streaks",
+            alignSkip: Alignment.topRight,
+            enableOverlayTab: true,
+            shape: ShapeLightFocus.RRect,
+            contents: [
+              TargetContent(
+                align: ContentAlign.bottom,
+                builder: (context, controller) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        "Streaks",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w600,
+                          fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: BASE_MARGIN * 2,
+                      ),
+                      Text(
+                        "Complete a lesson every day to keep your streak intact.",
+                        style: TextStyle(
+                          fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                        ),
+                      )
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+          TargetFocus(
+            keyTarget: emeraldsKey,
+            identify: "emeralds",
+            alignSkip: Alignment.topRight,
+            enableOverlayTab: true,
+            shape: ShapeLightFocus.RRect,
+            contents: [
+              TargetContent(
+                align: ContentAlign.bottom,
+                builder: (context, controller) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        "Emeralds",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w600,
+                          fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: BASE_MARGIN * 2,
+                      ),
+                      Text(
+                        "These are in app currency which you can use to buy lives and voice chat access.",
+                        style: TextStyle(
+                          fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                        ),
+                      )
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+          TargetFocus(
+            keyTarget: livesKey,
+            identify: "lives",
+            alignSkip: Alignment.topRight,
+            enableOverlayTab: true,
+            shape: ShapeLightFocus.RRect,
+            contents: [
+              TargetContent(
+                align: ContentAlign.bottom,
+                builder: (context, controller) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        "Lives",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w600,
+                          fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: BASE_MARGIN * 2,
+                      ),
+                      Text(
+                        "These determine how many mistakes you can make, but don't worry—if you run out of lives during a lesson, we won't stop you from completing it. ",
+                        style: TextStyle(
+                          fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                        ),
+                      )
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
+        onFinish: () async {
+          final prefs = await SharedPreferences.getInstance();
+          prefs.setBool("tutorial_shown", true);
+        },
+        onSkip: () {
+          SharedPreferences.getInstance().then(
+            (value) {
+              value.setBool("tutorial_shown", true);
+            },
+          );
+          return true;
+        },
+      );
+      tutorial.show(context: context);
+    }
   }
 
   Future<void> _setUpPusher() async {
@@ -80,6 +229,8 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
     final req = await http.get(Uri.parse("$API_URL/onboarding"), headers: {"Authorization": "Bearer $token"});
 
     final body = await jsonDecode(req.body);
+    await _setupTutorial();
+
     if (req.statusCode == 200) {
       return LearningPath.fromJSON(body);
     }
@@ -241,6 +392,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                             height: 30,
                           ),
                           IconButton(
+                            key: streaksKey,
                             onPressed: () {},
                             icon: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -262,6 +414,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                             ),
                           ),
                           IconButton(
+                            key: emeraldsKey,
                             onPressed: () {},
                             icon: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -282,6 +435,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                             ),
                           ),
                           IconButton(
+                            key: livesKey,
                             onPressed: () {},
                             icon: Row(
                               mainAxisAlignment: MainAxisAlignment.center,

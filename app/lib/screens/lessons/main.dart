@@ -66,7 +66,11 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
   Widget build(BuildContext context) {
     final module = widget.module;
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        forceMaterialTransparency: true,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -304,6 +308,9 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
                   child: const Text(
                     "Generate more",
                   ),
+                ),
+                const SizedBox(
+                  height: BASE_MARGIN * 4,
                 ),
               ],
             ),
