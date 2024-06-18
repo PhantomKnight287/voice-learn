@@ -54,3 +54,16 @@ String calculateTimeDifference(String isoString1, String isoString2) {
 String removeVersionAndTrailingSlash(String url) {
   return url.replaceAll(RegExp(r'/v\d+$'), '').replaceAll(RegExp(r'/$'), '');
 }
+
+int stringTimeInSec(String time) {
+  List<String> parts = time.split(':');
+  int minutes = int.parse(parts[0]);
+  int seconds = int.parse(parts[1]);
+  return minutes * 60 + seconds;
+}
+
+String secInTime(int sec) {
+  int minutes = (sec / 60).floor();
+  int restSecs = sec % 60;
+  return '$minutes:${restSecs.toString().padLeft(2, '0')}';
+}

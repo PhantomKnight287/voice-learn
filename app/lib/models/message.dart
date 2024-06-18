@@ -12,6 +12,7 @@ class Message {
   final String? audioUrl;
   final String createdAt;
   final String? refId;
+  final int? audioDuration;
 
   const Message({
     required this.id,
@@ -20,6 +21,7 @@ class Message {
     required this.content,
     required this.createdAt,
     this.refId,
+    this.audioDuration,
   });
 
   factory Message.fromJSON(Map<String, dynamic> json) {
@@ -30,7 +32,8 @@ class Message {
       content: json['content'],
       createdAt: json['createdAt'],
       id: json['id'],
-      audioUrl: json['audioUrl'],
+      audioUrl: json['attachment']?['url'],
+      audioDuration: json['audioDuration'],
     );
   }
 }

@@ -2,15 +2,18 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/input.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/chat.dart';
 import 'package:app/models/message.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:fl_query/fl_query.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:heroicons/heroicons.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:record/record.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:shimmer/shimmer.dart';
@@ -19,6 +22,8 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:toastification/toastification.dart';
 import 'package:uuid/uuid.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:audio_waveforms/audio_waveforms.dart';
+import 'package:http_parser/http_parser.dart';
 
 class ChatScreen extends StatefulWidget {
   final String id;
@@ -36,7 +41,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   final ScrollController _scrollController = ScrollController();
   bool _isWriting = false;
   late IO.Socket? socket;
-  final record = AudioRecorder();
   String? lastMessageId;
   List<Message> messages = [];
   bool disabled = false;
@@ -52,6 +56,14 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   bool _isPreview = false;
   final audio = AudioPlayer();
   String filePath = "";
+  final record = RecorderController()
+    ..androidEncoder = AndroidEncoder.aac
+    ..androidOutputFormat = AndroidOutputFormat.mpeg4
+    ..iosEncoder = IosEncoder.kAudioFormatMPEG4AAC
+    ..sampleRate = 16000;
+
+  final playerController = PlayerController();
+  bool _loading = false;
 
   @override
   void didChangeMetrics() {
@@ -110,6 +122,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     );
     socket!.connect();
     socket!.onConnect((data) => {print("connected")});
+
     socket!.on(
       "message",
       (data) async {
@@ -158,8 +171,40 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         _scrollToBottom();
       }
     });
+    socket!.on("user_update", (data) {
+      final userBloc = context.read<UserBloc>();
+      final userState = userBloc.state;
+      userBloc.add(DecreaseUserHeartEvent(
+        id: userState.id,
+        name: userState.name,
+        createdAt: userState.name,
+        paths: userState.paths,
+        updatedAt: userState.updatedAt,
+        token: userState.token,
+        emeralds: data['emeralds'],
+        lives: data['lives'],
+        streaks: userState.streaks,
+        xp: userState.xp,
+      ));
+    });
     socket!.on("error", (data) {
-      print("err $data");
+      if ((data as String).contains("emeralds")) {
+        setState(() {
+          lastMessageId = '';
+          disabled = false;
+          eolReceived = true;
+          botResponse = '';
+          lastMessageReceivedId = "";
+        });
+      }
+      toastification.show(
+        type: ToastificationType.error,
+        style: ToastificationStyle.minimal,
+        autoCloseDuration: const Duration(seconds: 5),
+        description: Text(data),
+        alignment: Alignment.topCenter,
+        showProgressBar: false,
+      );
     });
   }
 
@@ -181,7 +226,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   void _startRecording() async {
-    print('recording started');
     Map<Permission, PermissionStatus> permissions = await [
       Permission.storage,
       Permission.microphone,
@@ -200,10 +244,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
       final filepath = '$recording/${DateTime.now().millisecondsSinceEpoch}.mp3';
 
-      const config = RecordConfig();
-
-      await record.start(
-        config,
+      await record.record(
         path: filepath,
       );
 
@@ -222,7 +263,16 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         }
       });
     } else {
-      // Handle permission denied
+      toastification.show(
+        type: ToastificationType.error,
+        style: ToastificationStyle.minimal,
+        autoCloseDuration: const Duration(seconds: 5),
+        title: const Text("Permission Denied"),
+        description: const Text("Please allow microphone and storage permission."),
+        alignment: Alignment.topCenter,
+        showProgressBar: false,
+      );
+      return;
     }
   }
 
@@ -235,8 +285,14 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         _isRecording = false;
         _isPreview = true;
       });
+      await playerController.preparePlayer(path: filePath).then(
+            (value) {},
+          );
     } else {
       setState(() {
+        _recordingDuration = 0;
+        filePath = "";
+        _isPreview = false;
         _isRecording = false;
       });
     }
@@ -269,6 +325,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     timer?.cancel();
     _recordingTimer?.cancel();
     _controller.dispose();
+    playerController.dispose();
+    record.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -355,30 +413,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                         text: message.content,
                         isSentByMe: message.author == MessageAuthor.User,
                         sent: message.id == lastMessageId ? false : true,
+                        audioUrl: message.audioUrl,
+                        audioDuration: message.audioDuration,
                       );
-                      if (index != messages.length - 1) {
-                        return bubble;
-                      } else {
-                        if (eolReceived == true) {
-                          return bubble;
-                        } else if (botResponse.isEmpty) {
-                          return bubble;
-                        } else {
-                          return Column(
-                            children: [
-                              bubble,
-                              const SizedBox(
-                                height: BASE_MARGIN * 2,
-                              ),
-                              ChatBubble(
-                                text: botResponse,
-                                isSentByMe: false,
-                                sent: true,
-                              ),
-                            ],
-                          );
-                        }
-                      }
+
+                      return bubble;
                     },
                     separatorBuilder: (context, index) {
                       return const SizedBox(
@@ -393,12 +432,25 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                   children: [
                     Expanded(
                       child: _isRecording
-                          ? Column(
+                          ? Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                // Replace with your waveform widget
-                                // YourWaveformWidget(filepath: _recordingPath),
-                                Text('Recording... ${_recordingDuration}s'),
+                                AudioWaveforms(
+                                  recorderController: record,
+                                  size: Size(MediaQuery.of(context).size.width / 2, 50),
+                                  waveStyle: const WaveStyle(
+                                    waveColor: Colors.white,
+                                    extendWaveform: true,
+                                    showMiddleLine: false,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12.0),
+                                    color: const Color(0xFF1E1B26),
+                                  ),
+                                  padding: const EdgeInsets.only(left: 18),
+                                  margin: const EdgeInsets.symmetric(horizontal: 15),
+                                ),
+                                Text('${_recordingDuration}s/10s'),
                               ],
                             )
                           : _isPreview
@@ -407,23 +459,58 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                     IconButton(
                                       icon: const Icon(Icons.play_arrow),
                                       onPressed: () async {
-                                        print(filePath);
                                         if (filePath.isNotEmpty) {
-                                          await audio.play(
-                                            DeviceFileSource(filePath),
-                                            volume: 1,
+                                          await playerController.startPlayer(
+                                            finishMode: FinishMode.pause,
                                           );
-                                          audio.onPlayerComplete.listen(
-                                            (event) {
-                                              print("played");
+                                          playerController.onCompletion.listen(
+                                            (event) async {
+                                              await playerController.seekTo(0);
                                             },
                                           );
                                         }
                                       },
                                     ),
                                     IconButton(
-                                      icon: const Icon(Icons.send),
-                                      onPressed: () {},
+                                      icon: const Icon(Icons.close),
+                                      color: Colors.red,
+                                      onPressed: () async {
+                                        setState(() {
+                                          _loading = false;
+                                          disabled = true;
+                                          lastMessageId = "";
+                                          botResponse = "";
+                                          eolReceived = false;
+                                          _recordingDuration = 0;
+                                          filePath = "";
+                                          _isPreview = false;
+                                          _isRecording = false;
+                                        });
+                                      },
+                                    ),
+                                    AudioFileWaveforms(
+                                      size: Size(
+                                        MediaQuery.of(context).size.width / 2,
+                                        50,
+                                      ),
+                                      playerController: playerController,
+                                      waveformType: WaveformType.long,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12.0),
+                                        color: const Color(0xFF1E1B26),
+                                      ),
+                                      // padding: const EdgeInsets.only(left: 18),
+                                      animationCurve: Curves.linear,
+                                      margin: const EdgeInsets.symmetric(
+                                        horizontal: 15,
+                                      ),
+                                      enableSeekGesture: true,
+                                      playerWaveStyle: const PlayerWaveStyle(
+                                        showSeekLine: true,
+                                        showBottom: true,
+                                        showTop: true,
+                                      ),
+                                      continuousWaveform: true,
                                     ),
                                   ],
                                 )
@@ -478,20 +565,90 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                             )
                           : GestureDetector(
                               key: const ValueKey('mic'),
-                              onLongPressStart: (_) => _startRecording(),
-                              onLongPressEnd: (_) => _stopRecording(),
+                              onTap: () async {
+                                if (!_isPreview || filePath.isEmpty || _loading || disabled) return;
+                                setState(() {
+                                  disabled = true;
+                                  _loading = true;
+                                });
+                                final prefs = await SharedPreferences.getInstance();
+                                final token = prefs.getString("token");
+                                final prepare = http.MultipartRequest(
+                                  "POST",
+                                  Uri.parse(
+                                    "$API_URL/uploads",
+                                  ),
+                                );
+                                prepare.files.add(
+                                  await http.MultipartFile.fromPath(
+                                    "file",
+                                    filePath,
+                                    contentType: MediaType.parse("audio/mp3"),
+                                  ),
+                                );
+                                prepare.headers.addAll(
+                                  {
+                                    "Authorization": "Bearer $token",
+                                  },
+                                );
+
+                                final req = await prepare.send();
+                                final res = await http.Response.fromStream(req);
+                                final body = jsonDecode(res.body);
+                                final refId = uuid.v4();
+
+                                setState(() {
+                                  _loading = false;
+                                  disabled = false;
+                                  lastMessageId = refId;
+                                  botResponse = "";
+                                  eolReceived = false;
+                                  _recordingDuration = 0;
+                                  filePath = "";
+                                  _isPreview = false;
+                                  _isRecording = false;
+                                });
+                                socket?.emit("message", {
+                                  "attachmentId": body['id'],
+                                  "refId": refId,
+                                  "audioDuration": _recordingDuration,
+                                });
+                                messages.add(Message(
+                                  author: MessageAuthor.User,
+                                  content: [],
+                                  createdAt: DateTime.now().toIso8601String(),
+                                  id: refId,
+                                  audioUrl: filePath,
+                                  audioDuration: _recordingDuration,
+                                ));
+                                _controller.clear();
+
+                                _scrollToBottom();
+                              },
+                              onLongPressStart: (_) {
+                                if (_loading || disabled) return;
+                                _startRecording();
+                              },
+                              onLongPressEnd: (_) {
+                                if (_loading || disabled) return;
+                                _stopRecording();
+                              },
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: disabled == false ? Colors.blue : Colors.blue.shade200,
                                   shape: BoxShape.circle,
                                 ),
-                                child: IconButton(
-                                  icon: Icon(
-                                    _isPreview ? Icons.send : Icons.mic,
-                                    color: Colors.white,
-                                  ),
-                                  onPressed: () {}, // Disable onPressed to use onLongPress instead
+                                padding: const EdgeInsets.all(
+                                  BASE_MARGIN * 3,
                                 ),
+                                child: _loading == false
+                                    ? Icon(
+                                        _isPreview ? Icons.send : Icons.mic,
+                                        color: Colors.white,
+                                      )
+                                    : const CupertinoActivityIndicator(
+                                        animating: true,
+                                      ),
                               ),
                             ),
                     ),
@@ -552,29 +709,53 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 }
 
-class ChatBubble extends StatelessWidget {
+class ChatBubble extends StatefulWidget {
   final dynamic text;
   final bool isSentByMe;
   final bool? sent;
-
+  final String? audioUrl;
+  final int? audioDuration;
   const ChatBubble({
     super.key,
     required this.text,
     required this.isSentByMe,
     this.sent,
+    this.audioUrl,
+    this.audioDuration,
   });
+
+  @override
+  State<ChatBubble> createState() => _ChatBubbleState();
+}
+
+class _ChatBubbleState extends State<ChatBubble> {
+  final controller = AudioPlayer();
+  int duration = 0;
+  Timer? timer;
+  bool playing = false;
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    timer?.cancel();
+    controller.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
       child: Align(
-        alignment: isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
+        alignment: widget.isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
         child: Container(
           padding: const EdgeInsets.all(10.0),
           decoration: BoxDecoration(
-            color: isSentByMe ? PRIMARY_COLOR : Colors.grey[300],
-            borderRadius: isSentByMe
+            color: widget.isSentByMe ? PRIMARY_COLOR : Colors.grey[300],
+            borderRadius: widget.isSentByMe
                 ? const BorderRadius.only(
                     topLeft: Radius.circular(10),
                     topRight: Radius.circular(10),
@@ -590,30 +771,91 @@ class ChatBubble extends StatelessWidget {
           ),
           child: Wrap(
             children: [
-              Wrap(
-                alignment: WrapAlignment.start,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  for (var word in text) ...{
-                    if (word != null)
-                      word['translation'] != null
-                          ? Tooltip(
-                              message: word['translation'],
-                              triggerMode: TooltipTriggerMode.tap,
-                              child: Text(
-                                word['word'],
-                                style: const TextStyle(
-                                  decoration: TextDecoration.underline,
-                                  decorationStyle: TextDecorationStyle.dashed,
-                                ),
-                              ),
-                            )
-                          : Text(
-                              word['word'],
-                            ),
-                    SizedBox(
-                      width: BASE_MARGIN.toDouble(),
-                    ),
+                  if (widget.text != null) ...{
+                    Wrap(
+                      children: [
+                        for (var word in widget.text!) ...{
+                          if (word != null)
+                            word['translation'] != null
+                                ? Tooltip(
+                                    message: word['translation'],
+                                    triggerMode: TooltipTriggerMode.tap,
+                                    child: Text(
+                                      word['word'],
+                                      style: const TextStyle(
+                                        decoration: TextDecoration.underline,
+                                        decorationStyle: TextDecorationStyle.dashed,
+                                      ),
+                                    ),
+                                  )
+                                : Text(
+                                    word['word'],
+                                  ),
+                          SizedBox(
+                            width: BASE_MARGIN.toDouble(),
+                          ),
+                        },
+                      ],
+                    )
                   },
+                  if (widget.audioUrl != null) ...{
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: HeroIcon(
+                            playing == true ? HeroIcons.pauseCircle : HeroIcons.playCircle,
+                            style: HeroIconStyle.solid,
+                            size: 30,
+                          ),
+                          onPressed: () async {
+                            if (playing) {
+                              await controller.pause();
+                              setState(() {
+                                playing = false;
+                              });
+                              timer?.cancel();
+                              return;
+                            }
+                            setState(() {
+                              duration = 0;
+                            });
+                            await controller.play(widget.audioUrl!.startsWith("https") ? UrlSource(widget.audioUrl!) : DeviceFileSource(widget.audioUrl!));
+                            setState(() {
+                              playing = true;
+                            });
+                            timer = Timer.periodic(
+                              const Duration(
+                                seconds: 1,
+                              ),
+                              (timer) {
+                                setState(() {
+                                  duration++;
+                                });
+                              },
+                            );
+                            controller.onPlayerComplete.listen(
+                              (event) async {
+                                setState(() {
+                                  playing = false;
+                                });
+                                timer?.cancel();
+                              },
+                            );
+                          },
+                        ),
+                        const SizedBox(
+                          width: BASE_MARGIN * 2,
+                        ),
+                        Text("${secInTime(duration)}/${secInTime(widget.audioDuration ?? 0)}")
+                      ],
+                    )
+                  }
                 ],
               ),
             ],
