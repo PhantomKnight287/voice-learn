@@ -1,7 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { OnEvent } from '@nestjs/event-emitter';
-import { CreatePathEvent } from 'src/events';
 import { prisma } from 'src/db';
 import { GeminiService } from 'src/services/gemini/gemini.service';
 import {
@@ -14,14 +13,34 @@ import { z } from 'zod';
 import { createId } from '@paralleldrive/cuid2';
 import { queue } from 'src/services/queue/queue.service';
 import { QueueItemObject } from 'src/types/queue';
-import { messageSubject, pusher } from 'src/constants';
+import {
+  elevenLabs,
+  messageSubject,
+  openai,
+  pusher,
+  userUpdateSubject,
+} from 'src/constants';
 import { llmTextResponse } from 'src/gateways/chat/schema/response';
+import {} from '@google/generative-ai';
+import { ConfigService } from '@nestjs/config';
+import { join } from 'path';
+import { createReadStream, createWriteStream } from 'fs';
+import { pipeline } from 'stream';
+import { promisify } from 'util';
+import { S3Service } from 'src/services/s3/s3.service';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { GetObjectCommand } from '@aws-sdk/client-s3';
+import { randomUUID } from 'crypto';
+import { parseBuffer } from 'music-metadata';
 
+const streamPipeline = promisify(pipeline);
 @Controller('events')
 export class EventsController {
   constructor(
     private readonly eventsService: EventsService,
     private readonly geminiService: GeminiService,
+    private readonly s3Service: S3Service,
+    private readonly configService: ConfigService,
   ) {}
 
   @OnEvent('queue.handle')
@@ -298,13 +317,56 @@ Only generate array of lessons and no escape characters.
           },
           include: {
             language: true,
-            messages: true,
+            voice: true,
+            messages: {
+              take: 20,
+              orderBy: [
+                {
+                  createdAt: 'desc',
+                },
+              ],
+            },
           },
         });
 
         const userMessage = await prisma.message.findFirst({
           where: { id: body.messageId },
+          include: {
+            attachment: true,
+          },
         });
+        let text = userMessage.content;
+        if (userMessage.attachmentId) {
+          const res = await fetch(userMessage.attachment.url);
+          if (!res.ok)
+            throw new Error(
+              `Failed to fetch ${userMessage.attachment.url}: ${res.statusText}`,
+            );
+          const filePath = join(
+            process.cwd(),
+            'public',
+            'downloads',
+            userMessage.attachment.key,
+          );
+          const fileStream = createWriteStream(filePath);
+          //@ts-expect-error
+          await streamPipeline(res.body, fileStream);
+          const whipserRes = await openai.audio.transcriptions.create({
+            model: 'whisper-1',
+            response_format: 'json',
+            file: createReadStream(filePath),
+          });
+          if (whipserRes.text) {
+            const arr = whipserRes.text.split(' ').map((e) => ({ word: e }));
+            text = arr;
+            await prisma.message.update({
+              where: { id: userMessage.id },
+              data: {
+                content: arr,
+              },
+            });
+          }
+        }
         const res = await this.geminiService.generateObject({
           schema: llmTextResponse,
           messages: [
@@ -324,28 +386,105 @@ Only generate array of lessons and no escape characters.
               `,
             },
             //@ts-expect-error
-            ...chat.messages.map((message) => ({
+            ...chat.messages.reverse().map((message) => ({
               role: message.author === 'Bot' ? 'assistant' : 'user',
               content: message.content
                 .map((message) => (message as { word: string }).word)
                 .join(' '),
             })),
             {
-              content: userMessage.content
-                .map((e) => (e as { word: string }).word)
-                .join(' '),
+              content: text.map((e) => (e as { word: string }).word).join(' '),
               //@ts-expect-error
               role: 'user',
             },
           ],
         });
-
+        let audio: ArrayBuffer;
+        let llmAudio: string;
+        let duration: number = 0;
+        if (chat.voice.provider === 'OpenAI' && userMessage.attachmentId) {
+          const voice = await openai.audio.speech.create({
+            model: 'tts-1',
+            input: (res.object as unknown as z.infer<typeof llmTextResponse>)
+              .map((word) => word.word)
+              .join(' '),
+            //setting any as the provider is OpenAI so voices are already verified
+            voice: chat.voice.name.toLowerCase() as any,
+            speed: 1,
+            response_format: 'mp3',
+          });
+          audio = await voice.arrayBuffer();
+        } else if (
+          userMessage.attachmentId &&
+          chat.voice.provider == 'XILabs'
+        ) {
+          const audioStream = await elevenLabs.generate({
+            voice: chat.voice.id,
+            text: (res.object as unknown as z.infer<typeof llmTextResponse>)
+              .map((word) => word.word)
+              .join(' '),
+            model_id: 'eleven_turbo_v2',
+            stream: true,
+          });
+          const chunks: Buffer[] = [];
+          for await (const chunk of audioStream) {
+            chunks.push(chunk);
+          }
+          audio = Buffer.concat(chunks).buffer;
+        }
+        if (audio) {
+          const key = `${userMessage.id}____${chat.id}____${chat.voice.name}____${chat.voice.provider}____${chat.language.name}____${randomUUID()}.mp3`;
+          await this.s3Service.putObject({
+            Bucket: process.env.R2_BUCKET_NAME,
+            Key: key,
+            Body: new Uint8Array(audio),
+            ContentType: `audio/mpeg`,
+          });
+          const url = await getSignedUrl(
+            this.s3Service,
+            new GetObjectCommand({
+              Bucket: this.configService.getOrThrow('R2_BUCKET_NAME'),
+              Key: key,
+            }),
+            {
+              expiresIn: 60 * 60 * 24 * 7, // 1 week
+            },
+          );
+          const upload = await prisma.upload.create({
+            data: {
+              id: `upload_bot_${createId()}`,
+              key: key,
+              url: url,
+              expiresAt: new Date(Date.now() + 24 * 7 * 60 * 60 * 1000),
+              userId: chat.userId,
+            },
+          });
+          llmAudio = upload.id;
+          const { format } = await parseBuffer(new Uint8Array(audio));
+          duration = format.duration;
+          const user = await prisma.user.update({
+            where: {
+              id: chat.userId,
+            },
+            data: {
+              emeralds: {
+                decrement: chat.voice.provider === 'OpenAI' ? 1 : 2,
+              },
+            },
+          });
+          userUpdateSubject.next({ ...user, chatId: chat.id });
+        }
         const llmMessage = await prisma.message.create({
           data: {
             id: `message_${createId()}`,
             content: res.object as z.infer<typeof llmTextResponse>,
             author: 'Bot',
             chatId: body.id,
+            attachmentId: llmAudio,
+            audioDuration: duration,
+          },
+          include: {
+            attachment: true,
           },
         });
         messageSubject.next(llmMessage);
@@ -422,6 +561,7 @@ Only generate array of lessons and no escape characters.
 
       console.log('generated ' + body.type);
     } catch (error) {
+      console.log(error);
       await queue.addToQueueWithPriority(body);
     }
   }

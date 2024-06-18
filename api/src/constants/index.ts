@@ -5,9 +5,10 @@ import { Subject } from 'rxjs';
 import _pusher from 'pusher';
 import 'dotenv/config';
 import { z } from 'zod';
-import { Message } from '@prisma/client';
+import { Message, User } from '@prisma/client';
+import OpenAI from 'openai';
 export const ONBOARDING_QUEUE = 'onboarding';
-
+import { ElevenLabsClient } from 'elevenlabs';
 export const PATH_GENERATION_SUBJECT = new Subject<string>();
 
 export const envSchema = z.object({
@@ -98,3 +99,13 @@ export const locales = {
 export const messageSubject = new Subject<Message>();
 
 export const queuePositionSubject = new Subject<number>();
+
+export const userUpdateSubject = new Subject<User & { chatId: string }>();
+
+export const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+export const elevenLabs = new ElevenLabsClient({
+  apiKey: process.env.ELEVENLABS_API_KEY,
+});

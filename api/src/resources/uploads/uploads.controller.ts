@@ -38,6 +38,6 @@ export class UploadsController {
     }),
   )
   uploadFile(@UploadedFile() file: Express.Multer.File, @Auth() auth: User) {
-    console.log(file);
+    return this.uploadsService.uploadImage(auth.id, file);
   }
 }

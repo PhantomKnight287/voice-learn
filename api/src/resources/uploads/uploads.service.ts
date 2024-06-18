@@ -37,10 +37,12 @@ export class UploadsService {
         key: fileKey,
         url: signedUrl,
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        userId,
       },
     });
     return {
       id: upload.id,
+      url: upload.url,
     };
   }
 }

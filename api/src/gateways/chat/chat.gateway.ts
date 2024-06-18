@@ -15,17 +15,11 @@ import { createId } from '@paralleldrive/cuid2';
 import { GeminiService } from 'src/services/gemini/gemini.service';
 import { Subscription } from 'rxjs';
 import { queue } from 'src/services/queue/queue.service';
-import { messageSubject, queuePositionSubject } from 'src/constants';
-
-function isJSONString(str) {
-  try {
-    const parsed = JSON.parse(str);
-    // Check if the parsed result is an object or array (valid JSON types)
-    return parsed && (typeof parsed === 'object' || Array.isArray(parsed));
-  } catch (e) {
-    return false;
-  }
-}
+import {
+  messageSubject,
+  queuePositionSubject,
+  userUpdateSubject,
+} from 'src/constants';
 
 @WebSocketGateway({
   transports: ['websocket'],
@@ -33,6 +27,7 @@ function isJSONString(str) {
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   subscriptions: Record<string, Subscription> = {};
   queueSubscriptions: Record<string, Subscription> = {};
+  userUpdateSubscription: Record<string, Subscription> = {};
   constructor(
     private readonly chatService: ChatService,
     private readonly gemini: GeminiService,
@@ -73,14 +68,24 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       messageSubject.subscribe((data) => {
         client?.nsp?.in(data.chatId).emit('response_end', data);
       });
-    this.subscriptions[client.handshake.query.chatId as string] =
+    this.queueSubscriptions[client.handshake.query.chatId as string] =
       queuePositionSubject.subscribe((data) => {
         client?.nsp?.in(client.handshake.query.chatId).emit('queue', data);
+      });
+    this.userUpdateSubscription[client.handshake.query.chatId as string] =
+      userUpdateSubject.subscribe((data) => {
+        client?.nsp
+          ?.in(client.handshake.query.chatId)
+          .emit('user_update', data);
       });
   }
 
   handleDisconnect(client: Socket) {
     this.subscriptions[client.handshake.query.chatId as string]?.unsubscribe();
+    this.chatService[client.handshake.query.chatId as string]?.unsubscribe();
+    this.queueSubscriptions[
+      client.handshake.query.chatId as string
+    ]?.unsubscribe();
   }
 
   @SubscribeMessage('message')
@@ -89,31 +94,59 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (result.success === false) {
       return client.emit('error', result.error.errors[0].message);
     }
+    let addToQueue = true;
+    if (payload.attachmentId) {
+      const attachment = await prisma.upload.findFirst({
+        where: { id: payload.attachmentId },
+      });
+      if (!attachment) return client.emit('error', 'Invalid attachment');
+      const rawToken = client.handshake.auth.token;
+      const token = rawToken.replace('Bearer ', '');
+      const user = await prisma.user.findFirst({
+        where: {
+          id: (verify(token, process.env.JWT_SECRET) as any).id,
+        },
+      });
+      if (user.emeralds <= 0) {
+        client.emit(
+          'error',
+          'Not enough emeralds to continue in voice chat mode. Please use text only chat.',
+        );
+        addToQueue = false;
+      }
+    }
     const message = await prisma.message.create({
       data: {
         id: `message_${createId()}`,
-        content: payload.message.split(' ').map((word) => ({ word })),
+        content: payload.message
+          ? payload.message.split(' ').map((word) => ({ word }))
+          : [],
         author: 'User',
         chatId: client.handshake.query.chatId as string,
+        attachmentId: payload.attachmentId,
+        audioDuration: payload.audioDuration,
       },
     });
     client.nsp
       .in(client.handshake.query.chatId)
       .emit('message', { ...message, refId: payload.refId });
+    if (addToQueue) {
+      const position = await queue.addToQueue({
+        id: message.chatId,
+        type: 'chat',
+        messageId: message.id,
+      });
 
-    const position = await queue.addToQueue({
-      id: message.chatId,
-      type: 'chat',
-      messageId: message.id,
-    });
-
-    client.nsp
-      .in(message.chatId)
-      .emit('queue', position !== null ? position + 1 : -1);
+      client.nsp
+        .in(message.chatId)
+        .emit('queue', position !== null ? position + 1 : -1);
+    }
   }
 
   @SubscribeMessage('queue_status')
   async handleQueueStatus(client: Socket, payload: { messageId: string }) {
+    if (!payload.messageId)
+      return client.emit('error', 'Please provide message id.');
     const position = await queue.getPositionInQueue({
       id: client.handshake.query.chatId as string,
       type: 'chat',

@@ -87,6 +87,9 @@ export class ChatsService {
               createdAt: 'desc',
             },
           ],
+          include: {
+            attachment: true,
+          },
         },
         language: {
           select: {
@@ -121,6 +124,9 @@ export class ChatsService {
         },
       },
       take: 20,
+      include: {
+        attachment: true,
+      },
     });
     return messages;
   }
@@ -156,6 +162,9 @@ export class ChatsService {
       },
       orderBy: {
         createdAt: 'asc',
+      },
+      include: {
+        attachment: true,
       },
     });
     return messages;

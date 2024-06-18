@@ -34,6 +34,8 @@ model Upload {
 
   url String @unique
 
+  messages Message[]
+
   user   User?   @relation(fields: [userId], references: [id])
   userId String?
 
@@ -172,14 +174,18 @@ model Chat {
 }
 
 model Message {
-  id        String        @id
-  content   Json[]
-  author    MessageAuthor @default(User)
-  audioUrl  String?
+  id           String        @id
+  content      Json[]
+  author       MessageAuthor @default(User)
+  attachment   Upload?       @relation(fields: [attachmentId], references: [id])
+  attachmentId String?
+
+  audioDuration Int @default(10)
+
   chatId    String?
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  chat      Chat?         @relation(fields: [chatId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  chat      Chat?    @relation(fields: [chatId], references: [id])
 }
 
 model Voice {
