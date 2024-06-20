@@ -31,7 +31,7 @@ Authorization: Bearer incorrect_token
 
 ### 
 GET {{url}}/onboarding
-
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzZXJfdHR3OGU3YzVpZHMwNHJjNnFuNGU3a3BnIiwiaWF0IjoxNzE4NzM0MzQ2fQ.j_NpJ559JSQc2Ckle3X9KVvnuivff_0L28C3J1ZiNgc
 
 ### 
 GET {{url}}/onboarding

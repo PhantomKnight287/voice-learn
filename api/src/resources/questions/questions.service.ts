@@ -190,12 +190,17 @@ export class QuestionsService {
           },
         },
       });
-      if (!existingStreak)
+      const user = await tx.user.findFirst({ where: { id: userId } });
+
+      if (!existingStreak) {
         await tx.user.update({
           where: { id: userId },
           data: {
             activeStreaks: {
               increment: 1,
+            },
+            longestStreak: {
+              increment: user.activeStreaks + 1 > user.longestStreak ? 1 : 0,
             },
             streaks: {
               create: {
@@ -204,12 +209,15 @@ export class QuestionsService {
             },
           },
         });
-      const user = await tx.user.findFirst({ where: { id: userId } });
+      }
+      const lesson = await prisma.lesson.findFirst({
+        where: { id: body.lessonId },
+      });
       return await tx.user.update({
         where: { id: userId },
         data: {
           xp: {
-            increment: questions * 4,
+            increment: questions * (lesson ? lesson.xpPerQuestion : 4),
           },
           lives: {
             decrement: user.lives === 0 ? 0 : correct === false ? 1 : 0,

@@ -9,17 +9,19 @@ datasource db {
 }
 
 model User {
-  id                 String              @id @unique
-  name               String
-  password           String
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  email              String              @unique
-  emeralds           Int                 @default(100)
-  lives              Int                 @default(5)
-  xp                 Int                 @default(0)
+  id            String   @id @unique
+  name          String
+  password      String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  email         String   @unique
+  emeralds      Int      @default(100)
+  lives         Int      @default(5)
+  xp            Int      @default(0)
   /// the current active streaks, will increase or reset based on completing a lesson
-  activeStreaks      Int                 @default(0)
+  activeStreaks Int      @default(0)
+  longestStreak Int      @default(0)
+
   answers            Answer[]
   chats              Chat[]
   generationRequests GenerationRequest[]
