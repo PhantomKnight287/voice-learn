@@ -18,6 +18,7 @@ class InputField extends StatelessWidget {
   final Color? prefixIconColor;
   final InputBorder? enabledBorder;
   final bool? enabled;
+  final int? hintMaxLines;
 
   const InputField({
     required this.hintText,
@@ -37,6 +38,7 @@ class InputField extends StatelessWidget {
     this.prefixIconColor,
     this.enabledBorder,
     this.enabled,
+    this.hintMaxLines,
     super.key,
   });
 
@@ -56,6 +58,7 @@ class InputField extends StatelessWidget {
       decoration: InputDecoration(
         hintText: hintText,
         prefixIcon: prefixIcon,
+        hintMaxLines: hintMaxLines,
         contentPadding: const EdgeInsets.all(8.0),
         enabledBorder: enabledBorder,
         border: border ??

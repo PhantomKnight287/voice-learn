@@ -9,6 +9,7 @@ import 'package:app/main.dart';
 import 'package:app/models/learning_path.dart';
 import 'package:app/screens/chat/main.dart';
 import 'package:app/screens/generations/modules.dart';
+import 'package:app/screens/leaderboards/main.dart';
 import 'package:app/screens/lessons/main.dart';
 import 'package:app/screens/profile/main.dart';
 import 'package:app/screens/shop/main.dart';
@@ -365,6 +366,18 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
               },
             ),
           );
+        } else if (_currentIndex == 1) {
+          return Scaffold(
+            body: const LeaderBoardScreen(),
+            bottomNavigationBar: BottomBar(
+              currentIndex: _currentIndex,
+              onPress: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+            ),
+          );
         }
         return Stack(
           children: [
@@ -408,11 +421,14 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                             icon: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                HeroIcon(
-                                  HeroIcons.bolt,
-                                  color: PRIMARY_COLOR,
-                                  size: 30,
-                                  style: state.isStreakActive ? HeroIconStyle.solid : HeroIconStyle.outline,
+                                Hero(
+                                  tag: "bolt",
+                                  child: HeroIcon(
+                                    HeroIcons.bolt,
+                                    color: PRIMARY_COLOR,
+                                    size: 30,
+                                    style: state.isStreakActive ? HeroIconStyle.solid : HeroIconStyle.outline,
+                                  ),
                                 ),
                                 const SizedBox(
                                   width: BASE_MARGIN * 2,

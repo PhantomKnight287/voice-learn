@@ -284,7 +284,8 @@ class _CreateChatScreenState extends State<CreateChatScreen> {
                         height: BASE_MARGIN * 2,
                       ),
                       InputField(
-                        hintText: "You are a cashier at a mall...",
+                        hintMaxLines: 3,
+                        hintText: "Tell how the AI should act and what is the scenario. Example: You are a cashier at a mall...",
                         keyboardType: TextInputType.emailAddress,
                         minLines: 5,
                         controller: _promptController,

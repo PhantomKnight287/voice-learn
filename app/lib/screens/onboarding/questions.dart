@@ -316,8 +316,8 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                               ),
                               leading: Image.network(
                                 language.flagUrl,
-                                width: 50,
-                                height: 50,
+                                width: 35,
+                                height: 35,
                               ),
                             );
                             if (index == 0) {

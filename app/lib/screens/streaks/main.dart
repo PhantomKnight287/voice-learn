@@ -115,11 +115,14 @@ class _StreaksScreenState extends State<StreaksScreen> {
                         ],
                       ),
                     ),
-                  HeroIcon(
-                    HeroIcons.bolt,
-                    color: PRIMARY_COLOR,
-                    size: 60,
-                    style: state.isStreakActive ? HeroIconStyle.solid : HeroIconStyle.outline,
+                  Hero(
+                    tag: "bolt",
+                    child: HeroIcon(
+                      HeroIcons.bolt,
+                      color: PRIMARY_COLOR,
+                      size: 80,
+                      style: state.isStreakActive ? HeroIconStyle.solid : HeroIconStyle.outline,
+                    ),
                   ),
                 ],
               ),
