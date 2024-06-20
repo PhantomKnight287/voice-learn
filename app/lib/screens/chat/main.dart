@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:app/constants/main.dart';
+import 'package:app/main.dart';
 import 'package:app/models/chat.dart';
 import 'package:app/screens/chat/create.dart';
 import 'package:app/screens/chat/id.dart';
@@ -19,7 +20,7 @@ class ChatsScreen extends StatefulWidget {
   State<ChatsScreen> createState() => _ChatsScreenState();
 }
 
-class _ChatsScreenState extends State<ChatsScreen> {
+class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
   final _scrollController = ScrollController();
   late InfiniteQuery<List<Chat>, HttpException, int> query;
   Future<List<Chat>> _fetchChats(int page) async {
@@ -34,6 +35,15 @@ class _ChatsScreenState extends State<ChatsScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(
+      this,
+      ModalRoute.of(context)!,
+    );
+  }
+
+  @override
   void initState() {
     super.initState();
     _scrollController.addListener(_scrollListener);
@@ -43,7 +53,16 @@ class _ChatsScreenState extends State<ChatsScreen> {
   void dispose() {
     _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
+    routeObserver.unsubscribe(this);
+
     super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    QueryClient.of(context).refreshQuery('learning_path');
+    QueryClient.of(context).refreshQuery('profile_stats');
+    QueryClient.of(context).refreshInfiniteQuery('chats');
   }
 
   void _scrollListener() async {
@@ -113,6 +132,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
               controller: _scrollController,
               itemBuilder: (context, index) {
                 final chat = chats[index];
+
                 return ListTile(
                   title: Text(
                     chat.name,

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/input.dart';
@@ -20,6 +21,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:app/utils/string.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:toastification/toastification.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import 'package:uuid/uuid.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
@@ -64,6 +66,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   final playerController = PlayerController();
   bool _loading = false;
+  final chatKey = GlobalKey();
 
   @override
   void didChangeMetrics() {
@@ -108,21 +111,25 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   Future<void> _initSocket() async {
     final storage = await SharedPreferences.getInstance();
     final token = storage.getString("token");
-
+    final id = widget.id;
     socket = IO.io(
       removeVersionAndTrailingSlash(API_URL),
       IO.OptionBuilder()
           .setTransports(['websocket']) // for Flutter or Dart VM
           .enableAutoConnect()
-          .setQuery({
-            'chatId': widget.id,
+          .setQuery({'chatId': widget.id, "id": id})
+          .setAuth({
+            "token": token,
+            "id": widget.id,
           })
-          .setAuth({"token": token})
           .build(),
     );
     socket!.connect();
-    socket!.onConnect((data) => {print("connected")});
-
+    socket!.onConnect(
+      (data) {
+        _setupTutorial();
+      },
+    );
     socket!.on(
       "message",
       (data) async {
@@ -131,11 +138,16 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         );
         if (data['refId'] == lastMessageId) {
           if (context.mounted) {
+            // ignore: no_leading_underscores_for_local_identifiers
+            final _messages = messages;
+            _messages[_messages.length - 1] = Message.fromJSON(data);
+
             setState(() {
               lastMessageId = '';
               disabled = true;
               eolReceived = false;
               lastMessageReceivedId = data['id'];
+              messages = _messages;
             });
           }
         }
@@ -168,6 +180,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             data,
           ),
         );
+        QueryClient.of(context).refreshInfiniteQuery("chats");
         _scrollToBottom();
       }
     });
@@ -206,6 +219,77 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         showProgressBar: false,
       );
     });
+  }
+
+  Future<void> _setupTutorial() async {
+    final prefs = await SharedPreferences.getInstance();
+    final shown = prefs.getBool("chat_tutorial");
+    if (shown == null || !shown) {
+      TutorialCoachMark tutorial = TutorialCoachMark(
+        colorShadow: Colors.white,
+        textSkip: "SKIP",
+        alignSkip: Alignment.bottomCenter,
+        textStyleSkip: const TextStyle(
+          color: Colors.green,
+          fontWeight: FontWeight.bold,
+        ),
+        paddingFocus: 10,
+        opacityShadow: 0.5,
+        imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        targets: [
+          TargetFocus(
+            keyTarget: chatKey,
+            identify: "streaks",
+            alignSkip: Alignment.topRight,
+            enableOverlayTab: true,
+            shape: ShapeLightFocus.RRect,
+            contents: [
+              TargetContent(
+                align: ContentAlign.top,
+                builder: (context, controller) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        "Send a message",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w600,
+                          fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: BASE_MARGIN * 2,
+                      ),
+                      Text(
+                        "Send a message by typing it in input box and pressing this button. Hold this button to record an audio and release to get a preview(minimum duration should be 1s)",
+                        style: TextStyle(
+                          fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                        ),
+                      )
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
+        onFinish: () async {
+          final prefs = await SharedPreferences.getInstance();
+          prefs.setBool("chat_tutorial", true);
+        },
+        onSkip: () {
+          SharedPreferences.getInstance().then(
+            (value) {
+              value.setBool("chat_tutorial", true);
+            },
+          );
+          return true;
+        },
+      );
+      tutorial.show(context: context);
+    }
   }
 
   void _fetchOlderMessages() async {
@@ -319,6 +403,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    super.dispose();
     socket?.disconnect();
     socket?.dispose();
     timer?.cancel();
@@ -327,7 +412,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     playerController.dispose();
     record.dispose();
     WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
   }
 
   @override
@@ -476,7 +560,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                       onPressed: () async {
                                         setState(() {
                                           _loading = false;
-                                          disabled = true;
+                                          disabled = false;
                                           lastMessageId = "";
                                           botResponse = "";
                                           eolReceived = false;
@@ -527,6 +611,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                     ),
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
+                      key: chatKey,
                       child: _isWriting
                           ? Container(
                               key: const ValueKey('send'),

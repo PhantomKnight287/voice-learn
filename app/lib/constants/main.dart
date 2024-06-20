@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 const PRIMARY_COLOR = Color(0xffFFBF00);
 const SECONDARY_TEXT_COLOR = Color(0xff808080);
@@ -21,3 +22,11 @@ final LESSON_COMPLETION_AD_ID = Platform.isAndroid
 const PUSHER_API_KEY = "08bb02d9dc1575512369";
 
 const PUSHER_CLUSTER = "ap2";
+
+final BOTTOM = PreferredSize(
+  preferredSize: const Size.fromHeight(4.0),
+  child: Container(
+    color: PRIMARY_COLOR,
+    height: 2.0,
+  ),
+);

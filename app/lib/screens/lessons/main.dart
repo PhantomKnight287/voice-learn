@@ -183,7 +183,9 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
                               }
                             },
                             subtitle: Text(
-                              "${lesson.questions} questions • ${(lesson.questions == 0 ? 1 : lesson.questions!) * 4} xp",
+                              lesson.xpPerQuestion == 0
+                                  ? "${lesson.questions} questions"
+                                  : "${lesson.questions} questions • ${(lesson.questions == 0 ? 1 : lesson.questions!) * lesson.xpPerQuestion} xp",
                               style: TextStyle(
                                 color: Theme.of(context).textTheme.titleSmall!.color,
                               ),

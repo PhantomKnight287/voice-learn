@@ -261,6 +261,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
             "last": last,
             "startDate": startDate,
             "endDate": DateTime.now().toIso8601String(),
+            "lessonId": widget.lessonId,
           },
         ),
       );

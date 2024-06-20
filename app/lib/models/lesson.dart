@@ -10,6 +10,8 @@ class Lesson {
   final bool completed;
   final int correctAnswers;
   final int incorrectAnswers;
+  final int xpPerQuestion;
+
   Lesson({
     required this.id,
     required this.name,
@@ -19,6 +21,7 @@ class Lesson {
     required this.completed,
     required this.correctAnswers,
     required this.incorrectAnswers,
+    this.xpPerQuestion = 4,
   });
 
   factory Lesson.fromJSON(Map<String, dynamic> json) {
@@ -33,6 +36,7 @@ class Lesson {
       completed: json['completed'],
       correctAnswers: json['correctAnswers'],
       incorrectAnswers: json['incorrectAnswers'],
+      xpPerQuestion: json['xpPerQuestion'],
     );
   }
 }

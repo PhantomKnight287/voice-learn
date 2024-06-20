@@ -5,7 +5,6 @@ import 'package:app/components/input.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/responses/auth/main.dart';
 import 'package:app/screens/auth/login.dart';
-import 'package:app/screens/home/main.dart';
 import 'package:app/screens/onboarding/questions.dart';
 import 'package:app/utils/error.dart';
 import 'package:flutter/cupertino.dart';

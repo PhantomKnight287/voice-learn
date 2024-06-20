@@ -11,6 +11,8 @@ import 'package:app/screens/chat/main.dart';
 import 'package:app/screens/generations/modules.dart';
 import 'package:app/screens/lessons/main.dart';
 import 'package:app/screens/profile/main.dart';
+import 'package:app/screens/shop/main.dart';
+import 'package:app/screens/streaks/main.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -50,6 +52,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
       TutorialCoachMark tutorial = TutorialCoachMark(
         colorShadow: Colors.white,
         textSkip: "SKIP",
+        alignSkip: Alignment.bottomCenter,
         textStyleSkip: const TextStyle(
           color: Colors.green,
         ),
@@ -393,7 +396,15 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                           ),
                           IconButton(
                             key: streaksKey,
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                CupertinoPageRoute(
+                                  builder: (context) {
+                                    return const StreaksScreen();
+                                  },
+                                ),
+                              );
+                            },
                             icon: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -408,14 +419,25 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                 ),
                                 Text(
                                   state.streaks.toString(),
-                                  style: Theme.of(context).textTheme.titleSmall,
+                                  style: TextStyle(
+                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
                           IconButton(
                             key: emeraldsKey,
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                CupertinoPageRoute(
+                                  builder: (context) {
+                                    return ShopScreen();
+                                  },
+                                ),
+                              );
+                            },
                             icon: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -429,14 +451,215 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                 ),
                                 Text(
                                   state.emeralds.toString(),
-                                  style: Theme.of(context).textTheme.titleSmall,
+                                  style: TextStyle(
+                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
                           IconButton(
                             key: livesKey,
-                            onPressed: () {},
+                            onPressed: () {
+                              showModalBottomSheet(
+                                context: context,
+                                enableDrag: true,
+                                showDragHandle: true,
+                                builder: (context) {
+                                  final userBloc = context.read<UserBloc>();
+                                  final userState = userBloc.state;
+                                  return StatefulBuilder(
+                                    builder: (context, setState) {
+                                      return Padding(
+                                        padding: const EdgeInsets.all(BASE_MARGIN * 2),
+                                        child: Column(
+                                          children: [
+                                            const SizedBox(
+                                              height: BASE_MARGIN * 2,
+                                            ),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: List.generate(5, (index) {
+                                                return index < userState.lives
+                                                    ? Padding(
+                                                        padding: EdgeInsets.symmetric(
+                                                          horizontal: BASE_MARGIN.toDouble(),
+                                                        ),
+                                                        child: SvgPicture.asset(
+                                                          "assets/svgs/heart.svg",
+                                                          width: 30,
+                                                          height: 30,
+                                                        ),
+                                                      )
+                                                    : Padding(
+                                                        padding: EdgeInsets.symmetric(
+                                                          horizontal: BASE_MARGIN.toDouble(),
+                                                        ),
+                                                        child: const Icon(
+                                                          Icons.favorite,
+                                                          color: Colors.grey,
+                                                          size: 30,
+                                                        ),
+                                                      );
+                                              }),
+                                            ),
+                                            const SizedBox(
+                                              height: BASE_MARGIN * 4,
+                                            ),
+                                            Text(
+                                              userState.lives >= 5 ? "You have full lives" : "You have ${userState.lives} ${userState.lives == 1 ? "life" : "lives"}",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              height: BASE_MARGIN * 4,
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                if (userState.lives >= 5) return;
+                                              },
+                                              style: ButtonStyle(
+                                                backgroundColor: userState.lives < 5
+                                                    ? WidgetStateProperty.all(
+                                                        SECONDARY_BG_COLOR,
+                                                      )
+                                                    : WidgetStateProperty.all(
+                                                        Colors.grey.shade500,
+                                                      ),
+                                                alignment: Alignment.center,
+                                                foregroundColor: WidgetStateProperty.all(Colors.black),
+                                                padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
+                                                  (Set<WidgetState> states) {
+                                                    return const EdgeInsets.all(15);
+                                                  },
+                                                ),
+                                                shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                                                  RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(10),
+                                                  ),
+                                                ),
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  SvgPicture.asset(
+                                                    "assets/svgs/heart.svg",
+                                                    width: 25,
+                                                    height: 25,
+                                                    colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+                                                  ),
+                                                  const SizedBox(
+                                                    width: BASE_MARGIN * 2,
+                                                  ),
+                                                  Expanded(
+                                                    child: Text(
+                                                      "Refill lives",
+                                                      style: TextStyle(
+                                                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
+                                                        fontWeight: FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  ColorFiltered(
+                                                    colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+                                                    child: Image.asset(
+                                                      "assets/images/emerald.png",
+                                                      width: 25,
+                                                      height: 25,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(
+                                                    width: BASE_MARGIN * 2,
+                                                  ),
+                                                  Text(
+                                                    userState.lives >= 5 ? "20" : ((5 - userState.lives) * 4).toString(),
+                                                    style: TextStyle(
+                                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
+                                                      fontWeight: FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              height: BASE_MARGIN * 4,
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                if (userState.lives >= 5) return;
+                                              },
+                                              style: ButtonStyle(
+                                                backgroundColor: userState.lives < 5
+                                                    ? WidgetStateProperty.all(
+                                                        SECONDARY_BG_COLOR,
+                                                      )
+                                                    : WidgetStateProperty.all(
+                                                        Colors.grey.shade500,
+                                                      ),
+                                                alignment: Alignment.center,
+                                                foregroundColor: WidgetStateProperty.all(Colors.black),
+                                                padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
+                                                  (Set<WidgetState> states) {
+                                                    return const EdgeInsets.all(15);
+                                                  },
+                                                ),
+                                                shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                                                  RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(10),
+                                                  ),
+                                                ),
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  SvgPicture.asset(
+                                                    "assets/svgs/heart.svg",
+                                                    width: 25,
+                                                    height: 25,
+                                                    colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+                                                  ),
+                                                  const SizedBox(
+                                                    width: BASE_MARGIN * 2,
+                                                  ),
+                                                  Expanded(
+                                                    child: Text(
+                                                      "Refill 1 life",
+                                                      style: TextStyle(
+                                                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
+                                                        fontWeight: FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  ColorFiltered(
+                                                    colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+                                                    child: Image.asset(
+                                                      "assets/images/emerald.png",
+                                                      width: 25,
+                                                      height: 25,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(
+                                                    width: BASE_MARGIN * 2,
+                                                  ),
+                                                  Text(
+                                                    "4",
+                                                    style: TextStyle(
+                                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
+                                                      fontWeight: FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              );
+                            },
                             icon: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -450,7 +673,10 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                 ),
                                 Text(
                                   state.lives.toString(),
-                                  style: Theme.of(context).textTheme.titleSmall,
+                                  style: TextStyle(
+                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ],
                             ),
