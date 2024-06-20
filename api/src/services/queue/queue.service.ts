@@ -2,7 +2,8 @@ import { Redis } from '@upstash/redis';
 import { QueueItemObject } from 'src/types/queue';
 
 class QueueService extends Redis {
-  protected readonly queue_name = 'gemini::queue::dev';
+  protected readonly queue_name =
+    process.env.DEV === 'true' ? 'gemini::queue::_dev' : 'gemini::queue';
   private requestsThisMinute = 0;
   private readonly maxRequestsPerMinute = 15;
 

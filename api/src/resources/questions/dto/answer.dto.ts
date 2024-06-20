@@ -17,4 +17,8 @@ export class CreateAnswerDTO {
   @IsISO8601()
   @ApiProperty()
   endDate: string;
+
+  @IsString()
+  @ApiProperty()
+  lessonId: string;
 }

@@ -77,15 +77,10 @@ export class OnboardingService {
             id: true,
             description: true,
             lessons: {
-              select: {
-                id: true,
-                name: true,
-                description: true,
-                questionsCount: true,
-                questionsStatus: true,
-                incorrectAnswers: true,
-                completed: true,
-                correctAnswers: true,
+              omit: {
+                startDate: true,
+                endDate: true,
+                moduleId: true,
               },
               orderBy: [
                 {

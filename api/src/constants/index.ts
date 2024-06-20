@@ -4,6 +4,7 @@
 import { Subject } from 'rxjs';
 import _pusher from 'pusher';
 import 'dotenv/config';
+
 import { z } from 'zod';
 import { Message, User } from '@prisma/client';
 import OpenAI from 'openai';
@@ -28,8 +29,8 @@ export const envSchema = z.object({
   LOGSTRAP_PATH: z.string().optional(),
   LOGSTRAP_KEY: z.string().optional(),
   ELEVENLABS_API_KEY: z.string(),
+  DEV: z.string().optional(),
 });
-
 const safeParseResult = envSchema.safeParse(process.env);
 if (safeParseResult.success === false) {
   throw new Error(

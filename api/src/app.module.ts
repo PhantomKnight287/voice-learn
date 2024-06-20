@@ -31,6 +31,7 @@ import { ChatsModule } from './resources/chats/chats.module';
 import { VoicesModule } from './resources/voices/voices.module';
 import { ChatModule } from './gateways/chat/chat.module';
 import { UploadsModule } from './resources/uploads/uploads.module';
+import { StreaksModule } from './resources/streaks/streaks.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { UploadsModule } from './resources/uploads/uploads.module';
     VoicesModule,
     ChatModule,
     UploadsModule,
+    StreaksModule,
   ],
   controllers: [AppController],
   providers: [

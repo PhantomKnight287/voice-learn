@@ -12,7 +12,26 @@ export class GeminiService {
   ) {
     return await streamText({
       ...props,
-      model: google('models/gemini-1.5-flash-latest'),
+      model: google('models/gemini-1.5-flash-latest', {
+        safetySettings: [
+          {
+            category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+            threshold: 'BLOCK_ONLY_HIGH',
+          },
+          {
+            category: 'HARM_CATEGORY_HARASSMENT',
+            threshold: 'BLOCK_ONLY_HIGH',
+          },
+          {
+            category: 'HARM_CATEGORY_HATE_SPEECH',
+            threshold: 'BLOCK_ONLY_HIGH',
+          },
+          {
+            category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+            threshold: 'BLOCK_ONLY_HIGH',
+          },
+        ],
+      }),
     });
   }
 
@@ -21,7 +40,26 @@ export class GeminiService {
   ) {
     return await generateText({
       ...props,
-      model: google('models/gemini-1.5-flash-latest'),
+      model: google('models/gemini-1.5-flash-latest', {
+        safetySettings: [
+          {
+            category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+            threshold: 'BLOCK_ONLY_HIGH',
+          },
+          {
+            category: 'HARM_CATEGORY_HARASSMENT',
+            threshold: 'BLOCK_ONLY_HIGH',
+          },
+          {
+            category: 'HARM_CATEGORY_HATE_SPEECH',
+            threshold: 'BLOCK_ONLY_HIGH',
+          },
+          {
+            category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+            threshold: 'BLOCK_ONLY_HIGH',
+          },
+        ],
+      }),
     });
   }
 
@@ -30,7 +68,26 @@ export class GeminiService {
   ) {
     return await generateObject<z.infer<typeof props.schema>>({
       ...props,
-      model: google('models/gemini-1.5-flash-latest'),
+      model: google('models/gemini-1.5-flash-latest', {
+        safetySettings: [
+          {
+            category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+            threshold: 'BLOCK_ONLY_HIGH',
+          },
+          {
+            category: 'HARM_CATEGORY_HARASSMENT',
+            threshold: 'BLOCK_ONLY_HIGH',
+          },
+          {
+            category: 'HARM_CATEGORY_HATE_SPEECH',
+            threshold: 'BLOCK_ONLY_HIGH',
+          },
+          {
+            category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+            threshold: 'BLOCK_ONLY_HIGH',
+          },
+        ],
+      }),
     });
   }
 
@@ -39,7 +96,26 @@ export class GeminiService {
   ) {
     return await streamObject({
       ...props,
-      model: google('models/gemini-1.5-flash-latest'),
+      model: google('models/gemini-1.5-flash-latest', {
+        safetySettings: [
+          {
+            category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+            threshold: 'BLOCK_ONLY_HIGH',
+          },
+          {
+            category: 'HARM_CATEGORY_HARASSMENT',
+            threshold: 'BLOCK_ONLY_HIGH',
+          },
+          {
+            category: 'HARM_CATEGORY_HATE_SPEECH',
+            threshold: 'BLOCK_ONLY_HIGH',
+          },
+          {
+            category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+            threshold: 'BLOCK_ONLY_HIGH',
+          },
+        ],
+      }),
     });
   }
 }

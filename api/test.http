@@ -1,4 +1,5 @@
 @url = http://localhost:5000/v1
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzZXJfeGdjNWFvYWx2ajVub2RiZDQwb2d6aXJjIiwiaWF0IjoxNzE3MTQyODc1fQ.UA8aGsG7EdI3T_yZrIl1mbsYKzLxkjzOcWlTNXPMsp4
 
 ###
 POST {{url}}/auth/login
@@ -48,3 +49,7 @@ Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzZXJfeGdjNWFvYWx2
 ###
 GET {{url}}/lessons/question_h3zw093rxvt95aq0qdjt5mzx/stats
 Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzZXJfeGdjNWFvYWx2ajVub2RiZDQwb2d6aXJjIiwiaWF0IjoxNzE3MTQyODc1fQ.UA8aGsG7EdI3T_yZrIl1mbsYKzLxkjzOcWlTNXPMsp4
+
+###
+GET {{url}}/streaks/2024/6
+Authorization: {{token}}

@@ -22,7 +22,7 @@
     "prepare": "prisma generate"
   },
   "dependencies": {
-    "@ai-sdk/google": "^0.0.17",
+    "@ai-sdk/google": "^0.0.22",
     "@ai-sdk/openai": "^0.0.18",
     "@aws-sdk/client-s3": "^3.583.0",
     "@aws-sdk/s3-request-presigner": "^3.583.0",
@@ -44,7 +44,7 @@
     "@paralleldrive/cuid2": "^2.2.2",
     "@prisma/client": "^5.14.0",
     "@upstash/redis": "^1.31.3",
-    "ai": "^3.1.16",
+    "ai": "^3.2.0",
     "argon2": "^0.40.1",
     "bull": "^4.12.9",
     "class-transformer": "^0.5.1",

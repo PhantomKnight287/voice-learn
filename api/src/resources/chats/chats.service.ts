@@ -42,7 +42,13 @@ export class ChatsService {
           },
         },
       },
+      orderBy: [
+        {
+          createdAt: 'desc',
+        },
+      ],
     });
+
     return chats.result;
   }
 

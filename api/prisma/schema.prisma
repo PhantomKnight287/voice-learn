@@ -114,12 +114,12 @@ model Lesson {
   incorrectAnswers Int             @default(0)
   startDate        DateTime?
   module           Module?         @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  xpPerQuestion    Int             @default(4)
   questions        Question[]
 }
 
 model Question {
   id            String       @id @unique @default(cuid())
-  lessonId      String?
   type          QuestionType
   options       String[]
   correctAnswer String
@@ -128,7 +128,7 @@ model Question {
   question      Json[]
   instruction   String
   answers       Answer[]
-  lesson        Lesson?      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lessons       Lesson[]
 }
 
 model Answer {

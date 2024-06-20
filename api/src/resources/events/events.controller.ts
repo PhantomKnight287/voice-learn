@@ -21,19 +21,12 @@ import {
   userUpdateSubject,
 } from 'src/constants';
 import { llmTextResponse } from 'src/gateways/chat/schema/response';
-import {} from '@google/generative-ai';
 import { ConfigService } from '@nestjs/config';
-import { join } from 'path';
-import { createReadStream, createWriteStream } from 'fs';
-import { pipeline } from 'stream';
-import { promisify } from 'util';
 import { S3Service } from 'src/services/s3/s3.service';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { randomUUID } from 'crypto';
 import { parseBuffer } from 'music-metadata';
-
-const streamPipeline = promisify(pipeline);
 @Controller('events')
 export class EventsController {
   constructor(
@@ -106,8 +99,6 @@ export class EventsController {
               }
             ]
 
-
-
             Do not generate any escape characters and options must never be empty. The instructions must not include the question.
               `,
             },
@@ -119,26 +110,34 @@ export class EventsController {
         });
         const startTime = new Date().getTime();
 
-        await prisma.$transaction([
-          prisma.question.createMany({
-            data: (data.object as z.infer<typeof questions_schema>).map(
-              (question, idx) => ({
+        await prisma.$transaction(async (tx) => {
+          let idx = 0;
+          for (const question of data.object as z.infer<
+            typeof questions_schema
+          >) {
+            await tx.question.create({
+              data: {
                 correctAnswer: question.correctAnswer,
                 instruction: question.instruction,
                 id: `question_${createId()}`,
-                lessonId: lesson.id,
                 question: question.questions,
                 options: question.options,
                 type: question.type,
                 createdAt: new Date(startTime + 1000 * idx),
-              }),
-            ),
-          }),
-          prisma.lesson.update({
+                lessons: {
+                  connect: {
+                    id: lesson.id,
+                  },
+                },
+              },
+            });
+            idx += 1;
+          }
+          await prisma.lesson.update({
             where: { id: lesson.id },
             data: { questionsStatus: 'generated' },
-          }),
-        ]);
+          });
+        });
         await pusher.trigger(
           'modules',
           'module_generated',
@@ -335,38 +334,7 @@ Only generate array of lessons and no escape characters.
             attachment: true,
           },
         });
-        let text = userMessage.content;
-        if (userMessage.attachmentId) {
-          const res = await fetch(userMessage.attachment.url);
-          if (!res.ok)
-            throw new Error(
-              `Failed to fetch ${userMessage.attachment.url}: ${res.statusText}`,
-            );
-          const filePath = join(
-            process.cwd(),
-            'public',
-            'downloads',
-            userMessage.attachment.key,
-          );
-          const fileStream = createWriteStream(filePath);
-          //@ts-expect-error
-          await streamPipeline(res.body, fileStream);
-          const whipserRes = await openai.audio.transcriptions.create({
-            model: 'whisper-1',
-            response_format: 'json',
-            file: createReadStream(filePath),
-          });
-          if (whipserRes.text) {
-            const arr = whipserRes.text.split(' ').map((e) => ({ word: e }));
-            text = arr;
-            await prisma.message.update({
-              where: { id: userMessage.id },
-              data: {
-                content: arr,
-              },
-            });
-          }
-        }
+        const text = userMessage.content;
         const res = await this.geminiService.generateObject({
           schema: llmTextResponse,
           messages: [
@@ -380,7 +348,7 @@ Only generate array of lessons and no escape characters.
             },
             {
               role: 'system',
-              content: `Your response must be an array of objects where 'word' will be the actual word in ${chat.language.name} and 'translation' will be translation in english. Example: [{"word":"Guten","translation":"Good",},{"word":"morgen","translation":"morning"}]
+              content: `Your response must be an object have key "message" which is array of objects where 'word' will be the actual word in ${chat.language.name} and 'translation' will be translation in english. Example: [{"word":"Guten","translation":"Good",},{"word":"morgen","translation":"morning"}]
               
               Do not generate escape characters
               `,
@@ -405,7 +373,9 @@ Only generate array of lessons and no escape characters.
         if (chat.voice.provider === 'OpenAI' && userMessage.attachmentId) {
           const voice = await openai.audio.speech.create({
             model: 'tts-1',
-            input: (res.object as unknown as z.infer<typeof llmTextResponse>)
+            input: (
+              res.object as unknown as z.infer<typeof llmTextResponse>
+            ).message
               .map((word) => word.word)
               .join(' '),
             //setting any as the provider is OpenAI so voices are already verified
@@ -420,7 +390,9 @@ Only generate array of lessons and no escape characters.
         ) {
           const audioStream = await elevenLabs.generate({
             voice: chat.voice.id,
-            text: (res.object as unknown as z.infer<typeof llmTextResponse>)
+            text: (
+              res.object as unknown as z.infer<typeof llmTextResponse>
+            ).message
               .map((word) => word.word)
               .join(' '),
             model_id: 'eleven_turbo_v2',
@@ -477,7 +449,7 @@ Only generate array of lessons and no escape characters.
         const llmMessage = await prisma.message.create({
           data: {
             id: `message_${createId()}`,
-            content: res.object as z.infer<typeof llmTextResponse>,
+            content: (res.object as z.infer<typeof llmTextResponse>).message,
             author: 'Bot',
             chatId: body.id,
             attachmentId: llmAudio,
