@@ -681,17 +681,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                 final body = jsonDecode(res.body);
                                 final refId = uuid.v4();
 
-                                setState(() {
-                                  _loading = false;
-                                  disabled = false;
-                                  lastMessageId = refId;
-                                  botResponse = "";
-                                  eolReceived = false;
-                                  _recordingDuration = 0;
-                                  filePath = "";
-                                  _isPreview = false;
-                                  _isRecording = false;
-                                });
                                 socket?.emit("message", {
                                   "attachmentId": body['id'],
                                   "refId": refId,
@@ -705,6 +694,17 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                   audioUrl: filePath,
                                   audioDuration: _recordingDuration,
                                 ));
+                                setState(() {
+                                  _loading = false;
+                                  disabled = false;
+                                  lastMessageId = refId;
+                                  botResponse = "";
+                                  eolReceived = false;
+                                  _recordingDuration = 0;
+                                  filePath = "";
+                                  _isPreview = false;
+                                  _isRecording = false;
+                                });
                                 _controller.clear();
 
                                 _scrollToBottom();

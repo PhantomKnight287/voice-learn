@@ -107,11 +107,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
                 const Spacer(),
                 const SizedBox(
-                  child: RiveAnimation.asset(
-                    "assets/animations/flags.riv",
-                    fit: BoxFit.contain,
-                    alignment: Alignment.bottomCenter,
-                    useArtboardSize: true,
+                  child: Center(
+                    child: RiveAnimation.asset(
+                      "assets/animations/flags.riv",
+                      fit: BoxFit.contain,
+                      alignment: Alignment.bottomCenter,
+                      useArtboardSize: true,
+                    ),
                   ),
                 ),
                 const SizedBox(

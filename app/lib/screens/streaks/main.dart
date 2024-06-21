@@ -87,7 +87,7 @@ class _StreaksScreenState extends State<StreaksScreen> {
                           ),
                         ),
                         Text(
-                          "day streaks!",
+                          "day streak${state.streaks > 1 ? "s!" : ""}",
                           style: TextStyle(
                             fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 2,
                             fontWeight: FontWeight.w600,

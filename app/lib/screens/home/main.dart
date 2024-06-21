@@ -14,6 +14,7 @@ import 'package:app/screens/lessons/main.dart';
 import 'package:app/screens/profile/main.dart';
 import 'package:app/screens/shop/main.dart';
 import 'package:app/screens/streaks/main.dart';
+import 'package:app/utils/error.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ import 'package:heroicons/heroicons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:shimmer/shimmer.dart';
+import 'package:toastification/toastification.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -39,11 +41,74 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
   final emeraldsKey = GlobalKey();
   final livesKey = GlobalKey();
   List<TargetFocus> targets = [];
+  bool buyOneLifeButtonLoading = false;
+  bool refillLivesButtonLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _setUpPusher();
+  }
+
+  Future<bool> _buyOneLife() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final token = prefs.getString("token");
+    final req = await http.post(
+      Uri.parse(
+        "$API_URL/lives/add-one",
+      ),
+      headers: {"Authorization": "Bearer $token"},
+    );
+    final body = jsonDecode(req.body);
+    if (req.statusCode != 200) {
+      toastification.show(
+        type: ToastificationType.error,
+        style: ToastificationStyle.minimal,
+        autoCloseDuration: const Duration(seconds: 5),
+        title: const Text("An Error Occurred"),
+        description: Text(
+          ApiResponseHelper.getErrorMessage(body),
+        ),
+        alignment: Alignment.topCenter,
+        showProgressBar: false,
+      );
+      return false;
+    }
+    final userBloc = context.read<UserBloc>();
+    final userState = userBloc.state;
+    userBloc.add(UserLoggedInEvent.setEmeraldsAndLives(userState, body['emeralds'], body['lives']));
+    return true;
+  }
+
+  Future<bool> _refillLives() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final token = prefs.getString("token");
+    final req = await http.post(
+      Uri.parse(
+        "$API_URL/lives/refill",
+      ),
+      headers: {"Authorization": "Bearer $token"},
+    );
+    final body = jsonDecode(req.body);
+    if (req.statusCode != 200) {
+      toastification.show(
+        type: ToastificationType.error,
+        style: ToastificationStyle.minimal,
+        autoCloseDuration: const Duration(seconds: 5),
+        title: const Text("An Error Occurred"),
+        description: Text(
+          ApiResponseHelper.getErrorMessage(body),
+        ),
+        alignment: Alignment.topCenter,
+        showProgressBar: false,
+      );
+      return false;
+    }
+    final userBloc = context.read<UserBloc>();
+    final userState = userBloc.state;
+    userBloc.add(UserLoggedInEvent.setEmeraldsAndLives(userState, body['emeralds'], body['lives']));
+    return true;
   }
 
   Future<void> _setupTutorial() async {
@@ -188,18 +253,6 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
       );
       tutorial.show(context: context);
     }
-  }
-
-  Future<void> _setUpPusher() async {
-    // await pusher.init(apiKey: PUSHER_API_KEY, cluster: PUSHER_CLUSTER);
-    // await pusher.subscribe(
-    //     channelName: 'modules',
-    //     onEvent: (event) {
-    //       if (context.read<UserBloc>().state.id == event.data) {
-    //         QueryClient.of(context).refreshQuery('learning_path');
-    //       }
-    //     });
-    // await pusher.connect();
   }
 
   @override
@@ -445,15 +498,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                           ),
                           IconButton(
                             key: emeraldsKey,
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                CupertinoPageRoute(
-                                  builder: (context) {
-                                    return ShopScreen();
-                                  },
-                                ),
-                              );
-                            },
+                            onPressed: () {},
                             icon: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -534,8 +579,15 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                               height: BASE_MARGIN * 4,
                                             ),
                                             ElevatedButton(
-                                              onPressed: () {
+                                              onPressed: () async {
                                                 if (userState.lives >= 5) return;
+                                                setState(() {
+                                                  refillLivesButtonLoading = true;
+                                                });
+                                                await _refillLives();
+                                                setState(() {
+                                                  refillLivesButtonLoading = false;
+                                                });
                                               },
                                               style: ButtonStyle(
                                                 backgroundColor: userState.lives < 5
@@ -558,53 +610,77 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                                   ),
                                                 ),
                                               ),
-                                              child: Row(
-                                                children: [
-                                                  SvgPicture.asset(
-                                                    "assets/svgs/heart.svg",
-                                                    width: 25,
-                                                    height: 25,
-                                                    colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
-                                                  ),
-                                                  const SizedBox(
-                                                    width: BASE_MARGIN * 2,
-                                                  ),
-                                                  Expanded(
-                                                    child: Text(
-                                                      "Refill lives",
-                                                      style: TextStyle(
-                                                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
-                                                        fontWeight: FontWeight.w600,
+                                              child: refillLivesButtonLoading
+                                                  ? Container(
+                                                      width: 24,
+                                                      height: 24,
+                                                      padding: const EdgeInsets.all(2.0),
+                                                      child: const CupertinoActivityIndicator(
+                                                        animating: true,
+                                                        radius: 20,
                                                       ),
+                                                    )
+                                                  : Row(
+                                                      children: [
+                                                        SvgPicture.asset(
+                                                          "assets/svgs/heart.svg",
+                                                          width: 25,
+                                                          height: 25,
+                                                          colorFilter: userState.lives > 5 ? const ColorFilter.mode(Colors.grey, BlendMode.saturation) : null,
+                                                        ),
+                                                        const SizedBox(
+                                                          width: BASE_MARGIN * 2,
+                                                        ),
+                                                        Expanded(
+                                                          child: Text(
+                                                            "Refill lives",
+                                                            style: TextStyle(
+                                                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
+                                                              fontWeight: FontWeight.w600,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        userState.lives > 5
+                                                            ? ColorFiltered(
+                                                                colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+                                                                child: Image.asset(
+                                                                  "assets/images/emerald.png",
+                                                                  width: 25,
+                                                                  height: 25,
+                                                                ),
+                                                              )
+                                                            : Image.asset(
+                                                                "assets/images/emerald.png",
+                                                                width: 25,
+                                                                height: 25,
+                                                              ),
+                                                        const SizedBox(
+                                                          width: BASE_MARGIN * 2,
+                                                        ),
+                                                        Text(
+                                                          userState.lives >= 5 ? "20" : ((5 - userState.lives) * 4).toString(),
+                                                          style: TextStyle(
+                                                            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
+                                                            fontWeight: FontWeight.w600,
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
-                                                  ),
-                                                  ColorFiltered(
-                                                    colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
-                                                    child: Image.asset(
-                                                      "assets/images/emerald.png",
-                                                      width: 25,
-                                                      height: 25,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(
-                                                    width: BASE_MARGIN * 2,
-                                                  ),
-                                                  Text(
-                                                    userState.lives >= 5 ? "20" : ((5 - userState.lives) * 4).toString(),
-                                                    style: TextStyle(
-                                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
-                                                      fontWeight: FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
                                             ),
                                             const SizedBox(
                                               height: BASE_MARGIN * 4,
                                             ),
                                             ElevatedButton(
-                                              onPressed: () {
+                                              onPressed: () async {
                                                 if (userState.lives >= 5) return;
+                                                if (userState.lives >= 5) return;
+                                                setState(() {
+                                                  buyOneLifeButtonLoading = true;
+                                                });
+                                                await _buyOneLife();
+                                                setState(() {
+                                                  buyOneLifeButtonLoading = false;
+                                                });
                                               },
                                               style: ButtonStyle(
                                                 backgroundColor: userState.lives < 5
@@ -627,46 +703,62 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                                   ),
                                                 ),
                                               ),
-                                              child: Row(
-                                                children: [
-                                                  SvgPicture.asset(
-                                                    "assets/svgs/heart.svg",
-                                                    width: 25,
-                                                    height: 25,
-                                                    colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
-                                                  ),
-                                                  const SizedBox(
-                                                    width: BASE_MARGIN * 2,
-                                                  ),
-                                                  Expanded(
-                                                    child: Text(
-                                                      "Refill 1 life",
-                                                      style: TextStyle(
-                                                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
-                                                        fontWeight: FontWeight.w600,
+                                              child: buyOneLifeButtonLoading
+                                                  ? Container(
+                                                      width: 24,
+                                                      height: 24,
+                                                      padding: const EdgeInsets.all(2.0),
+                                                      child: const CupertinoActivityIndicator(
+                                                        animating: true,
+                                                        radius: 20,
                                                       ),
+                                                    )
+                                                  : Row(
+                                                      children: [
+                                                        SvgPicture.asset(
+                                                          "assets/svgs/heart.svg",
+                                                          width: 25,
+                                                          height: 25,
+                                                          colorFilter: userState.lives > 5 ? const ColorFilter.mode(Colors.grey, BlendMode.saturation) : null,
+                                                        ),
+                                                        const SizedBox(
+                                                          width: BASE_MARGIN * 2,
+                                                        ),
+                                                        Expanded(
+                                                          child: Text(
+                                                            "Refill 1 life",
+                                                            style: TextStyle(
+                                                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
+                                                              fontWeight: FontWeight.w600,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        userState.lives > 5
+                                                            ? ColorFiltered(
+                                                                colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+                                                                child: Image.asset(
+                                                                  "assets/images/emerald.png",
+                                                                  width: 25,
+                                                                  height: 25,
+                                                                ),
+                                                              )
+                                                            : Image.asset(
+                                                                "assets/images/emerald.png",
+                                                                width: 25,
+                                                                height: 25,
+                                                              ),
+                                                        const SizedBox(
+                                                          width: BASE_MARGIN * 2,
+                                                        ),
+                                                        Text(
+                                                          "4",
+                                                          style: TextStyle(
+                                                            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
+                                                            fontWeight: FontWeight.w600,
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
-                                                  ),
-                                                  ColorFiltered(
-                                                    colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
-                                                    child: Image.asset(
-                                                      "assets/images/emerald.png",
-                                                      width: 25,
-                                                      height: 25,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(
-                                                    width: BASE_MARGIN * 2,
-                                                  ),
-                                                  Text(
-                                                    "4",
-                                                    style: TextStyle(
-                                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
-                                                      fontWeight: FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
                                             ),
                                           ],
                                         ),

@@ -2,8 +2,10 @@ import 'dart:convert';
 
 import 'package:app/constants/main.dart';
 import 'package:app/models/leaderboard_item.dart';
+import 'package:app/screens/profile/main.dart';
 import 'package:app/utils/error.dart';
 import 'package:fl_query/fl_query.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gravatar/flutter_gravatar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -72,60 +74,71 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
                 itemBuilder: (context, index) {
                   final item = board[index];
                   final avatar = Gravatar(item.email);
-                  return Container(
-                    color: SECONDARY_BG_COLOR,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: BASE_MARGIN * 2,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            right: 20,
-                            left: 20,
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(CupertinoPageRoute(
+                        builder: (context) {
+                          return ProfileScreen(
+                            userId: item.id,
+                          );
+                        },
+                      ));
+                    },
+                    child: Container(
+                      color: SECONDARY_BG_COLOR,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: BASE_MARGIN * 2,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              right: 20,
+                              left: 20,
+                            ),
+                            child: Text(
+                              (index + 1).toString(),
+                              style: TextStyle(
+                                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
-                          child: Text(
-                            (index + 1).toString(),
+                          CircleAvatar(
+                            radius: 30,
+                            backgroundColor: Colors.grey.shade800,
+                            backgroundImage: NetworkImage(
+                              avatar.imageUrl(),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: BASE_MARGIN * 2,
+                          ),
+                          Text(
+                            item.name,
                             style: TextStyle(
-                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
                               fontWeight: FontWeight.w600,
                             ),
+                            textAlign: TextAlign.start,
                           ),
-                        ),
-                        CircleAvatar(
-                          radius: 30,
-                          backgroundColor: Colors.grey.shade800,
-                          backgroundImage: NetworkImage(
-                            avatar.imageUrl(),
-                          ),
-                        ),
-                        const SizedBox(
-                          width: BASE_MARGIN * 2,
-                        ),
-                        Text(
-                          item.name,
-                          style: TextStyle(
-                            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          textAlign: TextAlign.start,
-                        ),
-                        const Spacer(),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            right: 20,
-                            left: 20,
-                          ),
-                          child: Text(
-                            "${item.xp} XP",
-                            style: TextStyle(
-                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                              fontWeight: FontWeight.w500,
+                          const Spacer(),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              right: 20,
+                              left: 20,
+                            ),
+                            child: Text(
+                              "${item.xp} XP",
+                              style: TextStyle(
+                                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   );
                   ListTile(

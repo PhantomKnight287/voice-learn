@@ -33,6 +33,38 @@ class UserLoggedInEvent extends UserEvent {
     required super.streaks,
     super.isStreakActive,
   });
+  factory UserLoggedInEvent.fromUser(UserModel user, String token) {
+    return UserLoggedInEvent(
+      id: user.id,
+      name: user.name,
+      token: token,
+      email: user.email,
+      createdAt: user.createdAt,
+      paths: user.paths,
+      updatedAt: user.updatedAt,
+      emeralds: user.emeralds,
+      lives: user.lives,
+      xp: user.xp,
+      streaks: user.streaks,
+      isStreakActive: user.isStreakActive,
+    );
+  }
+  factory UserLoggedInEvent.setEmeraldsAndLives(UserModel user, int emeralds, int lives) {
+    return UserLoggedInEvent(
+      id: user.id,
+      name: user.name,
+      token: user.token,
+      email: user.email,
+      createdAt: user.createdAt,
+      paths: user.paths,
+      updatedAt: user.updatedAt,
+      emeralds: emeralds,
+      lives: lives,
+      xp: user.xp,
+      streaks: user.streaks,
+      isStreakActive: user.isStreakActive,
+    );
+  }
 }
 
 class UserLoggedOutEvent extends UserEvent {
