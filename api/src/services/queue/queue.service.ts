@@ -6,7 +6,7 @@ class QueueService extends Redis {
     process.env.DEV === 'true' ? 'gemini::queue::_dev' : 'gemini::queue';
   private requestsThisMinute = 0;
   private readonly maxRequestsPerMinute = 15;
-
+  private hasMoreInQueue = true;
   constructor() {
     super({
       url: process.env['REDIS_HOST'],
@@ -16,14 +16,19 @@ class QueueService extends Redis {
   }
 
   async addToQueue(props: QueueItemObject) {
+    this.hasMoreInQueue = true;
     return await this.rpush(this.queue_name, JSON.stringify(props));
   }
   async *getQueueItem(): AsyncGenerator<QueueItemObject | null> {
     while (true) {
-      if (this.requestsThisMinute < this.maxRequestsPerMinute) {
+      if (
+        this.requestsThisMinute < this.maxRequestsPerMinute &&
+        this.hasMoreInQueue
+      ) {
         const item = await this.lpop<string | null>(this.queue_name);
         if (item === null) {
           yield null;
+          this.hasMoreInQueue = false;
           continue;
         }
         this.requestsThisMinute++;
@@ -35,6 +40,7 @@ class QueueService extends Redis {
     }
   }
   async addToQueueWithPriority(props: QueueItemObject) {
+    this.hasMoreInQueue = true;
     await this.lpush(this.queue_name, JSON.stringify(props));
   }
 

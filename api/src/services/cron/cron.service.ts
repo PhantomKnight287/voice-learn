@@ -81,12 +81,12 @@ export class CronService {
         },
       },
     });
+
     for (const flag of flags) {
-      const now = new Date();
+      const now = moment().utc().toDate();
       const oneWeekFromNow = new Date(now);
 
-      const daysInOneWeek = 7;
-      oneWeekFromNow.setDate(now.getDate() + daysInOneWeek);
+      oneWeekFromNow.setDate(now.getDate() + 7);
 
       const signedUrl = await getSignedUrl(
         this.s3,
@@ -107,6 +107,7 @@ export class CronService {
           flagUrlExpireTimestamp: oneWeekFromNow,
         },
       });
+      console.log("updated")
     }
   }
 }

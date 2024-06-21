@@ -21,16 +21,32 @@ export class LivesController {
   constructor(private readonly livesService: LivesService) {}
 
   @ApiOperation({})
-  @Post('decrement')
+  @Post('add-one')
   @HttpCode(200)
   @ApiOkResponse({
     schema: {
       example: {
         lives: 'number',
+        emeralds: 'number',
       },
     },
   })
-  decreaseHeart(@Auth() auth: User) {
-    return this.livesService.removeHeart(auth.id);
+  addOne(@Auth() auth: User) {
+    return this.livesService.buyOneLife(auth.id);
+  }
+
+  @ApiOperation({})
+  @Post('refill')
+  @HttpCode(200)
+  @ApiOkResponse({
+    schema: {
+      example: {
+        lives: 'number',
+        emeralds: 'number',
+      },
+    },
+  })
+  refill(@Auth() auth: User) {
+    return this.livesService.refillAllLives(auth.id);
   }
 }

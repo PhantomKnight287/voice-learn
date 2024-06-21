@@ -9,6 +9,7 @@ export class LeaderboardService {
         xp: true,
         name: true,
         email: true,
+        id:true,
       },
       where: {
         xp: {

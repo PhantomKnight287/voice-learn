@@ -348,7 +348,7 @@ Only generate array of lessons and no escape characters.
             },
             {
               role: 'system',
-              content: `Your response must be an object have key "message" which is array of objects where 'word' will be the actual word in ${chat.language.name} and 'translation' will be translation in english. Example: [{"word":"Guten","translation":"Good",},{"word":"morgen","translation":"morning"}]
+              content: `Your response must an array of objects where 'word' will be the actual word in ${chat.language.name} and 'translation' will be translation in english. Example: [{"word":"Guten","translation":"Good",},{"word":"morgen","translation":"morning"}]
               
               Do not generate escape characters
               `,
@@ -373,9 +373,7 @@ Only generate array of lessons and no escape characters.
         if (chat.voice.provider === 'OpenAI' && userMessage.attachmentId) {
           const voice = await openai.audio.speech.create({
             model: 'tts-1',
-            input: (
-              res.object as unknown as z.infer<typeof llmTextResponse>
-            ).message
+            input: (res.object as unknown as z.infer<typeof llmTextResponse>)
               .map((word) => word.word)
               .join(' '),
             //setting any as the provider is OpenAI so voices are already verified
@@ -390,9 +388,7 @@ Only generate array of lessons and no escape characters.
         ) {
           const audioStream = await elevenLabs.generate({
             voice: chat.voice.id,
-            text: (
-              res.object as unknown as z.infer<typeof llmTextResponse>
-            ).message
+            text: (res.object as unknown as z.infer<typeof llmTextResponse>)
               .map((word) => word.word)
               .join(' '),
             model_id: 'eleven_turbo_v2',
@@ -449,7 +445,7 @@ Only generate array of lessons and no escape characters.
         const llmMessage = await prisma.message.create({
           data: {
             id: `message_${createId()}`,
-            content: (res.object as z.infer<typeof llmTextResponse>).message,
+            content: res.object as z.infer<typeof llmTextResponse>,
             author: 'Bot',
             chatId: body.id,
             attachmentId: llmAudio,
