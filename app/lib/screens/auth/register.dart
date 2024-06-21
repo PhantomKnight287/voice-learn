@@ -13,6 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -28,6 +29,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _loading = false;
   bool _passwordVisible = false;
+  bool _accepted = false;
 
   @override
   void dispose() {
@@ -224,6 +226,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       return null;
                     },
                   ),
+                  Row(
+                    children: [
+                      CupertinoCheckbox(
+                        value: _accepted,
+                        onChanged: (value) {
+                          setState(() {
+                            _accepted = value ?? false;
+                          });
+                        },
+                      ),
+                      Text("I accept the"),
+                      SizedBox(
+                        width: BASE_MARGIN.toDouble(),
+                      ),
+                      TextButton(
+                        style: ButtonStyle(
+                          padding: WidgetStateProperty.all(
+                            EdgeInsets.zero,
+                          ),
+                        ),
+                        onPressed: () async {
+                          if (!await launchUrl(Uri.parse("https://voicelearn.tech/legal/privacy"))) {}
+                        },
+                        child: Text("Privacy Policy"),
+                      )
+                    ],
+                  ),
                   const SizedBox(
                     height: BASE_MARGIN * 6,
                   ),
@@ -236,6 +265,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         (Set<WidgetState> states) {
                           return const EdgeInsets.all(15);
                         },
+                      ),
+                      backgroundColor: WidgetStateProperty.all(
+                        _accepted
+                            ? PRIMARY_COLOR
+                            : PRIMARY_COLOR.withAlpha(
+                                100,
+                              ),
                       ),
                       shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(

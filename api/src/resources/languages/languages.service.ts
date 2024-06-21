@@ -10,6 +10,9 @@ export class LanguagesService {
         flagUrl: true,
         name: true,
       },
+      where: {
+        name: { not: 'English' },
+      },
     });
   }
 }
