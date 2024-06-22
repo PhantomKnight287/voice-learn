@@ -98,6 +98,9 @@ dependencies:
   elevenlabs:
     specifier: ^0.8.0
     version: 0.8.0
+  express:
+    specifier: ^4.19.2
+    version: 4.19.2
   helmet:
     specifier: ^7.1.0
     version: 7.1.0
