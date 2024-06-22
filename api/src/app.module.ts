@@ -33,6 +33,8 @@ import { ChatModule } from './gateways/chat/chat.module';
 import { UploadsModule } from './resources/uploads/uploads.module';
 import { StreaksModule } from './resources/streaks/streaks.module';
 import { LeaderboardModule } from './resources/leaderboard/leaderboard.module';
+import { WebhooksModule } from './resources/webhooks/webhooks.module';
+import { TransactionsModule } from './resources/transactions/transactions.module';
 
 @Module({
   imports: [
@@ -69,6 +71,8 @@ import { LeaderboardModule } from './resources/leaderboard/leaderboard.module';
     UploadsModule,
     StreaksModule,
     LeaderboardModule,
+    WebhooksModule,
+    TransactionsModule,
   ],
   controllers: [AppController],
   providers: [
@@ -109,6 +113,7 @@ export class AppModule implements NestModule {
           method: RequestMethod.GET,
           path: '/v(.*)/voices',
         },
+        '/v(.*)/webhooks/(.*)',
       )
       .forRoutes('*');
 

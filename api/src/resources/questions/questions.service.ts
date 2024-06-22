@@ -223,7 +223,7 @@ export class QuestionsService {
             decrement: user.lives === 0 ? 0 : correct === false ? 1 : 0,
           },
           emeralds: {
-            increment: body.last ? 1 : 0,
+            increment: body.last ? (lesson ? lesson.emeralds : 1) : 0,
           },
         },
       });
@@ -264,6 +264,7 @@ export class QuestionsService {
               questionsStatus: 'generated',
               completed: false,
               xpPerQuestion: 0,
+              emeralds: 0,
             },
           }));
         for (const answer of answers) {

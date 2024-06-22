@@ -112,3 +112,10 @@ export const elevenLabs = new ElevenLabsClient({
 });
 
 export const ELEVENLABS_API_URL = 'https://api.elevenlabs.io/v1';
+
+export const PRODUCTS = {
+  emeralds_100: 100,
+  emeralds_200: 200,
+  emeralds_500: 500,
+  emeralds_1000: 1000,
+};
