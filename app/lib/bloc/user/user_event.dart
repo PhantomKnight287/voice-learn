@@ -14,6 +14,7 @@ abstract class UserEvent extends UserModel {
     required super.lives,
     required super.xp,
     required super.streaks,
+    required super.tier,
     super.isStreakActive,
   });
 }
@@ -32,6 +33,7 @@ class UserLoggedInEvent extends UserEvent {
     required super.xp,
     required super.streaks,
     super.isStreakActive,
+    required super.tier,
   });
   factory UserLoggedInEvent.fromUser(UserModel user, String token) {
     return UserLoggedInEvent(
@@ -47,9 +49,10 @@ class UserLoggedInEvent extends UserEvent {
       xp: user.xp,
       streaks: user.streaks,
       isStreakActive: user.isStreakActive,
+      tier: user.tier,
     );
   }
-  factory UserLoggedInEvent.setEmeraldsAndLives(UserModel user, int emeralds, int lives) {
+  factory UserLoggedInEvent.setEmeraldsAndLives(UserModel user, int emeralds, int? lives) {
     return UserLoggedInEvent(
       id: user.id,
       name: user.name,
@@ -59,10 +62,11 @@ class UserLoggedInEvent extends UserEvent {
       paths: user.paths,
       updatedAt: user.updatedAt,
       emeralds: emeralds,
-      lives: lives,
+      lives: lives ?? user.lives,
       xp: user.xp,
       streaks: user.streaks,
       isStreakActive: user.isStreakActive,
+      tier: user.tier,
     );
   }
 }
@@ -80,6 +84,7 @@ class UserLoggedOutEvent extends UserEvent {
     required super.xp,
     required super.streaks,
     super.isStreakActive,
+    required super.tier,
   });
 }
 
@@ -95,6 +100,7 @@ class DecreaseUserHeartEvent extends UserEvent {
     required super.lives,
     required super.streaks,
     required super.xp,
+    required super.tier,
     super.isStreakActive,
   });
 }

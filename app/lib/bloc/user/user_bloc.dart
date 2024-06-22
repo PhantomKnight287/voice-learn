@@ -20,6 +20,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
             xp: -1,
             streaks: -1,
             isStreakActive: false,
+            tier: Tiers.free,
           ),
         ) {
     on<UserLoggedInEvent>((event, emit) {
@@ -37,6 +38,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           xp: event.xp,
           streaks: event.streaks,
           isStreakActive: event.isStreakActive,
+          tier: event.tier,
         ),
       );
     });
@@ -60,6 +62,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           xp: event.xp,
           streaks: event.streaks,
           isStreakActive: event.isStreakActive,
+          tier: event.tier,
         ),
       );
     });

@@ -1,10 +1,19 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:app/bloc/user/user_bloc.dart';
+import 'package:app/classes/sku.dart';
 import 'package:app/constants/main.dart';
+import 'package:app/models/purchaseable_product.dart';
+import 'package:app/utils/print.dart';
+import 'package:fl_query/fl_query.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'package:toastification/toastification.dart';
 
 class ShopScreen extends StatefulWidget {
   const ShopScreen({super.key});
@@ -15,6 +24,8 @@ class ShopScreen extends StatefulWidget {
 
 class _ShopScreenState extends State<ShopScreen> {
   StreamSubscription<List<PurchaseDetails>>? _purchaseSubscription;
+  final _iap = InAppPurchase.instance;
+  List<PurchasableProduct> products = [];
 
   @override
   void initState() {
@@ -29,40 +40,91 @@ class _ShopScreenState extends State<ShopScreen> {
   }
 
   Future<void> initialize() async {
-    if (!(await InAppPurchase.instance.isAvailable())) return;
-    _purchaseSubscription = InAppPurchase.instance.purchaseStream.listen(
+    if (!(await _iap.isAvailable())) return;
+    _purchaseSubscription = _iap.purchaseStream.listen(
       (list) {
         handlePurchaseUpdates(list);
       },
       onError: print,
     );
+    final res = await _iap.queryProductDetails({
+      ...InAppProductsPurchaseSku.emeralds.toSet(),
+      ...InAppSubscriptionsPurchaseSku.tiers,
+    });
+    for (var element in res.notFoundIDs) {
+      debugPrint('Purchase $element not found');
+    }
+    setState(() {
+      products = res.productDetails.map((e) => PurchasableProduct(e)).toList();
+    });
   }
 
-  handlePurchaseUpdates(purchaseDetailsList) async {
+  handlePurchaseUpdates(List<PurchaseDetails> purchaseDetailsList) async {
     for (int index = 0; index < purchaseDetailsList.length; index++) {
       var purchaseStatus = purchaseDetailsList[index].status;
-      switch (purchaseDetailsList[index].status) {
+      printError(purchaseStatus.toString());
+      switch (purchaseStatus) {
         case PurchaseStatus.pending:
-          print(' purchase is in pending ');
           continue;
         case PurchaseStatus.error:
-          print(' purchase error ');
+          toastification.show(
+            type: ToastificationType.error,
+            style: ToastificationStyle.minimal,
+            autoCloseDuration: const Duration(seconds: 5),
+            title: const Text("An Error Occurred"),
+            alignment: Alignment.topCenter,
+            showProgressBar: false,
+          );
           break;
         case PurchaseStatus.canceled:
-          print(' purchase cancel ');
+          toastification.show(
+            type: ToastificationType.error,
+            style: ToastificationStyle.minimal,
+            autoCloseDuration: const Duration(seconds: 5),
+            title: const Text("An Error Occurred"),
+            description: const Text("Purchase Cancelled"),
+            alignment: Alignment.topCenter,
+            showProgressBar: false,
+          );
           break;
         case PurchaseStatus.purchased:
-          print(' purchased ');
           break;
         case PurchaseStatus.restored:
-          print(' purchase restore ');
           break;
       }
 
       if (purchaseDetailsList[index].pendingCompletePurchase) {
-        await InAppPurchase.instance.completePurchase(purchaseDetailsList[index]).then((value) {
+        final userBloc = context.read<UserBloc>();
+        final userState = userBloc.state;
+        final details = purchaseDetailsList[index];
+        userBloc.add(
+          UserLoggedInEvent.setEmeraldsAndLives(
+            userState,
+            userState.emeralds + int.parse((details.productID.split("_")[1])),
+            null,
+          ),
+        );
+        setState(() {});
+        final prefs = await SharedPreferences.getInstance();
+        final token = prefs.getString("token");
+        await http.post(
+            Uri.parse(
+              "$API_URL/transactions",
+            ),
+            headers: {"Authorization": "Bearer $token", "content-type": "application/json"},
+            body: jsonEncode({"sku": details.productID, "token": details.verificationData.serverVerificationData, "type": "one_time_product"}));
+        await _iap.completePurchase(purchaseDetailsList[index]).then((value) async {
           if (purchaseStatus == PurchaseStatus.purchased) {
-            print("bought");
+            printWarning("bought");
+            toastification.show(
+              type: ToastificationType.success,
+              style: ToastificationStyle.minimal,
+              autoCloseDuration: const Duration(seconds: 5),
+              title: const Text("Purchased"),
+              description: Text("You have purchased ${purchaseDetailsList[index].productID.split("_")[1]} emeralds"),
+              alignment: Alignment.topCenter,
+              showProgressBar: false,
+            );
           }
         });
       }
@@ -71,9 +133,9 @@ class _ShopScreenState extends State<ShopScreen> {
 
   Future<void> buyConsumableProduct(String productId) async {
     try {
-      Set<String> productIds = {"emeralds_100"};
+      Set<String> productIds = {productId};
 
-      final ProductDetailsResponse productDetails = await InAppPurchase.instance.queryProductDetails(productIds);
+      final ProductDetailsResponse productDetails = await _iap.queryProductDetails(productIds);
       if (productDetails == null) {
         // Product not found
         return;
@@ -82,16 +144,38 @@ class _ShopScreenState extends State<ShopScreen> {
       final PurchaseParam purchaseParam = PurchaseParam(
         productDetails: productDetails.productDetails.first,
       );
-      await InAppPurchase.instance.buyConsumable(purchaseParam: purchaseParam, autoConsume: true);
+      await _iap.buyConsumable(purchaseParam: purchaseParam, autoConsume: true);
     } catch (e) {
       // Handle purchase error
       print('Failed to buy plan: $e');
     }
   }
 
+  Future<void> buyNonConsumableProduct(String productId) async {
+    try {
+      Set<String> productIds = {productId};
+
+      final ProductDetailsResponse productDetails = await _iap.queryProductDetails(productIds);
+      if (productDetails == null) {
+        // Product not found
+        return;
+      }
+
+      final PurchaseParam purchaseParam = PurchaseParam(
+        productDetails: productDetails.productDetails.first,
+      );
+      await _iap.buyNonConsumable(
+        purchaseParam: purchaseParam,
+      );
+    } catch (e) {
+      // Handle purchase error
+      printError('Failed to buy plan: $e');
+    }
+  }
+
   restorePurchases() async {
     try {
-      await InAppPurchase.instance.restorePurchases();
+      await _iap.restorePurchases();
     } catch (error) {
       //you can handle error if restore purchase fails
     }
@@ -144,10 +228,11 @@ class _ShopScreenState extends State<ShopScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(
+          padding: const EdgeInsets.all(
             10,
           ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 "Emeralds",
@@ -156,18 +241,100 @@ class _ShopScreenState extends State<ShopScreen> {
                   fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
                 ),
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  await buyConsumableProduct("emeralds_100");
+              const Text(
+                "Note : You are free to test payments, the UI will be updated but changes won't be persisted. Subscriptions doesn't work now.",
+                textAlign: TextAlign.center,
+              ),
+              QueryBuilder(
+                'products',
+                () async {
+                  final res = await _iap.queryProductDetails({
+                    ...InAppProductsPurchaseSku.emeralds.toSet(),
+                    ...InAppSubscriptionsPurchaseSku.tiers,
+                  });
+                  return res;
                 },
-                child: Text(
-                  "buy smth",
-                ),
+                builder: (context, query) {
+                  if (query.isLoading) {
+                    return const Center(
+                      child: CupertinoActivityIndicator(
+                        radius: 20,
+                      ),
+                    );
+                  }
+                  if (query.hasError) {
+                    return Center(
+                      child: Text(
+                        query.error.toString(),
+                      ),
+                    );
+                  }
+                  final data = query.data;
+                  if (data == null) return const SizedBox();
+                  final products = data.productDetails;
+                  return Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: BASE_MARGIN * 2,
+                    children: products
+                        .map(
+                          (element) => _PurchaseWidget(
+                            product: PurchasableProduct(
+                              element,
+                            ),
+                            onPressed: () async {
+                              await buyConsumableProduct(element.id);
+                            },
+                          ),
+                        )
+                        .toList(),
+                  );
+                },
               ),
             ],
           ),
         ),
       ),
     );
+  }
+}
+
+class _PurchaseWidget extends StatelessWidget {
+  final PurchasableProduct product;
+  final VoidCallback onPressed;
+
+  const _PurchaseWidget({
+    required this.product,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    var title = product.title;
+    if (product.status == ProductStatus.purchased) {
+      title += ' (purchased)';
+    }
+    return InkWell(
+      onTap: onPressed,
+      child: ListTile(
+        title: Text(
+          title,
+        ),
+        subtitle: Text(product.description),
+        trailing: Text(
+          _trailing(),
+          style: TextStyle(
+            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 0.8,
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _trailing() {
+    return switch (product.status) {
+      ProductStatus.purchasable => product.rawPrice > 1000 ? "${product.price}/mo" : product.price,
+      ProductStatus.purchased => 'purchased',
+      ProductStatus.pending => 'buying...'
+    };
   }
 }

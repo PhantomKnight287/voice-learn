@@ -1,3 +1,18 @@
+enum Tiers { free, premium, epic }
+
+Tiers tierFromString(String tier) {
+  switch (tier) {
+    case 'free':
+      return Tiers.free;
+    case 'premium':
+      return Tiers.premium;
+    case 'epic':
+      return Tiers.epic;
+    default:
+      throw ArgumentError('Invalid tier: $tier');
+  }
+}
+
 class UserModel {
   final String id;
   final String? email;
@@ -11,6 +26,7 @@ class UserModel {
   final double xp;
   final int streaks;
   final bool isStreakActive;
+  final Tiers tier;
 
   UserModel({
     required this.id,
@@ -24,6 +40,7 @@ class UserModel {
     required this.emeralds,
     required this.xp,
     required this.streaks,
+    required this.tier,
     this.isStreakActive = false,
   });
 
@@ -41,6 +58,9 @@ class UserModel {
       xp: json['xp'].toDouble(),
       streaks: json['activeStreaks'],
       isStreakActive: json['isStreakActive'] ?? false,
+      tier: tierFromString(
+        json['tier'],
+      ),
     );
   }
 

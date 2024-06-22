@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/user.dart';
+import 'package:app/screens/auth/login.dart';
 import 'package:app/screens/home/main.dart';
 import 'package:app/screens/loading/learning.dart';
 import 'package:app/screens/onboarding/main.dart';
@@ -56,6 +57,7 @@ class _ViewHandlerState extends State<ViewHandler> {
                 xp: user.xp,
                 streaks: user.streaks,
                 isStreakActive: user.isStreakActive,
+                tier: user.tier,
               ),
             );
         if (body['path']?['type'] == 'created') {

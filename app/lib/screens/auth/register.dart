@@ -106,6 +106,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             lives: response.user.lives,
             xp: response.user.xp,
             streaks: response.user.streaks,
+            tier: response.user.tier,
           ),
         );
     Navigator.of(context).pushReplacement(

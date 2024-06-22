@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/constants/main.dart';
+import 'package:app/models/user.dart';
 import 'package:app/utils/error.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/material.dart';
@@ -380,6 +381,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               xp: data['xp'].toDouble(),
                               email: data['email'],
                               isStreakActive: false,
+                              tier: Tiers.free,
                             ),
                             context,
                             monthName,

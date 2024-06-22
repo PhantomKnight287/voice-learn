@@ -11,6 +11,7 @@ class Lesson {
   final int correctAnswers;
   final int incorrectAnswers;
   final int xpPerQuestion;
+  final int emeralds;
 
   Lesson({
     required this.id,
@@ -22,13 +23,14 @@ class Lesson {
     required this.correctAnswers,
     required this.incorrectAnswers,
     this.xpPerQuestion = 4,
+    this.emeralds = 1,
   });
 
   factory Lesson.fromJSON(Map<String, dynamic> json) {
     return Lesson(
       id: json['id'],
       name: json['name'],
-      description: json['description'] ?? null,
+      description: json['description'],
       questions: json['questionsCount'] ?? 0,
       status: QuestionsStatus.values.firstWhere(
         (e) => e.toString().split('.').last == json['questionsStatus'],
@@ -37,6 +39,7 @@ class Lesson {
       correctAnswers: json['correctAnswers'],
       incorrectAnswers: json['incorrectAnswers'],
       xpPerQuestion: json['xpPerQuestion'],
+      emeralds: json['emeralds'],
     );
   }
 }

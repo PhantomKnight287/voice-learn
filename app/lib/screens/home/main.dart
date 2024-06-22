@@ -498,7 +498,15 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                           ),
                           IconButton(
                             key: emeraldsKey,
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                CupertinoPageRoute(
+                                  builder: (context) {
+                                    return const ShopScreen();
+                                  },
+                                ),
+                              );
+                            },
                             icon: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -531,7 +539,9 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                   final userBloc = context.read<UserBloc>();
                                   final userState = userBloc.state;
                                   return StatefulBuilder(
-                                    builder: (context, setState) {
+                                    builder: (context, _setState) {
+                                      final bloc = context.read<UserBloc>();
+                                      final state = bloc.state;
                                       return Padding(
                                         padding: const EdgeInsets.all(BASE_MARGIN * 2),
                                         child: Column(
@@ -542,7 +552,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                             Row(
                                               mainAxisAlignment: MainAxisAlignment.center,
                                               children: List.generate(5, (index) {
-                                                return index < userState.lives
+                                                return index < state.lives
                                                     ? Padding(
                                                         padding: EdgeInsets.symmetric(
                                                           horizontal: BASE_MARGIN.toDouble(),
@@ -569,7 +579,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                               height: BASE_MARGIN * 4,
                                             ),
                                             Text(
-                                              userState.lives >= 5 ? "You have full lives" : "You have ${userState.lives} ${userState.lives == 1 ? "life" : "lives"}",
+                                              state.lives >= 5 ? "You have full lives" : "You have ${state.lives} ${state.lives == 1 ? "life" : "lives"}",
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w700,
                                                 fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
@@ -580,17 +590,17 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                             ),
                                             ElevatedButton(
                                               onPressed: () async {
-                                                if (userState.lives >= 5) return;
-                                                setState(() {
+                                                if (state.lives >= 5) return;
+                                                _setState(() {
                                                   refillLivesButtonLoading = true;
                                                 });
                                                 await _refillLives();
-                                                setState(() {
+                                                _setState(() {
                                                   refillLivesButtonLoading = false;
                                                 });
                                               },
                                               style: ButtonStyle(
-                                                backgroundColor: userState.lives < 5
+                                                backgroundColor: state.lives < 5
                                                     ? WidgetStateProperty.all(
                                                         SECONDARY_BG_COLOR,
                                                       )
@@ -626,7 +636,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                                           "assets/svgs/heart.svg",
                                                           width: 25,
                                                           height: 25,
-                                                          colorFilter: userState.lives > 5 ? const ColorFilter.mode(Colors.grey, BlendMode.saturation) : null,
+                                                          colorFilter: state.lives > 5 ? const ColorFilter.mode(Colors.grey, BlendMode.saturation) : null,
                                                         ),
                                                         const SizedBox(
                                                           width: BASE_MARGIN * 2,
@@ -640,7 +650,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                                             ),
                                                           ),
                                                         ),
-                                                        userState.lives > 5
+                                                        state.lives > 5
                                                             ? ColorFiltered(
                                                                 colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
                                                                 child: Image.asset(
@@ -658,7 +668,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                                           width: BASE_MARGIN * 2,
                                                         ),
                                                         Text(
-                                                          userState.lives >= 5 ? "20" : ((5 - userState.lives) * 4).toString(),
+                                                          state.lives >= 5 ? "20" : ((5 - state.lives) * 4).toString(),
                                                           style: TextStyle(
                                                             fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
                                                             fontWeight: FontWeight.w600,
@@ -672,18 +682,18 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                             ),
                                             ElevatedButton(
                                               onPressed: () async {
-                                                if (userState.lives >= 5) return;
-                                                if (userState.lives >= 5) return;
-                                                setState(() {
+                                                if (state.lives >= 5) return;
+                                                if (state.lives >= 5) return;
+                                                _setState(() {
                                                   buyOneLifeButtonLoading = true;
                                                 });
                                                 await _buyOneLife();
-                                                setState(() {
+                                                _setState(() {
                                                   buyOneLifeButtonLoading = false;
                                                 });
                                               },
                                               style: ButtonStyle(
-                                                backgroundColor: userState.lives < 5
+                                                backgroundColor: state.lives < 5
                                                     ? WidgetStateProperty.all(
                                                         SECONDARY_BG_COLOR,
                                                       )
@@ -719,7 +729,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                                           "assets/svgs/heart.svg",
                                                           width: 25,
                                                           height: 25,
-                                                          colorFilter: userState.lives > 5 ? const ColorFilter.mode(Colors.grey, BlendMode.saturation) : null,
+                                                          colorFilter: state.lives > 5 ? const ColorFilter.mode(Colors.grey, BlendMode.saturation) : null,
                                                         ),
                                                         const SizedBox(
                                                           width: BASE_MARGIN * 2,
@@ -733,7 +743,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                                             ),
                                                           ),
                                                         ),
-                                                        userState.lives > 5
+                                                        state.lives > 5
                                                             ? ColorFiltered(
                                                                 colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
                                                                 child: Image.asset(

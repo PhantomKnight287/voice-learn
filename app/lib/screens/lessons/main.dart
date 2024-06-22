@@ -214,7 +214,7 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
                                     width: BASE_MARGIN * 1,
                                   ),
                                   Text(
-                                    "1",
+                                    lesson.emeralds.toString(),
                                     style: Theme.of(context).textTheme.titleSmall,
                                   ),
                                 ],

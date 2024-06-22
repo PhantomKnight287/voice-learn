@@ -53,6 +53,7 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
           streaks: body['user']['streaks'],
           xp: body['user']['xp'].toDouble(),
           isStreakActive: body['user']['isStreakActive'],
+          tier: userState.tier,
         ),
       );
       return LessonStats.fromJSON(body);

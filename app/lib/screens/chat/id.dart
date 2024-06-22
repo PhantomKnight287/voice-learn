@@ -187,18 +187,13 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     socket!.on("user_update", (data) {
       final userBloc = context.read<UserBloc>();
       final userState = userBloc.state;
-      userBloc.add(DecreaseUserHeartEvent(
-        id: userState.id,
-        name: userState.name,
-        createdAt: userState.name,
-        paths: userState.paths,
-        updatedAt: userState.updatedAt,
-        token: userState.token,
-        emeralds: data['emeralds'],
-        lives: data['lives'],
-        streaks: userState.streaks,
-        xp: userState.xp,
-      ));
+      userBloc.add(
+        UserLoggedInEvent.setEmeraldsAndLives(
+          userState,
+          data['emeralds'],
+          data['lives'],
+        ),
+      );
     });
     socket!.on("error", (data) {
       if ((data as String).contains("emeralds")) {

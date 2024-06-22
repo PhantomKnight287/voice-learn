@@ -5,12 +5,14 @@ class CircularProgressAnimated extends StatefulWidget {
   final double currentItems;
   final Color? color;
   final Color? bgColor;
+  final bool animate;
   const CircularProgressAnimated({
     super.key,
     required this.maxItems,
     required this.currentItems,
     this.color,
     this.bgColor,
+    this.animate = false,
   });
 
   @override
@@ -37,7 +39,9 @@ class _CircularProgressAnimatedState extends State<CircularProgressAnimated> wit
     ).animate(
       controller,
     );
-    controller.forward();
+    if (widget.animate) {
+      controller.forward();
+    }
   }
 
   @override
@@ -58,7 +62,7 @@ class _CircularProgressAnimatedState extends State<CircularProgressAnimated> wit
                 width: 50,
                 height: 50,
                 child: CircularProgressIndicator(
-                  value: animation.value / widget.maxItems,
+                  value: (widget.animate ? animation.value : widget.currentItems) / widget.maxItems,
                   strokeWidth: 3,
                   backgroundColor: widget.bgColor ?? Colors.grey.shade300,
                   color: widget.color ?? Colors.green.shade500,

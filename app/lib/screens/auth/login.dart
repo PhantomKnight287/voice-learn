@@ -102,6 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
             xp: response.user.xp,
             streaks: response.user.streaks,
             isStreakActive: response.user.isStreakActive,
+            tier: response.user.tier,
           ),
         );
 

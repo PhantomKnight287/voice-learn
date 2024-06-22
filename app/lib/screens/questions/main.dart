@@ -125,17 +125,10 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     final state = userBloc.state;
     bool submitted = false;
     userBloc.add(
-      DecreaseUserHeartEvent(
-        id: state.id,
-        name: state.name,
-        createdAt: state.createdAt,
-        paths: state.paths,
-        updatedAt: state.updatedAt,
-        token: state.token,
-        emeralds: state.emeralds,
-        lives: state.lives - 1,
-        xp: state.xp,
-        streaks: state.streaks,
+      UserLoggedInEvent.setEmeraldsAndLives(
+        state,
+        state.emeralds,
+        state.lives - 1,
       ),
     );
     _submitAnswer(questionId, yourAnswer, last).then(
@@ -282,6 +275,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
             xp: body['xp'],
             streaks: body['streaks'] ?? last == true ? state.streaks + 1 : state.streaks,
             isStreakActive: body['isStreakActive'] ?? state.isStreakActive,
+            tier: state.tier,
           ),
         );
       } else {}

@@ -73,6 +73,7 @@ dependencies:
   upgrader: ^10.3.0
   in_app_update: ^4.2.3
   url_launcher: ^6.3.0
+  lottie: ^3.1.2
 
 
 dev_dependencies:
