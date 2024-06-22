@@ -68,6 +68,8 @@ export class WebhooksService {
     const parsedData = JSON.parse(
       Buffer.from(data.message.data, 'base64').toString(),
     ) as DecodedData;
+
+    if(!parsedData.oneTimeProductNotification && !parsedData.subscriptionNotification) return;
     const transaction = await prisma.transaction.findFirst({
       where: {
         purchaseToken:
