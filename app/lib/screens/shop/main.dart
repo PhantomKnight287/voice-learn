@@ -1,19 +1,16 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/classes/sku.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/purchaseable_product.dart';
+import 'package:app/screens/shop/transaction.dart';
 import 'package:app/utils/print.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-import 'package:toastification/toastification.dart';
 
 class ShopScreen extends StatefulWidget {
   const ShopScreen({super.key});
@@ -23,7 +20,6 @@ class ShopScreen extends StatefulWidget {
 }
 
 class _ShopScreenState extends State<ShopScreen> {
-  StreamSubscription<List<PurchaseDetails>>? _purchaseSubscription;
   final _iap = InAppPurchase.instance;
   List<PurchasableProduct> products = [];
 
@@ -36,17 +32,11 @@ class _ShopScreenState extends State<ShopScreen> {
   @override
   void dispose() {
     super.dispose();
-    _purchaseSubscription?.cancel();
   }
 
   Future<void> initialize() async {
     if (!(await _iap.isAvailable())) return;
-    _purchaseSubscription = _iap.purchaseStream.listen(
-      (list) {
-        handlePurchaseUpdates(list);
-      },
-      onError: print,
-    );
+
     final res = await _iap.queryProductDetails({
       ...InAppProductsPurchaseSku.emeralds.toSet(),
       ...InAppSubscriptionsPurchaseSku.tiers,
@@ -57,120 +47,6 @@ class _ShopScreenState extends State<ShopScreen> {
     setState(() {
       products = res.productDetails.map((e) => PurchasableProduct(e)).toList();
     });
-  }
-
-  handlePurchaseUpdates(List<PurchaseDetails> purchaseDetailsList) async {
-    for (int index = 0; index < purchaseDetailsList.length; index++) {
-      var purchaseStatus = purchaseDetailsList[index].status;
-      printError(purchaseStatus.toString());
-      switch (purchaseStatus) {
-        case PurchaseStatus.pending:
-          continue;
-        case PurchaseStatus.error:
-          toastification.show(
-            type: ToastificationType.error,
-            style: ToastificationStyle.minimal,
-            autoCloseDuration: const Duration(seconds: 5),
-            title: const Text("An Error Occurred"),
-            alignment: Alignment.topCenter,
-            showProgressBar: false,
-          );
-          break;
-        case PurchaseStatus.canceled:
-          toastification.show(
-            type: ToastificationType.error,
-            style: ToastificationStyle.minimal,
-            autoCloseDuration: const Duration(seconds: 5),
-            title: const Text("An Error Occurred"),
-            description: const Text("Purchase Cancelled"),
-            alignment: Alignment.topCenter,
-            showProgressBar: false,
-          );
-          break;
-        case PurchaseStatus.purchased:
-          break;
-        case PurchaseStatus.restored:
-          break;
-      }
-
-      if (purchaseDetailsList[index].pendingCompletePurchase) {
-        final userBloc = context.read<UserBloc>();
-        final userState = userBloc.state;
-        final details = purchaseDetailsList[index];
-        userBloc.add(
-          UserLoggedInEvent.setEmeraldsAndLives(
-            userState,
-            userState.emeralds + int.parse((details.productID.split("_")[1])),
-            null,
-          ),
-        );
-        setState(() {});
-        final prefs = await SharedPreferences.getInstance();
-        final token = prefs.getString("token");
-        await http.post(
-            Uri.parse(
-              "$API_URL/transactions",
-            ),
-            headers: {"Authorization": "Bearer $token", "content-type": "application/json"},
-            body: jsonEncode({"sku": details.productID, "token": details.verificationData.serverVerificationData, "type": "one_time_product"}));
-        await _iap.completePurchase(purchaseDetailsList[index]).then((value) async {
-          if (purchaseStatus == PurchaseStatus.purchased) {
-            printWarning("bought");
-            toastification.show(
-              type: ToastificationType.success,
-              style: ToastificationStyle.minimal,
-              autoCloseDuration: const Duration(seconds: 5),
-              title: const Text("Purchased"),
-              description: Text("You have purchased ${purchaseDetailsList[index].productID.split("_")[1]} emeralds"),
-              alignment: Alignment.topCenter,
-              showProgressBar: false,
-            );
-          }
-        });
-      }
-    }
-  }
-
-  Future<void> buyConsumableProduct(String productId) async {
-    try {
-      Set<String> productIds = {productId};
-
-      final ProductDetailsResponse productDetails = await _iap.queryProductDetails(productIds);
-      if (productDetails == null) {
-        // Product not found
-        return;
-      }
-
-      final PurchaseParam purchaseParam = PurchaseParam(
-        productDetails: productDetails.productDetails.first,
-      );
-      await _iap.buyConsumable(purchaseParam: purchaseParam, autoConsume: true);
-    } catch (e) {
-      // Handle purchase error
-      print('Failed to buy plan: $e');
-    }
-  }
-
-  Future<void> buyNonConsumableProduct(String productId) async {
-    try {
-      Set<String> productIds = {productId};
-
-      final ProductDetailsResponse productDetails = await _iap.queryProductDetails(productIds);
-      if (productDetails == null) {
-        // Product not found
-        return;
-      }
-
-      final PurchaseParam purchaseParam = PurchaseParam(
-        productDetails: productDetails.productDetails.first,
-      );
-      await _iap.buyNonConsumable(
-        purchaseParam: purchaseParam,
-      );
-    } catch (e) {
-      // Handle purchase error
-      printError('Failed to buy plan: $e');
-    }
   }
 
   restorePurchases() async {
@@ -193,8 +69,9 @@ class _ShopScreenState extends State<ShopScreen> {
         title: Text(
           "Shop",
           style: TextStyle(
-            fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-            fontWeight: FontWeight.w600,
+            fontSize: Theme.of(context).textTheme.titleMedium!.fontSize!,
+            fontWeight: Theme.of(context).textTheme.titleMedium!.fontWeight,
+            fontFamily: "CalSans",
           ),
         ),
         centerTitle: true,
@@ -250,7 +127,6 @@ class _ShopScreenState extends State<ShopScreen> {
                 () async {
                   final res = await _iap.queryProductDetails({
                     ...InAppProductsPurchaseSku.emeralds.toSet(),
-                    ...InAppSubscriptionsPurchaseSku.tiers,
                   });
                   return res;
                 },
@@ -281,8 +157,19 @@ class _ShopScreenState extends State<ShopScreen> {
                             product: PurchasableProduct(
                               element,
                             ),
-                            onPressed: () async {
-                              await buyConsumableProduct(element.id);
+                            onPressed: () {
+                              Navigator.of(context).push(CupertinoPageRoute(
+                                builder: (context) {
+                                  return TransactionScreen(
+                                    sku: element.id,
+                                    type: ProductType.consumable,
+                                  );
+                                },
+                              )).then(
+                                (value) {
+                                  setState(() {});
+                                },
+                              );
                             },
                           ),
                         )

@@ -203,7 +203,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
           TargetFocus(
             keyTarget: livesKey,
             identify: "lives",
-            alignSkip: Alignment.topRight,
+            alignSkip: Alignment.topLeft,
             enableOverlayTab: true,
             shape: ShapeLightFocus.RRect,
             contents: [
@@ -536,8 +536,6 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                 enableDrag: true,
                                 showDragHandle: true,
                                 builder: (context) {
-                                  final userBloc = context.read<UserBloc>();
-                                  final userState = userBloc.state;
                                   return StatefulBuilder(
                                     builder: (context, _setState) {
                                       final bloc = context.read<UserBloc>();

@@ -116,7 +116,7 @@ class _VoicesScreenState extends State<VoicesScreen> {
                       Navigator.of(context).push(
                         CupertinoPageRoute(
                           builder: (context) {
-                            return const SubscriptionDart();
+                            return const SubscriptionScreen();
                           },
                         ),
                       );

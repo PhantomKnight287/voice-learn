@@ -462,6 +462,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                   data.name,
                   style: TextStyle(
                     fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                    fontWeight: Theme.of(context).textTheme.titleMedium!.fontWeight,
+                    fontFamily: "CalSans",
                   ),
                 ),
                 Row(
@@ -493,6 +495,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                         sent: message.id == lastMessageId ? false : true,
                         audioUrl: message.audioUrl,
                         audioDuration: message.audioDuration,
+                        audioId: message.audioId,
+                        chatId: widget.id,
                       );
 
                       return bubble;
@@ -630,12 +634,14 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                       "message": _controller.text,
                                       "refId": refId,
                                     });
-                                    messages.add(Message(
-                                      author: MessageAuthor.User,
-                                      content: _controller.text.split(" ").map((e) => {"word": e}).toList(),
-                                      createdAt: DateTime.now().toIso8601String(),
-                                      id: refId,
-                                    ));
+                                    messages.add(
+                                      Message(
+                                        author: MessageAuthor.User,
+                                        content: _controller.text.split(" ").map((e) => {"word": e}).toList(),
+                                        createdAt: DateTime.now().toIso8601String(),
+                                        id: refId,
+                                      ),
+                                    );
                                     _controller.clear();
                                     _scrollToBottom();
                                   }
@@ -794,13 +800,17 @@ class ChatBubble extends StatefulWidget {
   final bool? sent;
   final String? audioUrl;
   final int? audioDuration;
+  final String? audioId;
+  final String chatId;
   const ChatBubble({
     super.key,
     required this.text,
     required this.isSentByMe,
+    required this.chatId,
     this.sent,
     this.audioUrl,
     this.audioDuration,
+    this.audioId,
   });
 
   @override
@@ -826,6 +836,7 @@ class _ChatBubbleState extends State<ChatBubble> {
 
   @override
   Widget build(BuildContext context) {
+    final state = context.read<UserBloc>().state;
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
       child: Align(
@@ -881,7 +892,7 @@ class _ChatBubbleState extends State<ChatBubble> {
                       ],
                     )
                   },
-                  if (widget.audioUrl != null) ...{
+                  if (widget.audioUrl != null || widget.audioId != null) ...{
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
@@ -904,7 +915,16 @@ class _ChatBubbleState extends State<ChatBubble> {
                             setState(() {
                               duration = 0;
                             });
-                            await controller.play(widget.audioUrl!.startsWith("https") ? UrlSource(widget.audioUrl!) : DeviceFileSource(widget.audioUrl!));
+
+                            await controller.play(
+                              widget.audioId != null
+                                  ? UrlSource(
+                                      "$API_URL/uploads/${widget.audioId}?token=${state.token}&chatId=${widget.chatId}",
+                                    )
+                                  : widget.audioUrl!.startsWith("https")
+                                      ? UrlSource(widget.audioId!)
+                                      : DeviceFileSource(widget.audioUrl!),
+                            );
                             setState(() {
                               playing = true;
                             });

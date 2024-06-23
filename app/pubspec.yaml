@@ -74,6 +74,8 @@ dependencies:
   in_app_update: ^4.2.3
   url_launcher: ^6.3.0
   lottie: ^3.1.2
+  adaptive_theme: ^3.6.0
+  carbon_icons: ^0.0.1+2
 
 
 dev_dependencies:
@@ -117,6 +119,7 @@ flutter:
     - assets/svgs/
     - assets/images/
     - assets/audios/
+    - assets/logo/
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -146,6 +149,10 @@ flutter:
     - family: Geist
       fonts:
         - asset: assets/fonts/geist.ttf
+    - family: CalSans
+      fonts:
+        - asset: assets/fonts/calsans.otf
+          weight: 600
 
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

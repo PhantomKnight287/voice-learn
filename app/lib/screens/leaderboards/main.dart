@@ -38,7 +38,11 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
         forceMaterialTransparency: true,
         title: Text(
           "Leaderboard",
-          style: Theme.of(context).textTheme.titleMedium,
+          style: TextStyle(
+            fontSize: Theme.of(context).textTheme.titleMedium!.fontSize!,
+            fontWeight: Theme.of(context).textTheme.titleMedium!.fontWeight,
+            fontFamily: "CalSans",
+          ),
         ),
         centerTitle: true,
       ),

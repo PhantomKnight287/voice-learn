@@ -59,8 +59,9 @@ class _StreaksScreenState extends State<StreaksScreen> {
         title: Text(
           "Streaks",
           style: TextStyle(
-            fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-            fontWeight: FontWeight.w600,
+            fontSize: Theme.of(context).textTheme.titleMedium!.fontSize!,
+            fontWeight: Theme.of(context).textTheme.titleMedium!.fontWeight,
+            fontFamily: "CalSans",
           ),
         ),
         centerTitle: true,

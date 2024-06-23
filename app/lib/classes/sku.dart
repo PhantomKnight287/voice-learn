@@ -26,11 +26,11 @@ class InAppProductsPurchaseSku {
 }
 
 class InAppSubscriptionsPurchaseSku {
-  static get epic {
+  static String get epic {
     return "tier_epic";
   }
 
-  static get premium {
+  static String get premium {
     return "tier_premium";
   }
 

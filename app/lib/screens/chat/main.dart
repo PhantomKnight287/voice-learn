@@ -97,7 +97,11 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
       appBar: AppBar(
         title: Text(
           "Chats",
-          style: Theme.of(context).textTheme.titleMedium,
+          style: TextStyle(
+            fontSize: Theme.of(context).textTheme.titleMedium!.fontSize!,
+            fontWeight: Theme.of(context).textTheme.titleMedium!.fontWeight,
+            fontFamily: "CalSans",
+          ),
         ),
         centerTitle: true,
         scrolledUnderElevation: 0.0,
