@@ -51,7 +51,7 @@ export class AppService {
       );
       const fileKey = `${flag.name}-${randomUUID()}`;
       const payload = await this.s3.putObject({
-        Bucket: this.configService.getOrThrow('R2_BUCKET_NAME'),
+        Bucket: this.configService.getOrThrow('R2_PUBLIC_BUCKET_NAME'),
         Key: fileKey,
         Body: imageFile,
         ContentType: 'image/png',
@@ -65,7 +65,7 @@ export class AppService {
       const signedUrl = await getSignedUrl(
         this.s3,
         new GetObjectCommand({
-          Bucket: this.configService.getOrThrow('R2_BUCKET_NAME'),
+          Bucket: this.configService.getOrThrow('R2_PUBLIC_BUCKET_NAME'),
           Key: fileKey,
         }),
         {
@@ -74,8 +74,7 @@ export class AppService {
       );
       await prisma.language.create({
         data: {
-          flagUrl: signedUrl,
-          flagUrlExpireTimestamp: oneWeekFromNow,
+          flagUrl: `${process.env.R2_PUBLIC_BUCKET_URL}/${fileKey}`,
           id: `language_${createId()}`,
           name: flag.name,
           key: fileKey,

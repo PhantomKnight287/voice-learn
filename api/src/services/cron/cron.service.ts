@@ -1,10 +1,8 @@
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import moment from 'moment';
 import { prisma } from 'src/db';
 import { S3Service } from '../s3/s3.service';
-import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -69,45 +67,6 @@ export class CronService {
       }
     } catch (error) {
       console.error('Error resetting streaks:', error);
-    }
-  }
-
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  async refreshFlagsUrl() {
-    const flags = await prisma.language.findMany({
-      where: {
-        flagUrlExpireTimestamp: {
-          lte: moment().utc().startOf('day').toDate(),
-        },
-      },
-    });
-
-    for (const flag of flags) {
-      const now = moment().utc().toDate();
-      const oneWeekFromNow = new Date(now);
-
-      oneWeekFromNow.setDate(now.getDate() + 7);
-
-      const signedUrl = await getSignedUrl(
-        this.s3,
-        new GetObjectCommand({
-          Bucket: this.configService.getOrThrow('R2_BUCKET_NAME'),
-          Key: flag.key,
-        }),
-        {
-          expiresIn: 60 * 60 * 24 * 7, // 1 week
-        },
-      );
-      await prisma.language.update({
-        where: {
-          id: flag.id,
-        },
-        data: {
-          flagUrl: signedUrl,
-          flagUrlExpireTimestamp: oneWeekFromNow,
-        },
-      });
-      console.log("updated")
     }
   }
 }

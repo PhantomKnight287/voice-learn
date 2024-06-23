@@ -154,7 +154,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         audioDuration: payload.audioDuration,
       },
       include: {
-        attachment: true,
+        attachment: { select: { id: true } },
       },
     });
     client.nsp

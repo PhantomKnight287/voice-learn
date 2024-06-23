@@ -331,7 +331,7 @@ Only generate array of lessons and no escape characters.
         const userMessage = await prisma.message.findFirst({
           where: { id: body.messageId },
           include: {
-            attachment: true,
+            attachment: { select: { id: true } },
           },
         });
         const text = userMessage.content;
@@ -452,7 +452,7 @@ Only generate array of lessons and no escape characters.
             audioDuration: duration,
           },
           include: {
-            attachment: true,
+            attachment: { select: { id: true } },
           },
         });
         messageSubject.next(llmMessage);

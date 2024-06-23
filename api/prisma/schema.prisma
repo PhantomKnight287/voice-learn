@@ -156,8 +156,6 @@ model Language {
   updatedAt              DateTime       @updatedAt
   /// The url of location where flag is located
   flagUrl                String         @unique
-  /// flag url expire time
-  flagUrlExpireTimestamp DateTime
   /// flag file key
   key                    String?
   chats                  Chat[]

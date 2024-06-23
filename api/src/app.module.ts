@@ -114,6 +114,7 @@ export class AppModule implements NestModule {
           path: '/v(.*)/voices',
         },
         '/v(.*)/webhooks/(.*)',
+        '/v(.*)/uploads/(.*)'
       )
       .forRoutes('*');
 

@@ -1,6 +1,10 @@
 import {
   Controller,
+  Get,
+  Param,
   Post,
+  Query,
+  Response,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -10,6 +14,8 @@ import { Auth } from 'src/decorators/auth/auth.decorator';
 import { User } from '@prisma/client';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
+import { Response as R } from 'express';
+
 @Controller('uploads')
 export class UploadsController {
   constructor(private readonly uploadsService: UploadsService) {}
@@ -39,5 +45,15 @@ export class UploadsController {
   )
   uploadFile(@UploadedFile() file: Express.Multer.File, @Auth() auth: User) {
     return this.uploadsService.uploadImage(auth.id, file);
+  }
+
+  @Get(':id')
+  async getUpload(
+    @Query('chatId') chatId: string,
+    @Query('token') token: string,
+    @Param('id') id: string,
+    @Response() res: R,
+  ) {
+    return this.uploadsService.redirectToPublicUrl(token, chatId, id, res);
   }
 }

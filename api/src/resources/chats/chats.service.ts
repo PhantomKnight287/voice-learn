@@ -94,7 +94,11 @@ export class ChatsService {
             },
           ],
           include: {
-            attachment: true,
+            attachment: {
+              select: {
+                id: true,
+              },
+            },
           },
         },
         language: {
@@ -131,7 +135,7 @@ export class ChatsService {
       },
       take: 20,
       include: {
-        attachment: true,
+        attachment: { select: { id: true } },
       },
     });
     return messages;
@@ -170,7 +174,7 @@ export class ChatsService {
         createdAt: 'asc',
       },
       include: {
-        attachment: true,
+        attachment: { select: { id: true } },
       },
     });
     return messages;

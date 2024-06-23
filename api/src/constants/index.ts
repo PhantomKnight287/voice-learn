@@ -30,6 +30,8 @@ export const envSchema = z.object({
   LOGSTRAP_KEY: z.string().optional(),
   ELEVENLABS_API_KEY: z.string(),
   DEV: z.string().optional(),
+  R2_PUBLIC_BUCKET_NAME: z.string(),
+  R2_PUBLIC_BUCKET_URL: z.string(),
 });
 const safeParseResult = envSchema.safeParse(process.env);
 if (safeParseResult.success === false) {
