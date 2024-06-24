@@ -28,29 +28,45 @@ export class TransactionsService {
         data: { userId },
       });
     }
-    
+
     if (
       transaction.userId &&
       transaction.completed == false &&
-      transaction.type == 'one_time_product' &&
       transaction.userUpdated == false
     ) {
-      await prisma.$transaction([
-        prisma.user.update({
-          where: {
-            id: transaction.userId,
-          },
-          data: {
-            emeralds: {
-              increment: PRODUCTS[transaction.sku] ?? 0,
+      if (transaction.type === 'one_time_product') {
+        await prisma.$transaction([
+          prisma.user.update({
+            where: {
+              id: transaction.userId,
             },
-          },
-        }),
-        prisma.transaction.update({
-          where: { id: transaction.id },
-          data: { userUpdated: true, completed: true },
-        }),
-      ]);
+            data: {
+              emeralds: {
+                increment: PRODUCTS[transaction.sku] ?? 0,
+              },
+            },
+          }),
+          prisma.transaction.update({
+            where: { id: transaction.id },
+            data: { userUpdated: true, completed: true },
+          }),
+        ]);
+      } else {
+        await prisma.$transaction([
+          prisma.user.update({
+            where: {
+              id: transaction.userId,
+            },
+            data: {
+              tier: 'premium',
+            },
+          }),
+          prisma.transaction.update({
+            where: { id: transaction.id },
+            data: { userUpdated: true, completed: true },
+          }),
+        ]);
+      }
     }
     return {
       id: transaction.id,

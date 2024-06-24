@@ -69,7 +69,11 @@ export class WebhooksService {
       Buffer.from(data.message.data, 'base64').toString(),
     ) as DecodedData;
 
-    if(!parsedData.oneTimeProductNotification && !parsedData.subscriptionNotification) return;
+    if (
+      !parsedData.oneTimeProductNotification &&
+      !parsedData.subscriptionNotification
+    )
+      return;
     const transaction = await prisma.transaction.findFirst({
       where: {
         purchaseToken:
@@ -121,7 +125,75 @@ export class WebhooksService {
 
     const eventName: (typeof SubscriptionType)[keyof typeof SubscriptionType] =
       SubscriptionType[parsedData.subscriptionNotification.notificationType];
-    console.log(eventName);
+    if (
+      eventName === 'SUBSCRIPTION_CANCELED' ||
+      eventName === 'SUBSCRIPTION_EXPIRED' ||
+      eventName === 'SUBSCRIPTION_REVOKED' ||
+      eventName === 'SUBSCRIPTION_PAUSED'
+    ) {
+      const transaction = await prisma.transaction.update({
+        where: {
+          purchaseToken: parsedData.subscriptionNotification.purchaseToken,
+        },
+        data: {
+          user: {
+            update: {
+              tier: 'free',
+            },
+          },
+        },
+      });
+    } else if (
+      eventName === 'SUBSCRIPTION_RESTARTED' ||
+      eventName === 'SUBSCRIPTION_RECOVERED' ||
+      eventName === 'SUBSCRIPTION_RENEWED'
+    ) {
+      await prisma.transaction.update({
+        where: {
+          purchaseToken: parsedData.subscriptionNotification.purchaseToken,
+        },
+        data: {
+          user: {
+            update: {
+              tier: 'premium',
+            },
+          },
+        },
+      });
+    } else if (eventName === 'SUBSCRIPTION_PURCHASED') {
+      if (!transaction || !transaction.userId) {
+        await prisma.transaction.create({
+          data: {
+            purchaseToken: parsedData.subscriptionNotification.purchaseToken,
+            type: 'subscription',
+            sku: parsedData.subscriptionNotification.subscriptionId,
+            notificationType:
+              parsedData.subscriptionNotification.notificationType,
+            userUpdated: false,
+          },
+        });
+        return;
+      }
+      if (transaction.userId) {
+        await prisma.user.update({
+          where: { id: transaction.userId },
+          data: {
+            tier: {
+              set: 'premium',
+            },
+            transactions: {
+              update: {
+                where: {
+                  id: transaction.id,
+                },
+                data: { userUpdated: true, completed: true },
+              },
+            },
+          },
+        });
+        return;
+      }
+    }
     return;
   }
 }
