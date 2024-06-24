@@ -122,6 +122,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         );
         addToQueue = false;
       }
+      if (user.tier === 'free') {
+        const chat = await prisma.chat.findFirst({
+          where: { id: client.handshake.query.chatId as string },
+          include: { voice: true },
+        });
+        if (chat.voice.provider === 'XILabs') {
+          return client.emit(
+            'error',
+            'This chat is using a premium voice. Please upgrade to premium to continue with voice messages in this chat.',
+          );
+        }
+      }
       const res = await fetch(attachment.url);
       if (!res.ok)
         throw new Error(`Failed to fetch ${attachment.url}: ${res.statusText}`);
