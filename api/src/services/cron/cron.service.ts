@@ -69,4 +69,18 @@ export class CronService {
       console.error('Error resetting streaks:', error);
     }
   }
+
+  @Cron(CronExpression.EVERY_HOUR)
+  async giveEmeraldsToProUsers() {
+    const users = await prisma.user.findMany({ where: { tier: 'premium' } });
+    const ids = users.map((u) => u.id);
+    await prisma.user.updateMany({
+      where: { id: { in: ids } },
+      data: {
+        emeralds: {
+          increment: 100,
+        },
+      },
+    });
+  }
 }
