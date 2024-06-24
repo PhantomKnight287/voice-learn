@@ -161,16 +161,18 @@ export class QuestionsService {
             answer: body.answer,
           },
         });
-        await tx.lesson.update({
-          where: { id: body.lessonId },
-          data: {
-            correctAnswers: { increment: correct ? 1 : 0 },
-            incorrectAnswers: { increment: !correct ? 1 : 0 },
-            completed: body.last,
-            startDate: new Date(body.startDate),
-            endDate: new Date(body.endDate),
-          },
-        });
+        if (body.last) {
+          await tx.lesson.update({
+            where: { id: body.lessonId },
+            data: {
+              correctAnswers: { increment: questions + (correct ? 1 : 0) },
+              incorrectAnswers: { increment: questions + (!correct ? 1 : 0) },
+              completed: body.last,
+              startDate: new Date(body.startDate),
+              endDate: new Date(body.endDate),
+            },
+          });
+        }
       }
       if (body.last && correct) {
         questions += 1;
@@ -192,7 +194,7 @@ export class QuestionsService {
       });
       const user = await tx.user.findFirst({ where: { id: userId } });
 
-      if (!existingStreak) {
+      if (!existingStreak && body.last) {
         await tx.user.update({
           where: { id: userId },
           data: {
@@ -220,7 +222,14 @@ export class QuestionsService {
             increment: questions * (lesson ? lesson.xpPerQuestion : 4),
           },
           lives: {
-            decrement: user.lives === 0 ? 0 : correct === false ? 1 : 0,
+            decrement:
+              user.lives === 0
+                ? 0
+                : correct === false
+                  ? user.tier === 'free'
+                    ? 1
+                    : 0
+                  : 0,
           },
           emeralds: {
             increment: body.last ? (lesson ? lesson.emeralds : 1) : 0,
