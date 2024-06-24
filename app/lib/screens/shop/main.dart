@@ -118,10 +118,6 @@ class _ShopScreenState extends State<ShopScreen> {
                   fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
                 ),
               ),
-              const Text(
-                "Note : You are free to test payments, the UI will be updated but changes won't be persisted. Subscriptions doesn't work now.",
-                textAlign: TextAlign.center,
-              ),
               QueryBuilder(
                 'products',
                 () async {
