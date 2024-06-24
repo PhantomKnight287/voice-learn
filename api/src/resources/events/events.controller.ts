@@ -27,6 +27,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { randomUUID } from 'crypto';
 import { parseBuffer } from 'music-metadata';
+import { openai as aiSdkOpenAI } from '@ai-sdk/openai';
 @Controller('events')
 export class EventsController {
   constructor(
@@ -48,7 +49,9 @@ export class EventsController {
           include: {
             module: {
               include: {
-                learningPath: { include: { language: true } },
+                learningPath: {
+                  include: { language: true, user: { select: { tier: true } } },
+                },
               },
             },
           },
@@ -167,6 +170,11 @@ export class EventsController {
             },
             reason: true,
             knowledge: true,
+            user: {
+              select: {
+                tier: true,
+              },
+            },
           },
         });
         const messages: Parameters<
@@ -249,6 +257,7 @@ Only generate array of modules and no escape characters.
                 },
                 reason: true,
                 knowledge: true,
+                user: { select: { tier: true } },
               },
             },
             lessons: {
@@ -318,13 +327,14 @@ Only generate array of lessons and no escape characters.
             language: true,
             voice: true,
             messages: {
-              take: 20,
+              take: 100,
               orderBy: [
                 {
                   createdAt: 'desc',
                 },
               ],
             },
+            user: { select: { tier: true } },
           },
         });
 
@@ -337,6 +347,7 @@ Only generate array of lessons and no escape characters.
         const text = userMessage.content;
         const res = await this.geminiService.generateObject({
           schema: llmTextResponse,
+          model: aiSdkOpenAI('gpt-4o'),
           messages: [
             {
               role: 'system',
@@ -348,18 +359,23 @@ Only generate array of lessons and no escape characters.
             },
             {
               role: 'system',
-              content: `Your response must an array of objects where 'word' will be the actual word in ${chat.language.name} and 'translation' will be translation in english. Example: [{"word":"Guten","translation":"Good",},{"word":"morgen","translation":"morning"}]
+              content: `Your response must an object containing "response" which is array of objects where 'word' will be the actual word in ${chat.language.name} and 'translation' will be translation in english. Example: [{"word":"Guten","translation":"Good",},{"word":"morgen","translation":"morning"}]
               
               Do not generate escape characters
               `,
             },
             //@ts-expect-error
-            ...chat.messages.reverse().map((message) => ({
-              role: message.author === 'Bot' ? 'assistant' : 'user',
-              content: message.content
-                .map((message) => (message as { word: string }).word)
-                .join(' '),
-            })),
+            ...(chat.user.tier === 'free'
+              ? chat.messages.slice(0, 20)
+              : chat.messages
+            )
+              .reverse()
+              .map((message) => ({
+                role: message.author === 'Bot' ? 'assistant' : 'user',
+                content: message.content
+                  .map((message) => (message as { word: string }).word)
+                  .join(' '),
+              })),
             {
               content: text.map((e) => (e as { word: string }).word).join(' '),
               //@ts-expect-error
@@ -373,7 +389,9 @@ Only generate array of lessons and no escape characters.
         if (chat.voice.provider === 'OpenAI' && userMessage.attachmentId) {
           const voice = await openai.audio.speech.create({
             model: 'tts-1',
-            input: (res.object as unknown as z.infer<typeof llmTextResponse>)
+            input: (
+              res.object as unknown as z.infer<typeof llmTextResponse>
+            ).response
               .map((word) => word.word)
               .join(' '),
             //setting any as the provider is OpenAI so voices are already verified
@@ -387,12 +405,15 @@ Only generate array of lessons and no escape characters.
           chat.voice.provider == 'XILabs'
         ) {
           const audioStream = await elevenLabs.generate({
-            voice: chat.voice.id,
-            text: (res.object as unknown as z.infer<typeof llmTextResponse>)
+            voice: chat.voice.name,
+            text: (
+              res.object as unknown as z.infer<typeof llmTextResponse>
+            ).response
               .map((word) => word.word)
               .join(' '),
-            model_id: 'eleven_turbo_v2',
+            model_id: 'eleven_multilingual_v2',
             stream: true,
+            enable_logging: true,
           });
           const chunks: Buffer[] = [];
           for await (const chunk of audioStream) {
@@ -445,7 +466,7 @@ Only generate array of lessons and no escape characters.
         const llmMessage = await prisma.message.create({
           data: {
             id: `message_${createId()}`,
-            content: res.object as z.infer<typeof llmTextResponse>,
+            content: (res.object as z.infer<typeof llmTextResponse>).response,
             author: 'Bot',
             chatId: body.id,
             attachmentId: llmAudio,
@@ -458,13 +479,14 @@ Only generate array of lessons and no escape characters.
         messageSubject.next(llmMessage);
       } else {
         const path = await prisma.learningPath.findFirst({
-          include: { language: true },
+          include: { language: true, user: { select: { tier: true } } },
           where: { id: String(body.id) },
         });
         if (!path) return;
 
         const data = await this.geminiService.generateObject({
           schema: learning_path_schema,
+          model: path.user.tier === 'free' ? undefined : aiSdkOpenAI('gpt-4o'),
           messages: [
             {
               role: 'system',
