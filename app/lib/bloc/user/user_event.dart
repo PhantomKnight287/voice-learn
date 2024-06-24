@@ -69,6 +69,24 @@ class UserLoggedInEvent extends UserEvent {
       tier: user.tier,
     );
   }
+
+  factory UserLoggedInEvent.setTier(UserModel user, Tiers tier) {
+    return UserLoggedInEvent(
+      id: user.id,
+      name: user.name,
+      token: user.token,
+      email: user.email,
+      createdAt: user.createdAt,
+      paths: user.paths,
+      updatedAt: user.updatedAt,
+      emeralds: user.emeralds,
+      lives: user.lives,
+      xp: user.xp,
+      streaks: user.streaks,
+      isStreakActive: user.isStreakActive,
+      tier: tier,
+    );
+  }
 }
 
 class UserLoggedOutEvent extends UserEvent {

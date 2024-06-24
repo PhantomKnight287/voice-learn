@@ -6,6 +6,7 @@ class CircularProgressAnimated extends StatefulWidget {
   final Color? color;
   final Color? bgColor;
   final bool animate;
+  final Widget? child;
   const CircularProgressAnimated({
     super.key,
     required this.maxItems,
@@ -13,6 +14,7 @@ class CircularProgressAnimated extends StatefulWidget {
     this.color,
     this.bgColor,
     this.animate = false,
+    this.child,
   });
 
   @override
@@ -53,27 +55,30 @@ class _CircularProgressAnimatedState extends State<CircularProgressAnimated> wit
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-        animation: animation,
-        builder: (context, child) {
-          return Stack(
-            alignment: Alignment.center,
-            children: [
-              SizedBox(
-                width: 50,
-                height: 50,
-                child: CircularProgressIndicator(
-                  value: (widget.animate ? animation.value : widget.currentItems) / widget.maxItems,
-                  strokeWidth: 3,
-                  backgroundColor: widget.bgColor ?? Colors.grey.shade300,
-                  color: widget.color ?? Colors.green.shade500,
-                ),
+      animation: animation,
+      builder: (context, child) {
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            SizedBox(
+              width: 50,
+              height: 50,
+              child: CircularProgressIndicator(
+                value: (widget.animate ? animation.value : widget.currentItems) / widget.maxItems,
+                strokeWidth: 3,
+                backgroundColor: widget.bgColor ?? Colors.grey.shade300,
+                color: widget.color ?? Colors.green.shade500,
               ),
-              Text(
-                widget.maxItems.toInt().toString(),
-                style: Theme.of(context).textTheme.titleMedium,
-              )
-            ],
-          );
-        });
+            ),
+            widget.child != null
+                ? widget.child!
+                : Text(
+                    widget.maxItems.toInt().toString(),
+                    style: Theme.of(context).textTheme.titleMedium,
+                  )
+          ],
+        );
+      },
+    );
   }
 }

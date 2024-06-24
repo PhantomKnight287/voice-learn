@@ -1,5 +1,7 @@
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/models/user.dart';
+import 'package:app/screens/shop/transaction.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:app/classes/sku.dart';
@@ -77,27 +79,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
         ),
         Text(
           "Unlimited Questions",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-          ),
-        ),
-      ],
-    ),
-    Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const HeroIcon(
-          HeroIcons.chatBubbleOvalLeft,
-          style: HeroIconStyle.outline,
-          color: Colors.black,
-        ),
-        const SizedBox(
-          width: BASE_MARGIN * 2,
-        ),
-        Text(
-          "Unlimited Chats",
           style: TextStyle(
             color: Colors.black,
             fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
@@ -190,6 +171,27 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
       ],
     ),
     Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const HeroIcon(
+          HeroIcons.chatBubbleOvalLeft,
+          style: HeroIconStyle.outline,
+          color: Colors.black,
+        ),
+        const SizedBox(
+          width: BASE_MARGIN * 2,
+        ),
+        Text(
+          "Unlimited Chats",
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+          ),
+        ),
+      ],
+    ),
+    Row(
       children: [
         Image.asset(
           "assets/images/emerald.png",
@@ -218,8 +220,14 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
         const SizedBox(
           width: BASE_MARGIN * 2,
         ),
+        const Icon(
+          Icons.all_inclusive_outlined,
+        ),
+        const SizedBox(
+          width: BASE_MARGIN * 2,
+        ),
         Text(
-          "Full lives every 4 hours",
+          "lives",
           style: TextStyle(
             color: Colors.black,
             fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
@@ -478,9 +486,28 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                         height: BASE_MARGIN * 4,
                       ),
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          if (state.tier == Tiers.premium) return;
+                          Navigator.of(context).push(
+                            CupertinoPageRoute(
+                              builder: (context) {
+                                return TransactionScreen(
+                                  sku: InAppSubscriptionsPurchaseSku.premium,
+                                  type: ProductType.subscription,
+                                );
+                              },
+                            ),
+                          ).then(
+                            (value) {
+                              setState(() {});
+                            },
+                          );
+                        },
                         style: ButtonStyle(
                           alignment: Alignment.center,
+                          backgroundColor: WidgetStateProperty.all(
+                            state.tier == Tiers.free ? PRIMARY_COLOR : SECONDARY_BG_COLOR,
+                          ),
                           foregroundColor: WidgetStateProperty.all(Colors.black),
                           padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
                             (Set<WidgetState> states) {
@@ -521,392 +548,303 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                 ),
                 Column(
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            "Monthly Price",
+                    DataTable(
+                      columns: [
+                        const DataColumn(
+                          label: Text(
+                            'Monthly Price',
                             style: TextStyle(
-                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                              color: Colors.black,
                             ),
+                            textAlign: TextAlign.end,
                           ),
                         ),
-                        Column(
-                          children: [
-                            Text(
-                              "Free",
-                              style: TextStyle(
-                                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.5,
-                                fontFamily: "CalSans",
+                        DataColumn(
+                          numeric: true,
+                          label: Column(
+                            children: [
+                              Text(
+                                "Free",
+                                style: TextStyle(
+                                  fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.5,
+                                  fontFamily: "CalSans",
+                                ),
                               ),
-                            ),
-                            const SizedBox(
-                              height: BASE_MARGIN * 2,
-                            ),
-                            Text(
-                              "\$0",
-                              style: TextStyle(
-                                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 0.8,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
+                              const SizedBox(
+                                height: BASE_MARGIN * 2,
                               ),
-                            )
-                          ],
+                              Text(
+                                "\$0",
+                                style: TextStyle(
+                                  fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 0.8,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              )
+                            ],
+                          ),
                         ),
-                        const SizedBox(
-                          width: BASE_MARGIN * 3,
-                        ),
-                        Column(
-                          children: [
-                            Text(
-                              "Premium",
-                              style: TextStyle(
-                                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.5,
-                                fontFamily: "CalSans",
+                        DataColumn(
+                          label: Column(
+                            children: [
+                              Text(
+                                "Premium",
+                                style: TextStyle(
+                                  fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.5,
+                                  fontFamily: "CalSans",
+                                ),
                               ),
-                            ),
-                            const SizedBox(
-                              height: BASE_MARGIN * 2,
-                            ),
-                            QueryBuilder(
-                              'premium_price',
-                              () async {
-                                final instance = InAppPurchase.instance;
-                                if (!await instance.isAvailable()) throw "Billing not available on your device";
-                                final info = await instance.queryProductDetails(
-                                  {InAppSubscriptionsPurchaseSku.premium},
-                                );
-                                if (info.notFoundIDs.isNotEmpty) throw "Failed to load pricing";
-                                return info.productDetails[0];
-                              },
-                              builder: (context, query) {
-                                if (query.hasError) {
-                                  printError(
-                                    query.error.toString(),
+                              const SizedBox(
+                                height: BASE_MARGIN * 2,
+                              ),
+                              QueryBuilder(
+                                'premium_price',
+                                () async {
+                                  final instance = InAppPurchase.instance;
+                                  if (!await instance.isAvailable()) throw "Billing not available on your device";
+                                  final info = await instance.queryProductDetails(
+                                    {InAppSubscriptionsPurchaseSku.premium},
                                   );
-                                }
-                                if (query.isLoading) {
-                                  return Shimmer.fromColors(
-                                    baseColor: Colors.grey.shade300,
-                                    highlightColor: Colors.grey.shade400,
-                                    child: Container(
-                                      height: 10,
-                                      width: 70,
-                                      decoration: BoxDecoration(
-                                        color: Colors.black,
-                                        borderRadius: BorderRadius.circular(10),
+                                  if (info.notFoundIDs.isNotEmpty) throw "Failed to load pricing";
+                                  return info.productDetails[0];
+                                },
+                                builder: (context, query) {
+                                  if (query.hasError) {
+                                    printError(
+                                      query.error.toString(),
+                                    );
+                                  }
+                                  if (query.isLoading) {
+                                    return Shimmer.fromColors(
+                                      baseColor: Colors.grey.shade300,
+                                      highlightColor: Colors.grey.shade400,
+                                      child: Container(
+                                        height: 10,
+                                        width: 70,
+                                        decoration: BoxDecoration(
+                                          color: Colors.black,
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
                                       ),
+                                    );
+                                  }
+
+                                  if (query.hasError) return const SizedBox();
+                                  final data = query.data;
+                                  if (data == null) return const SizedBox();
+                                  return Text(
+                                    data.price,
+                                    style: TextStyle(
+                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 0.8,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   );
-                                }
-
-                                if (query.hasError) return const SizedBox();
-                                final data = query.data;
-                                if (data == null) return const SizedBox();
-                                return Text(
-                                  data.price,
-                                  style: TextStyle(
-                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 0.8,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                );
-                              },
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                      rows: [
+                        const DataRow(
+                          cells: [
+                            DataCell(
+                              Text(
+                                'Unlimited Modules',
+                              ),
+                            ),
+                            DataCell(
+                              Center(
+                                child: HeroIcon(
+                                  HeroIcons.check,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              Center(
+                                child: HeroIcon(
+                                  HeroIcons.check,
+                                ),
+                              ),
                             ),
                           ],
-                        )
-                      ],
-                    ),
-                    const Divider(),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            "Unlimited Chats",
-                            style: TextStyle(
-                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                        ),
+                        const DataRow(
+                          cells: [
+                            DataCell(
+                              Text(
+                                'Unlimited Lessons',
+                              ),
                             ),
-                          ),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 8.0,
-                            horizontal: 25,
-                          ),
-                          child: HeroIcon(
-                            HeroIcons.check,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: BASE_MARGIN * 3,
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 8.0,
-                            horizontal: 18,
-                          ),
-                          child: HeroIcon(
-                            HeroIcons.check,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Divider(),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            "Unlimited Voice Messages",
-                            style: TextStyle(
-                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                            DataCell(
+                              Center(
+                                child: HeroIcon(
+                                  HeroIcons.check,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 8.0,
-                            horizontal: 25,
-                          ),
-                          child: HeroIcon(
-                            HeroIcons.check,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: BASE_MARGIN * 3,
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 8.0,
-                            horizontal: 18,
-                          ),
-                          child: HeroIcon(
-                            HeroIcons.check,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Divider(),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            "Unlimited Lessons",
-                            style: TextStyle(
-                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                            DataCell(
+                              Center(
+                                child: HeroIcon(
+                                  HeroIcons.check,
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 8.0,
-                            horizontal: 25,
-                          ),
-                          child: HeroIcon(
-                            HeroIcons.check,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: BASE_MARGIN * 3,
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 8.0,
-                            horizontal: 18,
-                          ),
-                          child: HeroIcon(
-                            HeroIcons.check,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Divider(),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            "Unlimited Questions",
-                            style: TextStyle(
-                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                        const DataRow(
+                          cells: [
+                            DataCell(Text('Unlimited Questions')),
+                            DataCell(
+                              Center(
+                                child: HeroIcon(
+                                  HeroIcons.check,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 8.0,
-                            horizontal: 25,
-                          ),
-                          child: HeroIcon(
-                            HeroIcons.check,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: BASE_MARGIN * 3,
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 8.0,
-                            horizontal: 18,
-                          ),
-                          child: HeroIcon(
-                            HeroIcons.check,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Divider(),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            "Unlimited Modules",
-                            style: TextStyle(
-                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                            DataCell(
+                              Center(
+                                child: HeroIcon(
+                                  HeroIcons.check,
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 8.0,
-                            horizontal: 25,
-                          ),
-                          child: HeroIcon(
-                            HeroIcons.check,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: BASE_MARGIN * 3,
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 8.0,
-                            horizontal: 18,
-                          ),
-                          child: HeroIcon(
-                            HeroIcons.check,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Divider(),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            "All Voices",
-                            style: TextStyle(
-                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                        const DataRow(
+                          cells: [
+                            DataCell(
+                              Text(
+                                'Chats',
+                              ),
                             ),
-                          ),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 8.0,
-                            horizontal: 25,
-                          ),
-                          child: HeroIcon(
-                            HeroIcons.xMark,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: BASE_MARGIN * 3,
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 8.0,
-                            horizontal: 18,
-                          ),
-                          child: HeroIcon(
-                            HeroIcons.check,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Divider(),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            "Priority in Queue",
-                            style: TextStyle(
-                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                            DataCell(
+                              Center(
+                                child: Text(
+                                  "10",
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 8.0,
-                            horizontal: 25,
-                          ),
-                          child: HeroIcon(
-                            HeroIcons.xMark,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: BASE_MARGIN * 3,
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 8.0,
-                            horizontal: 18,
-                          ),
-                          child: HeroIcon(
-                            HeroIcons.check,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Divider(),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            "Lives every 4 hours",
-                            style: TextStyle(
-                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                            DataCell(
+                              Center(
+                                child: Icon(
+                                  Icons.all_inclusive,
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 8.0,
-                            horizontal: 25,
-                          ),
-                          child: Text(
-                            "1",
-                            style: TextStyle(
-                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.1,
+                        const DataRow(
+                          cells: [
+                            DataCell(
+                              Text('All Voices'),
                             ),
-                          ),
-                        ),
-                        const SizedBox(
-                          width: BASE_MARGIN * 3,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 8.0,
-                            horizontal: 18,
-                          ),
-                          child: Text(
-                            "Full",
-                            style: TextStyle(
-                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.1,
+                            DataCell(
+                              Center(
+                                child: HeroIcon(
+                                  HeroIcons.xMark,
+                                ),
+                              ),
                             ),
-                          ),
+                            DataCell(
+                              Center(
+                                child: HeroIcon(
+                                  HeroIcons.check,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        DataRow(
+                          cells: [
+                            DataCell(
+                              GestureDetector(
+                                onTap: () {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    enableDrag: true,
+                                    showDragHandle: true,
+                                    builder: (context) {
+                                      return Padding(
+                                        padding: const EdgeInsets.all(BASE_MARGIN * 2),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "Context in AI",
+                                              style: TextStyle(
+                                                fontFamily: "CalSans",
+                                                fontSize: Theme.of(context).textTheme.titleMedium!.fontSize!,
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              height: BASE_MARGIN * 3,
+                                            ),
+                                            Text(
+                                              '"Context" in AI refers to the background information or situation that helps an AI system understand and respond accurately. Just like how we use surrounding clues in a conversation to make sense of it, AI uses context to make better decisions and give more relevant answers.',
+                                              style: TextStyle(
+                                                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                                child: const Text(
+                                  'Messages Context',
+                                  style: TextStyle(
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const DataCell(
+                              Center(
+                                child: Text(
+                                  "20",
+                                ),
+                              ),
+                            ),
+                            const DataCell(
+                              Center(
+                                child: Text(
+                                  "100",
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const DataRow(
+                          cells: [
+                            DataCell(
+                              Text(
+                                'Advanced AI for Chats',
+                              ),
+                            ),
+                            DataCell(
+                              Center(
+                                child: HeroIcon(
+                                  HeroIcons.xMark,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              Center(
+                                child: HeroIcon(
+                                  HeroIcons.check,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

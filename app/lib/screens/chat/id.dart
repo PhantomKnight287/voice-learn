@@ -204,6 +204,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           botResponse = '';
           lastMessageReceivedId = "";
         });
+      } else if ((data as String).startsWith("This chat is using a premium voice.")) {
+        setState(() {
+          if (messages.isNotEmpty) {
+            messages.removeLast();
+          }
+        });
       }
       toastification.show(
         type: ToastificationType.error,

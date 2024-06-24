@@ -135,7 +135,9 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(
+              BASE_MARGIN * 4,
+            ),
             child: Form(
               key: _formKey,
               child: Column(

@@ -21,6 +21,12 @@ final LESSON_COMPLETION_AD_ID = Platform.isAndroid
 
 const PUSHER_API_KEY = "08bb02d9dc1575512369";
 
+final LESSON_STATS_AD_ID = Platform.isAndroid
+    ? kDebugMode
+        ? "ca-app-pub-3940256099942544/9214589741"
+        : "ca-app-pub-8135231984104285/3425228085"
+    : "";
+
 const PUSHER_CLUSTER = "ap2";
 
 final BOTTOM = PreferredSize(

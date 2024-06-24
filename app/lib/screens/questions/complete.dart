@@ -8,6 +8,7 @@ import 'package:async_builder/async_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -25,9 +26,41 @@ class LessonCompleteScreen extends StatefulWidget {
 }
 
 class LessonCompleteScreenState extends State<LessonCompleteScreen> {
+  late BannerAd _bannerAd;
+
   @override
   void dispose() {
     super.dispose();
+    _bannerAd.dispose();
+    _loadAd();
+  }
+
+  void _loadAd() {
+    _bannerAd = BannerAd(
+      size: AdSize.banner,
+      adUnitId: LESSON_STATS_AD_ID,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        // Called when an ad is successfully received.
+        onAdLoaded: (ad) {
+          if (!mounted) {
+            ad.dispose();
+            return;
+          }
+          setState(() {
+            _bannerAd = ad as BannerAd;
+          });
+        },
+        // Called when an ad request failed.
+        onAdFailedToLoad: (ad, error) {
+          debugPrint('BannerAd failed to load: $error');
+          ad.dispose();
+        },
+      ),
+    );
+
+    // Start loading.
+    _bannerAd.load();
   }
 
   Future<LessonStats> _fetchLessonStats() async {
@@ -64,6 +97,7 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
   @override
   void initState() {
     super.initState();
+    _loadAd();
   }
 
   @override
@@ -111,6 +145,16 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
                 ),
               ),
               const Spacer(),
+              _bannerAd != null
+                  ? SizedBox(
+                      width: AdSize.fullBanner.width.toDouble(),
+                      height: AdSize.fullBanner.height.toDouble(),
+                      child: AdWidget(
+                        ad: _bannerAd,
+                      ),
+                    )
+                  : SizedBox(),
+              if (_bannerAd != null) Spacer(),
               AsyncBuilder(
                 waiting: (context) {
                   return const Column(

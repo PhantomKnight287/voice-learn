@@ -7,6 +7,7 @@ import 'package:app/components/circular_progress.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/main.dart';
 import 'package:app/models/learning_path.dart';
+import 'package:app/models/user.dart';
 import 'package:app/screens/chat/main.dart';
 import 'package:app/screens/generations/modules.dart';
 import 'package:app/screens/leaderboards/main.dart';
@@ -268,9 +269,6 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
   void dispose() {
     routeObserver.unsubscribe(this);
     super.dispose();
-    // pusher.disconnect().then(
-    //       (value) {},
-    //     );
   }
 
   @override
@@ -437,7 +435,6 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
             Scaffold(
               extendBodyBehindAppBar: true,
               appBar: AppBar(
-                backgroundColor: Colors.transparent,
                 scrolledUnderElevation: 0.0,
                 systemOverlayStyle: SystemUiOverlayStyle.dark,
                 elevation: 0,
@@ -531,6 +528,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                           IconButton(
                             key: livesKey,
                             onPressed: () {
+                              if (state.tier == Tiers.premium) return;
                               showModalBottomSheet(
                                 context: context,
                                 enableDrag: true,
@@ -787,13 +785,17 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                 const SizedBox(
                                   width: BASE_MARGIN * 2,
                                 ),
-                                Text(
-                                  state.lives.toString(),
-                                  style: TextStyle(
-                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
+                                state.tier == Tiers.premium
+                                    ? const Icon(
+                                        Icons.all_inclusive_outlined,
+                                      )
+                                    : Text(
+                                        state.lives.toString(),
+                                        style: TextStyle(
+                                          fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
                               ],
                             ),
                           ),
@@ -810,6 +812,26 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                   });
                 },
               ),
+              floatingActionButton: FloatingActionButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder: (context) {
+                        return const GenerationsScreen(
+                          type: "modules",
+                        );
+                      },
+                    ),
+                  );
+                },
+                backgroundColor: PRIMARY_COLOR,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Icon(
+                  Icons.add_rounded,
+                ),
+              ),
               body: SafeArea(
                 child: BlocBuilder<UserBloc, UserState>(
                   bloc: userBloc,
@@ -820,98 +842,65 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                       shrinkWrap: true,
                       itemBuilder: (context, index) {
                         final module = data.modules[index];
-                        final item = ListTile(
-                          leading: CircularProgressAnimated(
-                            key: Key(module.id),
-                            maxItems: module.lessons.length.toDouble(),
-                            currentItems: module.lessons.where((lesson) => lesson.completed).length.toDouble(),
+                        final item = Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 0.0,
+                            horizontal: 8.0,
                           ),
-                          onTap: () {
-                            Navigator.of(context).push(
-                              CupertinoPageRoute(
-                                builder: (context) {
-                                  return LessonsListScreen(module: module);
-                                },
+                          child: ListTile(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                10,
                               ),
-                            );
-                          },
-                          title: Text(
-                            module.name,
-                            maxLines: 1,
-                            softWrap: false,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
-                              fontWeight: FontWeight.w600,
+                            ),
+                            tileColor: SECONDARY_BG_COLOR,
+                            leading: CircularProgressAnimated(
+                              key: Key(module.id),
+                              maxItems: module.lessons.length.toDouble(),
+                              currentItems: module.lessons.where((lesson) => lesson.completed).length.toDouble(),
+                            ),
+                            onTap: () {
+                              Navigator.of(context).push(
+                                CupertinoPageRoute(
+                                  builder: (context) {
+                                    return LessonsListScreen(module: module);
+                                  },
+                                ),
+                              );
+                            },
+                            title: Text(
+                              module.name,
+                              maxLines: 1,
+                              softWrap: false,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            subtitle: Text(
+                              module.description,
+                              maxLines: 1,
+                              softWrap: false,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleSmall,
                             ),
                           ),
-                          subtitle: Text(
-                            module.description,
-                            maxLines: 1,
-                            softWrap: false,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.titleSmall,
-                          ),
                         );
-                        if (index == 0) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            if (index == 0)
                               const SizedBox(
                                 height: BASE_MARGIN * 2,
                               ),
-                              item
-                            ],
-                          );
-                        }
-                        if (index == data.modules.length - 1) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              item,
-                              const SizedBox(
-                                height: BASE_MARGIN * 2,
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(
-                                  BASE_MARGIN * 4,
-                                ),
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.of(context).push(
-                                      CupertinoPageRoute(
-                                        builder: (context) {
-                                          return const GenerationsScreen(
-                                            type: "modules",
-                                          );
-                                        },
-                                      ),
-                                    );
-                                  },
-                                  style: ButtonStyle(
-                                    alignment: Alignment.center,
-                                    foregroundColor: WidgetStateProperty.all(Colors.black),
-                                    backgroundColor: WidgetStateProperty.all(SECONDARY_BG_COLOR),
-                                    padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
-                                      (Set<WidgetState> states) {
-                                        return const EdgeInsets.all(15);
-                                      },
-                                    ),
-                                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                                      RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    "Generate more",
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        }
-                        return item;
+                            item,
+                            const SizedBox(
+                              height: BASE_MARGIN * 2,
+                            ),
+                          ],
+                        );
                       },
                     );
                   },

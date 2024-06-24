@@ -78,95 +78,76 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
                 itemBuilder: (context, index) {
                   final item = board[index];
                   final avatar = Gravatar(item.email);
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(CupertinoPageRoute(
-                        builder: (context) {
-                          return ProfileScreen(
-                            userId: item.id,
-                          );
+                  return Column(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(CupertinoPageRoute(
+                            builder: (context) {
+                              return ProfileScreen(
+                                userId: item.id,
+                              );
+                            },
+                          ));
                         },
-                      ));
-                    },
-                    child: Container(
-                      color: SECONDARY_BG_COLOR,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: BASE_MARGIN * 2,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              right: 20,
-                              left: 20,
-                            ),
-                            child: Text(
-                              (index + 1).toString(),
-                              style: TextStyle(
-                                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                fontWeight: FontWeight.w600,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: BASE_MARGIN * 2,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  right: 20,
+                                  left: 20,
+                                ),
+                                child: Text(
+                                  (index + 1).toString(),
+                                  style: TextStyle(
+                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          CircleAvatar(
-                            radius: 30,
-                            backgroundColor: Colors.grey.shade800,
-                            backgroundImage: NetworkImage(
-                              avatar.imageUrl(),
-                            ),
-                          ),
-                          const SizedBox(
-                            width: BASE_MARGIN * 2,
-                          ),
-                          Text(
-                            item.name,
-                            style: TextStyle(
-                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            textAlign: TextAlign.start,
-                          ),
-                          const Spacer(),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              right: 20,
-                              left: 20,
-                            ),
-                            child: Text(
-                              "${item.xp} XP",
-                              style: TextStyle(
-                                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                fontWeight: FontWeight.w500,
+                              CircleAvatar(
+                                radius: 30,
+                                backgroundColor: Colors.grey.shade800,
+                                backgroundImage: NetworkImage(
+                                  avatar.imageUrl(),
+                                ),
                               ),
-                            ),
+                              const SizedBox(
+                                width: BASE_MARGIN * 4,
+                              ),
+                              Text(
+                                item.name,
+                                style: TextStyle(
+                                  fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                textAlign: TextAlign.start,
+                              ),
+                              const Spacer(),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  right: 20,
+                                  left: 20,
+                                ),
+                                child: Text(
+                                  "${item.xp} XP",
+                                  style: TextStyle(
+                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                  );
-                  ListTile(
-                    title: Text(
-                      item.name,
-                      style: TextStyle(
-                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    leading: CircleAvatar(
-                      radius: 40,
-                      backgroundColor: Colors.grey.shade800,
-                      backgroundImage: NetworkImage(
-                        avatar.imageUrl(),
-                      ),
-                    ),
-                    trailing: Text(
-                      "${item.xp} XP",
-                      style: TextStyle(
-                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                      const Divider(),
+                    ],
                   );
                 },
                 itemCount: board.length,

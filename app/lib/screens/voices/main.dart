@@ -119,6 +119,10 @@ class _VoicesScreenState extends State<VoicesScreen> {
                             return const SubscriptionScreen();
                           },
                         ),
+                      ).then(
+                        (value) {
+                          setState(() {});
+                        },
                       );
                       return;
                     }

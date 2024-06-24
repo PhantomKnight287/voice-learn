@@ -71,6 +71,27 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
         scrolledUnderElevation: 0,
         forceMaterialTransparency: true,
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            CupertinoPageRoute(
+              builder: (context) {
+                return GenerationsScreen(
+                  type: "lessons",
+                  id: module.id,
+                );
+              },
+            ),
+          );
+        },
+        backgroundColor: PRIMARY_COLOR,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: const Icon(
+          Icons.add_rounded,
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -278,38 +299,6 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
                 ),
                 const SizedBox(
                   height: BASE_MARGIN * 4,
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      CupertinoPageRoute(
-                        builder: (context) {
-                          return GenerationsScreen(
-                            type: "lessons",
-                            id: module.id,
-                          );
-                        },
-                      ),
-                    );
-                  },
-                  style: ButtonStyle(
-                    alignment: Alignment.center,
-                    foregroundColor: WidgetStateProperty.all(Colors.black),
-                    backgroundColor: WidgetStateProperty.all(SECONDARY_BG_COLOR),
-                    padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
-                      (Set<WidgetState> states) {
-                        return const EdgeInsets.all(15);
-                      },
-                    ),
-                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                  child: const Text(
-                    "Generate more",
-                  ),
                 ),
                 const SizedBox(
                   height: BASE_MARGIN * 4,

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/question.dart';
+import 'package:app/models/user.dart';
 import 'package:app/screens/questions/complete.dart';
 import 'package:app/utils/string.dart';
 import 'package:async_builder/async_builder.dart';
@@ -541,6 +542,17 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                             const SizedBox(
                               width: BASE_MARGIN * 2,
                             ),
+                            state.tier == Tiers.premium
+                                ? const Icon(
+                                    Icons.all_inclusive_outlined,
+                                  )
+                                : Text(
+                                    state.lives.toString(),
+                                    style: TextStyle(
+                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
                             Text(
                               state.lives.toString(),
                               style: TextStyle(

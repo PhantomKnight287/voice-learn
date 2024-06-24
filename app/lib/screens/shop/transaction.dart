@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/constants/main.dart';
+import 'package:app/models/user.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:app/utils/print.dart';
@@ -112,13 +113,22 @@ class _TransactionScreenState extends State<TransactionScreen> {
         final userBloc = context.read<UserBloc>();
         final userState = userBloc.state;
         final details = purchaseDetailsList[index];
-        userBloc.add(
-          UserLoggedInEvent.setEmeraldsAndLives(
-            userState,
-            userState.emeralds + int.parse((details.productID.split("_")[1])),
-            null,
-          ),
-        );
+        if (widget.type == ProductType.consumable) {
+          userBloc.add(
+            UserLoggedInEvent.setEmeraldsAndLives(
+              userState,
+              userState.emeralds + int.parse((details.productID.split("_")[1])),
+              null,
+            ),
+          );
+        } else {
+          userBloc.add(
+            UserLoggedInEvent.setTier(
+              userState,
+              Tiers.premium,
+            ),
+          );
+        }
         setState(() {});
         final prefs = await SharedPreferences.getInstance();
         final token = prefs.getString("token");
@@ -143,7 +153,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
               style: ToastificationStyle.minimal,
               autoCloseDuration: const Duration(seconds: 5),
               title: const Text("Purchased"),
-              description: Text("You have purchased ${purchaseDetailsList[index].productID.split("_")[1]} emeralds"),
+              description: Text(widget.type == ProductType.consumable ? "You have purchased ${purchaseDetailsList[index].productID.split("_")[1]} emeralds" : "You have upgraded to Premium"),
               alignment: Alignment.topCenter,
               showProgressBar: false,
             );
