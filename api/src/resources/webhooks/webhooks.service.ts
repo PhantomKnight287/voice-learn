@@ -131,35 +131,45 @@ export class WebhooksService {
       eventName === 'SUBSCRIPTION_REVOKED' ||
       eventName === 'SUBSCRIPTION_PAUSED'
     ) {
-      const transaction = await prisma.transaction.update({
-        where: {
-          purchaseToken: parsedData.subscriptionNotification.purchaseToken,
-        },
-        data: {
-          user: {
-            update: {
-              tier: 'free',
+      try {
+        const transaction = await prisma.transaction.update({
+          where: {
+            purchaseToken: parsedData.subscriptionNotification.purchaseToken,
+          },
+          data: {
+            user: {
+              update: {
+                tier: 'free',
+              },
             },
           },
-        },
-      });
+        });
+      } catch (e) {
+        console.log(e);
+      }
     } else if (
       eventName === 'SUBSCRIPTION_RESTARTED' ||
       eventName === 'SUBSCRIPTION_RECOVERED' ||
       eventName === 'SUBSCRIPTION_RENEWED'
     ) {
-      await prisma.transaction.update({
-        where: {
-          purchaseToken: parsedData.subscriptionNotification.purchaseToken,
-        },
-        data: {
-          user: {
-            update: {
-              tier: 'premium',
+      try {
+        await prisma.transaction.update({
+          where: {
+            purchaseToken: parsedData.subscriptionNotification.purchaseToken,
+          },
+          data: {
+            user: {
+              update: {
+                tier: 'premium',
+              },
             },
           },
-        },
-      });
+        });
+      } catch (e) {
+        console.log(
+          'NO transaction with token found to renew, recover or restart',
+        );
+      }
     } else if (eventName === 'SUBSCRIPTION_PURCHASED') {
       if (!transaction || !transaction.userId) {
         await prisma.transaction.create({
