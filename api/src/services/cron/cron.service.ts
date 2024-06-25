@@ -83,4 +83,15 @@ export class CronService {
       },
     });
   }
+  @Cron(CronExpression.EVERY_5_MINUTES)
+  async ensureAllGeneratedLessonsHaveQuestions() {
+    const lessons = await prisma.lesson.findMany({
+      where: { questionsStatus: 'generated', questions: { none: {} } },
+    });
+    const ids = lessons.map((l) => l.id);
+    await prisma.lesson.updateMany({
+      where: { id: { in: ids } },
+      data: { questionsStatus: 'not_generated' },
+    });
+  }
 }
