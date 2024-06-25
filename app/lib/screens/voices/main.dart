@@ -65,9 +65,8 @@ class _VoicesScreenState extends State<VoicesScreen> {
       appBar: AppBar(
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: Text(
+        title: const Text(
           "Voices",
-          style: Theme.of(context).textTheme.titleMedium,
         ),
         actions: selected != null
             ? [
@@ -84,13 +83,7 @@ class _VoicesScreenState extends State<VoicesScreen> {
               ]
             : null,
         centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(4.0),
-          child: Container(
-            color: PRIMARY_COLOR,
-            height: 2.0,
-          ),
-        ),
+        bottom: BOTTOM,
       ),
       body: Padding(
         padding: const EdgeInsets.all(10),

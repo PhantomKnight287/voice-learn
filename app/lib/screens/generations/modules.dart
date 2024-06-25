@@ -95,7 +95,6 @@ class _GenerationsScreenState extends State<GenerationsScreen> {
       appBar: AppBar(
         title: Text(
           "Generate More ${widget.type.replaceFirst(widget.type[0], widget.type[0].toUpperCase())}",
-          style: Theme.of(context).textTheme.titleMedium,
         ),
       ),
       body: Padding(

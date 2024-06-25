@@ -438,13 +438,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                 scrolledUnderElevation: 0.0,
                 systemOverlayStyle: SystemUiOverlayStyle.dark,
                 elevation: 0,
-                bottom: PreferredSize(
-                  preferredSize: const Size.fromHeight(4.0),
-                  child: Container(
-                    color: PRIMARY_COLOR,
-                    height: 2.0,
-                  ),
-                ),
+                bottom: BOTTOM,
                 title: BlocBuilder<UserBloc, UserState>(
                     bloc: userBloc,
                     builder: (context, state) {

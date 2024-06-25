@@ -34,11 +34,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               children: [
                 Text(
                   "Practice New",
-                  style: Theme.of(context).textTheme.titleLarge,
+                  style: TextStyle(
+                    fontSize: Theme.of(context).textTheme.titleLarge!.fontSize,
+                    fontWeight: Theme.of(context).textTheme.titleLarge!.fontWeight,
+                    fontFamily: "CalSans",
+                  ),
                 ),
                 Text(
                   "Languages",
-                  style: Theme.of(context).textTheme.titleLarge,
+                  style: TextStyle(
+                    fontSize: Theme.of(context).textTheme.titleLarge!.fontSize,
+                    fontWeight: Theme.of(context).textTheme.titleLarge!.fontWeight,
+                    fontFamily: "CalSans",
+                  ),
                 ),
                 const SizedBox(
                   height: BASE_MARGIN * 4,

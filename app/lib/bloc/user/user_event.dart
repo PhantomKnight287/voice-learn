@@ -87,6 +87,23 @@ class UserLoggedInEvent extends UserEvent {
       tier: tier,
     );
   }
+  factory UserLoggedInEvent.setEmailAndName(UserModel user, String email, String name) {
+    return UserLoggedInEvent(
+      id: user.id,
+      name: name,
+      token: user.token,
+      email: email,
+      createdAt: user.createdAt,
+      paths: user.paths,
+      updatedAt: user.updatedAt,
+      emeralds: user.emeralds,
+      lives: user.lives,
+      xp: user.xp,
+      streaks: user.streaks,
+      isStreakActive: user.isStreakActive,
+      tier: user.tier,
+    );
+  }
 }
 
 class UserLoggedOutEvent extends UserEvent {

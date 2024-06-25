@@ -68,11 +68,6 @@ class _ShopScreenState extends State<ShopScreen> {
         forceMaterialTransparency: true,
         title: Text(
           "Shop",
-          style: TextStyle(
-            fontSize: Theme.of(context).textTheme.titleMedium!.fontSize!,
-            fontWeight: Theme.of(context).textTheme.titleMedium!.fontWeight,
-            fontFamily: "CalSans",
-          ),
         ),
         centerTitle: true,
         actions: [

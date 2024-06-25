@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/user.dart';
+import 'package:app/screens/settings/main.dart';
 import 'package:app/utils/error.dart';
 import 'package:fl_query/fl_query.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -47,20 +49,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
     String monthName = DateFormat.MMMM().format(dateTime);
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "Profile",
-          style: TextStyle(
-            fontSize: Theme.of(context).textTheme.titleMedium!.fontSize!,
-            fontWeight: Theme.of(context).textTheme.titleMedium!.fontWeight,
-            fontFamily: "CalSans",
-          ),
         ),
         centerTitle: true,
         actions: widget.userId != null
             ? null
             : [
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (context) {
+                          return const SettingsScreen();
+                        },
+                      ),
+                    );
+                  },
                   icon: const Icon(
                     Icons.settings_rounded,
                   ),
@@ -69,13 +75,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         scrolledUnderElevation: 0.0,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
         elevation: 0,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(4.0),
-          child: Container(
-            color: PRIMARY_COLOR,
-            height: 2.0,
-          ),
-        ),
+        bottom: BOTTOM,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -83,7 +83,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             padding: const EdgeInsets.all(10),
             child: widget.userId == null
                 ? QueryBuilder<dynamic, dynamic>(
-                    'profile_stats',
+                    widget.userId != null ? "profile_${widget.userId}" : 'profile_stats',
                     _getUserProfile,
                     builder: (context, query) {
                       if (query.isLoading) {

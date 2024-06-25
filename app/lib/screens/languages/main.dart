@@ -44,8 +44,7 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         title: Text(
-          "Voices",
-          style: Theme.of(context).textTheme.titleMedium,
+          "Languages",
         ),
         actions: selected != null
             ? [
@@ -62,13 +61,7 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
               ]
             : null,
         centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(4.0),
-          child: Container(
-            color: PRIMARY_COLOR,
-            height: 2.0,
-          ),
-        ),
+        bottom: BOTTOM,
       ),
       body: Padding(
         padding: const EdgeInsets.all(10),

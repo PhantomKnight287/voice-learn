@@ -19,6 +19,7 @@ class LeaderBoardScreen extends StatefulWidget {
 }
 
 class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
+  final _controller = ScrollController();
   Future<List<LeaderboardItem>> _fetchLeaderboardItem(int page) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString("token");
@@ -29,6 +30,27 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _controller.addListener(
+      () async {
+        if (_controller.position.pixels == _controller.position.maxScrollExtent) {
+          final query = QueryClient.of(context).getInfiniteQuery('leaderboard');
+          if (query != null && query.hasNextPage) {
+            await query.fetchNext();
+          }
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -36,13 +58,8 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         forceMaterialTransparency: true,
-        title: Text(
+        title: const Text(
           "Leaderboard",
-          style: TextStyle(
-            fontSize: Theme.of(context).textTheme.titleMedium!.fontSize!,
-            fontWeight: Theme.of(context).textTheme.titleMedium!.fontWeight,
-            fontFamily: "CalSans",
-          ),
         ),
         centerTitle: true,
       ),
@@ -58,6 +75,10 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
               if (lastPageData.length < 20) return null;
               return lastPage + 1;
             },
+            refreshConfig: RefreshConfig.withDefaults(
+              context,
+              refreshOnMount: true,
+            ),
             builder: (context, query) {
               final board = query.pages.map((e) => e).expand((e) => e).toList();
               if (board.isEmpty) {
@@ -69,6 +90,7 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
                 );
               }
               return ListView.separated(
+                controller: _controller,
                 separatorBuilder: (context, index) {
                   return const SizedBox(
                     height: BASE_MARGIN * 2,
@@ -92,7 +114,7 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                            vertical: BASE_MARGIN * 2,
+                            vertical: BASE_MARGIN * 0,
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,

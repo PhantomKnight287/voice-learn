@@ -281,11 +281,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
       appBar: AppBar(
         title: Text(
           "Membership",
-          style: TextStyle(
-            fontSize: Theme.of(context).textTheme.titleMedium!.fontSize!,
-            fontWeight: FontWeight.w600,
-            fontFamily: "CalSans",
-          ),
         ),
         centerTitle: true,
         elevation: 0,

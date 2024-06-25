@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/user.dart';
-import 'package:app/screens/auth/login.dart';
 import 'package:app/screens/home/main.dart';
 import 'package:app/screens/loading/learning.dart';
 import 'package:app/screens/onboarding/main.dart';
@@ -24,6 +23,7 @@ class ViewHandler extends StatefulWidget {
 class _ViewHandlerState extends State<ViewHandler> {
   bool _showOnBoarding = true;
   String pathId = '';
+  bool _showLoading = true;
   void _checkOnBoardingStatus() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString("token");
@@ -87,6 +87,9 @@ class _ViewHandlerState extends State<ViewHandler> {
         _showOnBoarding = true;
       });
     }
+    setState(() {
+      _showLoading = false;
+    });
   }
 
   @override
@@ -99,17 +102,23 @@ class _ViewHandlerState extends State<ViewHandler> {
   Widget build(BuildContext context) {
     final userBloc = context.read<UserBloc>();
     final state = userBloc.state;
-    if (state.id.isNotEmpty) return const HomeScreen();
-    if (_showOnBoarding) return const OnboardingScreen();
-    if (state.paths == 0) return const OnboardingQuestionsScreen();
-    return const Scaffold(
-      appBar: null,
-      body: Center(
-        child: CircularProgressIndicator(
-          color: Colors.black,
-          strokeWidth: 3,
-        ),
-      ),
+    return Stack(
+      children: [
+        if (state.id.isNotEmpty) const HomeScreen(),
+        if (_showOnBoarding) const OnboardingScreen(),
+        if (state.paths == 0 && state.id.isNotEmpty) const OnboardingQuestionsScreen(),
+        if (state.paths == 0 && state.id.isEmpty) const OnboardingScreen(),
+        if (_showLoading)
+          const Scaffold(
+            appBar: null,
+            body: Center(
+              child: CircularProgressIndicator(
+                color: Colors.black,
+                strokeWidth: 3,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

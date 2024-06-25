@@ -32,7 +32,7 @@ const PUSHER_CLUSTER = "ap2";
 final BOTTOM = PreferredSize(
   preferredSize: const Size.fromHeight(4.0),
   child: Container(
-    color: PRIMARY_COLOR,
+    color: const Color(0xffebebeb),
     height: 2.0,
   ),
 );

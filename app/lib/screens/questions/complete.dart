@@ -106,7 +106,6 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
       appBar: AppBar(
         title: Text(
           "Lesson Completed",
-          style: Theme.of(context).textTheme.titleMedium,
         ),
         leading: IconButton(
           onPressed: () async {

@@ -438,13 +438,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
               ),
             ),
             appBar: AppBar(
-              bottom: PreferredSize(
-                preferredSize: const Size.fromHeight(4.0),
-                child: Container(
-                  color: PRIMARY_COLOR,
-                  height: 2.0,
-                ),
-              ),
+              bottom: BOTTOM,
             ),
           );
         }
@@ -454,13 +448,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           resizeToAvoidBottomInset: true,
           appBar: AppBar(
             forceMaterialTransparency: true,
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(4.0),
-              child: Container(
-                color: PRIMARY_COLOR,
-                height: 2.0,
-              ),
-            ),
+            bottom: BOTTOM,
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -756,13 +744,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   Scaffold _buildLoader() {
     return Scaffold(
       appBar: AppBar(
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(4.0),
-          child: Container(
-            color: PRIMARY_COLOR,
-            height: 2.0,
-          ),
-        ),
+        bottom: BOTTOM,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

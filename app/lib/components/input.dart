@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class InputField extends StatelessWidget {
   final String hintText;
   final TextInputType keyboardType;
-  final TextEditingController controller;
+  final TextEditingController? controller;
   final String? Function(String?)? validator;
   final Widget? prefixIcon;
   final bool? obscureText;
@@ -23,7 +23,7 @@ class InputField extends StatelessWidget {
   const InputField({
     required this.hintText,
     required this.keyboardType,
-    required this.controller,
+    this.controller,
     this.validator,
     this.prefixIcon,
     this.obscureText,
@@ -61,6 +61,7 @@ class InputField extends StatelessWidget {
         hintMaxLines: hintMaxLines,
         contentPadding: const EdgeInsets.all(8.0),
         enabledBorder: enabledBorder,
+        enabled: enabled ?? true,
         border: border ??
             OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0),

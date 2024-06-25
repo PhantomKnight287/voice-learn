@@ -95,25 +95,14 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
         ),
       ),
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "Chats",
-          style: TextStyle(
-            fontSize: Theme.of(context).textTheme.titleMedium!.fontSize!,
-            fontWeight: Theme.of(context).textTheme.titleMedium!.fontWeight,
-            fontFamily: "CalSans",
-          ),
         ),
         centerTitle: true,
         scrolledUnderElevation: 0.0,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
         elevation: 0,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(4.0),
-          child: Container(
-            color: PRIMARY_COLOR,
-            height: 2.0,
-          ),
-        ),
+        bottom: BOTTOM,
       ),
       body: SafeArea(
           child: Padding(

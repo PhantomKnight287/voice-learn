@@ -58,11 +58,6 @@ class _StreaksScreenState extends State<StreaksScreen> {
         forceMaterialTransparency: true,
         title: Text(
           "Streaks",
-          style: TextStyle(
-            fontSize: Theme.of(context).textTheme.titleMedium!.fontSize!,
-            fontWeight: Theme.of(context).textTheme.titleMedium!.fontWeight,
-            fontFamily: "CalSans",
-          ),
         ),
         centerTitle: true,
       ),

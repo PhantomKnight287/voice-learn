@@ -78,8 +78,16 @@ class _VoiceLearnAppState extends State<VoiceLearnApp> {
             appBarTheme: const AppBarTheme(
               elevation: 0,
               scrolledUnderElevation: 0,
+              titleTextStyle: TextStyle(
+                fontFamily: "CalSans",
+                fontSize: 24,
+                color: Colors.black,
+              ),
             ),
             textTheme: const TextTheme(
+              labelMedium: TextStyle(
+                fontSize: 20,
+              ),
               titleLarge: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,

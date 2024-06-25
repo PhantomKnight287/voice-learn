@@ -48,6 +48,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (_formKey.currentState!.validate() == false) {
       return;
     }
+    if (_accepted == false) {
+      toastification.show(
+        type: ToastificationType.error,
+        style: ToastificationStyle.minimal,
+        autoCloseDuration: const Duration(seconds: 5),
+        description: const Text("Please accept privacy policy."),
+        alignment: Alignment.topCenter,
+        showProgressBar: false,
+      );
+      return;
+    }
     setState(() {
       _loading = true;
     });
@@ -234,12 +245,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       CupertinoCheckbox(
                         value: _accepted,
                         onChanged: (value) {
-                          setState(() {
-                            _accepted = value ?? false;
-                          });
+                          setState(
+                            () {
+                              _accepted = value ?? false;
+                            },
+                          );
                         },
                       ),
-                      Text("I accept the"),
+                      const Text("I accept the"),
                       SizedBox(
                         width: BASE_MARGIN.toDouble(),
                       ),
@@ -252,7 +265,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         onPressed: () async {
                           if (!await launchUrl(Uri.parse("https://voicelearn.tech/legal/privacy"))) {}
                         },
-                        child: Text("Privacy Policy"),
+                        child: const Text("Privacy Policy"),
                       )
                     ],
                   ),
