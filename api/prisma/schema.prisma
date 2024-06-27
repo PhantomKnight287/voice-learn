@@ -22,6 +22,11 @@ model User {
   activeStreaks Int      @default(0)
   longestStreak Int      @default(0)
 
+  tier Tiers @default(free)
+
+  homeScreenTutorialShown Boolean @default(false)
+  chatScreenTutorialShown Boolean @default(false)
+
   answers            Answer[]
   chats              Chat[]
   generationRequests GenerationRequest[]
@@ -29,8 +34,21 @@ model User {
   streaks            Streak[]
   uploads            Upload[]
   transactions       Transaction[]
+  xpHistory          XP[]
+}
 
-  tier Tiers @default(free)
+model XP {
+  id     String @id @unique @default(cuid())
+  earned Int    @default(0)
+
+  language Language @relation(fields: [languageId], references: [id])
+  languageId String
+
+  User   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Upload {
@@ -150,16 +168,18 @@ model Answer {
 }
 
 model Language {
-  id                     String         @id @unique
-  name                   String
-  createdAt              DateTime       @default(now())
-  updatedAt              DateTime       @updatedAt
+  id            String         @id @unique
+  name          String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   /// The url of location where flag is located
-  flagUrl                String         @unique
+  flagUrl       String         @unique
   /// flag file key
-  key                    String?
-  chats                  Chat[]
-  learningPaths          LearningPath[]
+  key           String?
+  chats         Chat[]
+  learningPaths LearningPath[]
+  
+  XP            XP[]
 }
 
 model Chat {

@@ -11,6 +11,9 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { Auth } from 'src/decorators/auth/auth.decorator';
+import { User } from '@prisma/client';
+import { UpdatePasswordDTO } from './dto/update-password.dto';
 
 @Controller('auth')
 @ApiTags('Authentication')
@@ -113,5 +116,10 @@ export class AuthController {
   @Get('hydrate')
   hydrate(@Headers('Authorization') token: string) {
     return this.authService.hydrate(token);
+  }
+
+  @Post('password/update')
+  updatePassword(@Auth() auth: User, @Body() body: UpdatePasswordDTO) {
+    return this.authService.updatePassword(body, auth.id);
   }
 }

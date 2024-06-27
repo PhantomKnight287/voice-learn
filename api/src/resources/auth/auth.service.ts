@@ -7,6 +7,7 @@ import { SignupDTO } from './dto/signup.dto';
 import { createId } from '@paralleldrive/cuid2';
 import { prisma } from 'src/db';
 import moment from 'moment';
+import { UpdatePasswordDTO } from './dto/update-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -151,5 +152,24 @@ export class AuthService {
     } catch (e) {
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
+  }
+
+  async updatePassword(body: UpdatePasswordDTO, userId: string) {
+    const user = await prisma.user.findFirst({ where: { id: userId } });
+    const isPasswordCorrect = await verify(user.password, body.currentPassword);
+    if (!isPasswordCorrect)
+      throw new HttpException(
+        'Incorrect current password. Please try again',
+        HttpStatus.UNAUTHORIZED,
+      );
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        password: await hash(body.newPassword),
+      },
+    });
+    return {
+      id: updatedUser.id,
+    };
   }
 }

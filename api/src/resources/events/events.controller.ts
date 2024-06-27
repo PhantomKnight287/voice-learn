@@ -62,10 +62,9 @@ export class EventsController {
           messages: [
             {
               role: 'system',
-              content: `Generate a JSON ARRAY structure for questions of ${lesson.module.learningPath.language.name} language learning program and for lesson with name ${lesson.name} and description ${lesson.description}. There must be ${lesson.questionsCount} questions. The "instruction" should be the instruction to student on how to solve the question(for example: Translate this sentence to English.), type must either be 'sentence' or 'select_one'. The "options" array must never be empty. The "correctAnswer" should be the correct answer of the question and should not include any special characters including "...". The "question" must be an array of objects of words in question. Do not return excess whitespace, escape characters and punctuation in your response.
+              content: `Generate questions for ${lesson.module.learningPath.language.name} language learning program where the lesson name is ${lesson.name} and description is "${lesson.description}". There must be ${lesson.questionsCount} questions. The "instruction" should be the instruction to student on how to solve the question(for example: Translate this sentence to English, Choose the correct word.), type must either be 'sentence' or 'select_one'. The "options" array must never be empty. The "correctAnswer" should be the correct answer of the question and should not include any special characters including "...". The "question" must be an array of objects of words in question. Do not return excess whitespace, escape characters and punctuation in your response.
               
               Below are examples of questions:
-
                 [
               {
                 "instruction":"What is the meaning of given word in English.",
@@ -91,7 +90,7 @@ export class EventsController {
                 ]
               },
               {
-                "instruction":"What is the German word for Dog",
+                "instruction":"Choose the correct word.",
                 "options":["Katze","Hund","Fisch"],
                 "correctAnswer":"Hund",
                 "question":[
@@ -101,7 +100,7 @@ export class EventsController {
                   ]
               }
             ]
-
+              
             Do not generate any escape characters and options must never be empty. The instructions must not include the question.
               `,
             },

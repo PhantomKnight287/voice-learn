@@ -35,6 +35,7 @@ import { StreaksModule } from './resources/streaks/streaks.module';
 import { LeaderboardModule } from './resources/leaderboard/leaderboard.module';
 import { WebhooksModule } from './resources/webhooks/webhooks.module';
 import { TransactionsModule } from './resources/transactions/transactions.module';
+import { TutorialsModule } from './resources/tutorials/tutorials.module';
 
 @Module({
   imports: [
@@ -73,6 +74,7 @@ import { TransactionsModule } from './resources/transactions/transactions.module
     LeaderboardModule,
     WebhooksModule,
     TransactionsModule,
+    TutorialsModule,
   ],
   controllers: [AppController],
   providers: [
@@ -95,7 +97,7 @@ export class AppModule implements NestModule {
       .exclude(
         {
           method: RequestMethod.POST,
-          path: '/v(.*)/auth/(.*)',
+          path: '/v(.*)/auth/(sign-in|sign-up)',
         },
         {
           method: RequestMethod.GET,
@@ -114,7 +116,7 @@ export class AppModule implements NestModule {
           path: '/v(.*)/voices',
         },
         '/v(.*)/webhooks/(.*)',
-        '/v(.*)/uploads/(.*)'
+        '/v(.*)/uploads/(.*)',
       )
       .forRoutes('*');
 

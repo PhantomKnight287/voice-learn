@@ -2,7 +2,7 @@
 @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzZXJfeGdjNWFvYWx2ajVub2RiZDQwb2d6aXJjIiwiaWF0IjoxNzE3MTQyODc1fQ.UA8aGsG7EdI3T_yZrIl1mbsYKzLxkjzOcWlTNXPMsp4
 
 ###
-POST {{url}}/auth/login
+POST {{url}}/auth/sign-in
 Content-Type: application/json
 
 {
