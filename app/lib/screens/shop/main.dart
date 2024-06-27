@@ -66,7 +66,7 @@ class _ShopScreenState extends State<ShopScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         forceMaterialTransparency: true,
-        title: Text(
+        title: const Text(
           "Shop",
         ),
         centerTitle: true,

@@ -114,8 +114,19 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
 
   Future<void> _setupTutorial() async {
     final prefs = await SharedPreferences.getInstance();
-    final shown = prefs.getBool("tutorial_shown");
-    if (shown == null || !shown) {
+    final token = prefs.getString("token");
+    final req = await http.get(
+      Uri.parse("$API_URL/tutorials"),
+      headers: {
+        "Authorization": "Bearer $token",
+      },
+    );
+    final body = await jsonDecode(req.body);
+    bool shown = true;
+    if (req.statusCode == 200) {
+      shown = body['homeScreenTutorialShown'];
+    }
+    if (!shown) {
       TutorialCoachMark tutorial = TutorialCoachMark(
         colorShadow: Colors.white,
         textSkip: "SKIP",
@@ -240,14 +251,19 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
           ),
         ],
         onFinish: () async {
-          final prefs = await SharedPreferences.getInstance();
-          prefs.setBool("tutorial_shown", true);
+          await http.put(
+              Uri.parse(
+                "$API_URL/tutorials/home",
+              ),
+              headers: {"Authorization": "Bearer $token"});
         },
         onSkip: () {
-          SharedPreferences.getInstance().then(
-            (value) {
-              value.setBool("tutorial_shown", true);
-            },
+          http.put(
+              Uri.parse(
+                "$API_URL/tutorials/home",
+              ),
+              headers: {"Authorization": "Bearer $token"}).then(
+            (value) {},
           );
           return true;
         },

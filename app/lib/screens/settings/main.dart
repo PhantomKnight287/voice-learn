@@ -5,7 +5,7 @@ import 'package:app/components/input.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/user.dart';
 import 'package:app/screens/onboarding/main.dart';
-import 'package:app/screens/voices/main.dart';
+import 'package:app/screens/settings/change_password.dart';
 import 'package:app/utils/error.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/cupertino.dart';
@@ -87,6 +87,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       );
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _emailController.dispose();
+    _nameController.dispose();
   }
 
   Future<dynamic> _getUserProfile() async {
@@ -277,6 +284,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             controller: _nameController,
                             validator: (p0) {
                               if (p0 == null || p0.isEmpty) return 'Name is required';
+                              return null;
                             },
                           ),
                           const SizedBox(
@@ -306,6 +314,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             controller: _emailController,
                             validator: (p0) {
                               if (p0 == null || p0.isEmpty) return 'Email is required';
+                              return null;
                             },
                           ),
                           const SizedBox(
@@ -331,11 +340,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           GestureDetector(
                             onTap: () async {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    "Work in progress",
-                                  ),
+                              Navigator.of(context).push(
+                                CupertinoPageRoute(
+                                  builder: (context) {
+                                    return const ChangePasswordScreen();
+                                  },
                                 ),
                               );
                             },
@@ -396,7 +405,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                               )
                             : Text(
-                                "SAVE",
+                                "Save",
                                 style: TextStyle(
                                   fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                                   fontWeight: FontWeight.w600,

@@ -224,8 +224,19 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   Future<void> _setupTutorial() async {
     final prefs = await SharedPreferences.getInstance();
-    final shown = prefs.getBool("chat_tutorial");
-    if (shown == null || !shown) {
+    final token = prefs.getString("token");
+    final req = await http.get(
+      Uri.parse("$API_URL/tutorials"),
+      headers: {
+        "Authorization": "Bearer $token",
+      },
+    );
+    final body = await jsonDecode(req.body);
+    bool shown = true;
+    if (req.statusCode == 200) {
+      shown = body['chatScreenTutorialShown'];
+    }
+    if (!shown) {
       TutorialCoachMark tutorial = TutorialCoachMark(
         colorShadow: Colors.white,
         textSkip: "SKIP",
@@ -277,14 +288,19 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           ),
         ],
         onFinish: () async {
-          final prefs = await SharedPreferences.getInstance();
-          prefs.setBool("chat_tutorial", true);
+          await http.put(
+              Uri.parse(
+                "$API_URL/tutorials/chat",
+              ),
+              headers: {"Authorization": "Bearer $token"});
         },
         onSkip: () {
-          SharedPreferences.getInstance().then(
-            (value) {
-              value.setBool("chat_tutorial", true);
-            },
+          http.put(
+              Uri.parse(
+                "$API_URL/tutorials/chat",
+              ),
+              headers: {"Authorization": "Bearer $token"}).then(
+            (value) {},
           );
           return true;
         },
@@ -316,7 +332,20 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     ].request();
 
     bool granted = permissions[Permission.microphone]!.isGranted;
-
+    if (!granted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please allow microphone permission to send audio messages."),
+        ),
+      );
+      await Future.delayed(
+        const Duration(seconds: 2),
+        () async {
+          await openAppSettings();
+        },
+      );
+      return;
+    }
     if (granted) {
       final directory = (await getApplicationDocumentsDirectory()).path;
       String recording = '$directory/recordings';
@@ -417,6 +446,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final state = context.read<UserBloc>().state;
+
     return QueryBuilder(
       'chat_${widget.id}',
       _fetchChat,
@@ -475,6 +506,33 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                 ),
               ],
             ),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: 10,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      "assets/images/emerald.png",
+                      width: 25,
+                      height: 25,
+                    ),
+                    const SizedBox(
+                      width: BASE_MARGIN * 2,
+                    ),
+                    Text(
+                      state.emeralds.toString(),
+                      style: TextStyle(
+                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           body: Column(
             children: [

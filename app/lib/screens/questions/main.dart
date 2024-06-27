@@ -553,12 +553,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
-                            Text(
-                              state.lives.toString(),
-                              style: TextStyle(
-                                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                              ),
-                            ),
+                            
                             const SizedBox(
                               width: BASE_MARGIN * 1,
                             ),

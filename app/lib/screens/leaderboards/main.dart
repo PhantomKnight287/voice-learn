@@ -89,13 +89,8 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
                   ),
                 );
               }
-              return ListView.separated(
+              return ListView.builder(
                 controller: _controller,
-                separatorBuilder: (context, index) {
-                  return const SizedBox(
-                    height: BASE_MARGIN * 2,
-                  );
-                },
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   final item = board[index];

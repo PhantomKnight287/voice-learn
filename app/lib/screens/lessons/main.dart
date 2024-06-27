@@ -107,6 +107,7 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
                   style: TextStyle(
                     fontSize: Theme.of(context).textTheme.titleLarge!.fontSize! * 0.85,
                     fontWeight: FontWeight.w600,
+                    fontFamily: "CalSans",
                   ),
                 ),
                 const SizedBox(
