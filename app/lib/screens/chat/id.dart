@@ -236,6 +236,16 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     if (req.statusCode == 200) {
       shown = body['chatScreenTutorialShown'];
     }
+    final older_shown = prefs.getBool("chat_tutorial");
+    if (older_shown == true) {
+      await http.put(
+        Uri.parse(
+          "$API_URL/tutorials/chat",
+        ),
+        headers: {"Authorization": "Bearer $token"},
+      );
+      return;
+    }
     if (!shown) {
       TutorialCoachMark tutorial = TutorialCoachMark(
         colorShadow: Colors.white,

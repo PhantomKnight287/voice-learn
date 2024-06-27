@@ -126,6 +126,16 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
     if (req.statusCode == 200) {
       shown = body['homeScreenTutorialShown'];
     }
+    final older_shown = prefs.getBool("tutorial_shown");
+    if (older_shown == true) {
+      await http.put(
+        Uri.parse(
+          "$API_URL/tutorials/home",
+        ),
+        headers: {"Authorization": "Bearer $token"},
+      );
+      return;
+    }
     if (!shown) {
       TutorialCoachMark tutorial = TutorialCoachMark(
         colorShadow: Colors.white,
