@@ -78,6 +78,7 @@ dependencies:
   carbon_icons: ^0.0.1+2
   fl_chart: ^0.68.0
   popover: ^0.3.0+1
+  flutter_markdown: ^0.7.3
 
 
 dev_dependencies:

@@ -5,6 +5,7 @@ import 'package:app/components/circular_progress.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/lesson.dart';
 import 'package:app/models/module.dart';
+import 'package:app/screens/explanation/main.dart';
 import 'package:app/screens/generations/modules.dart';
 import 'package:app/screens/loading/questions.dart';
 import 'package:app/screens/questions/complete.dart';
@@ -125,7 +126,7 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
                   "Lessons",
                   style: TextStyle(
                     fontSize: Theme.of(context).textTheme.titleLarge!.fontSize! * 0.8,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(
@@ -163,6 +164,21 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
                               lesson.name,
                             ),
                             onTap: () {
+                              if (lesson.explanation != null) {
+                                Navigator.of(context).push(
+                                  CupertinoPageRoute(
+                                    builder: (context) {
+                                      return ExplanationScreen(
+                                        explanation: lesson.explanation!,
+                                        id: lesson.id,
+                                        title: lesson.name,
+                                        generated: lesson.status == QuestionsStatus.generated,
+                                      );
+                                    },
+                                  ),
+                                );
+                                return;
+                              }
                               if (lesson.status == QuestionsStatus.generated) {
                                 final userState = context.read<UserBloc>().state;
                                 if (userState.lives < 1 && lesson.completed == false) {
@@ -229,18 +245,21 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
                                 mainAxisAlignment: lesson.completed == false ? MainAxisAlignment.end : MainAxisAlignment.center,
                                 children: lesson.completed == false
                                     ? [
-                                        Image.asset(
-                                          "assets/images/emerald.png",
-                                          width: 25,
-                                          height: 25,
-                                        ),
-                                        const SizedBox(
-                                          width: BASE_MARGIN * 1,
-                                        ),
-                                        Text(
-                                          lesson.emeralds.toString(),
-                                          style: Theme.of(context).textTheme.titleSmall,
-                                        ),
+                                        if (lesson.emeralds != 0)
+                                          Image.asset(
+                                            "assets/images/emerald.png",
+                                            width: 25,
+                                            height: 25,
+                                          ),
+                                        if (lesson.emeralds != 0)
+                                          const SizedBox(
+                                            width: BASE_MARGIN * 1,
+                                          ),
+                                        if (lesson.emeralds != 0)
+                                          Text(
+                                            lesson.emeralds.toString(),
+                                            style: Theme.of(context).textTheme.titleSmall,
+                                          ),
                                       ]
                                     : [
                                         const HeroIcon(

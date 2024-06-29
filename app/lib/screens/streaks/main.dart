@@ -56,7 +56,7 @@ class _StreaksScreenState extends State<StreaksScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         forceMaterialTransparency: true,
-        title: Text(
+        title: const Text(
           "Streaks",
         ),
         centerTitle: true,
@@ -83,7 +83,7 @@ class _StreaksScreenState extends State<StreaksScreen> {
                           ),
                         ),
                         Text(
-                          "day streak${state.streaks > 1 ? "s!" : ""}",
+                          "day${state.streaks > 1 ? "s" : ""} streak!",
                           style: TextStyle(
                             fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 2,
                             fontWeight: FontWeight.w600,

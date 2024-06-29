@@ -48,7 +48,7 @@ String calculateTimeDifference(String isoString1, String isoString2) {
   int seconds = difference.inSeconds.remainder(60);
 
   // Return the time difference as a formatted string
-  return '$minutes:$seconds';
+  return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
 }
 
 String removeVersionAndTrailingSlash(String url) {

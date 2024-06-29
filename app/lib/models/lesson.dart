@@ -12,6 +12,7 @@ class Lesson {
   final int incorrectAnswers;
   final int xpPerQuestion;
   final int emeralds;
+  final String? explanation;
 
   Lesson({
     required this.id,
@@ -24,6 +25,7 @@ class Lesson {
     required this.incorrectAnswers,
     this.xpPerQuestion = 4,
     this.emeralds = 1,
+    this.explanation,
   });
 
   factory Lesson.fromJSON(Map<String, dynamic> json) {
@@ -40,6 +42,7 @@ class Lesson {
       incorrectAnswers: json['incorrectAnswers'],
       xpPerQuestion: json['xpPerQuestion'],
       emeralds: json['emeralds'],
+      explanation: json['explanation'],
     );
   }
 }

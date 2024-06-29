@@ -6,6 +6,7 @@ import 'package:app/models/knowledge.dart';
 import 'package:app/models/reason.dart';
 import 'package:app/screens/loading/learning.dart';
 import 'package:app/utils/error.dart';
+import 'package:app/utils/print.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -25,8 +26,8 @@ class OnboardingQuestionsScreen extends StatefulWidget {
 
 class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> with TickerProviderStateMixin {
   final _pageController = PageController();
-  int _currentStep = 1;
-  final int _maxSteps = 4;
+  int _currentStep = 0;
+  final int _maxSteps = 3;
   late Future<List<Language>> _languagesFuture;
   bool _loading = false;
   String _selectedLanguageId = "";
@@ -43,19 +44,35 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
   List<Knowledge> _getKnowledge(String languageName) {
     return [
       Knowledge(
-        message: "I'm completely new to $languageName",
+        message: "No Knowledge (None)",
         icon: SvgPicture.asset("assets/svgs/new.svg"),
       ),
       Knowledge(
-        message: "I know some words and phrases",
+        message: "Complete Beginner (A1)",
         icon: SvgPicture.asset("assets/svgs/beginner.svg"),
       ),
       Knowledge(
-        message: "I can have simple conversations",
+        message: "Elementary (A2)",
         icon: SvgPicture.asset("assets/svgs/intermediate.svg"),
       ),
       Knowledge(
-        message: "I am intermediate or higher",
+        message: "Pre-Intermediate (B1)",
+        icon: SvgPicture.asset("assets/svgs/expert.svg"),
+      ),
+      Knowledge(
+        message: "Intermediate (B2)",
+        icon: SvgPicture.asset("assets/svgs/expert.svg"),
+      ),
+      Knowledge(
+        message: "Upper Intermediate (C1)",
+        icon: SvgPicture.asset("assets/svgs/expert.svg"),
+      ),
+      Knowledge(
+        message: "Advanced (C2)",
+        icon: SvgPicture.asset("assets/svgs/expert.svg"),
+      ),
+      Knowledge(
+        message: "Native Speaker (N)",
         icon: SvgPicture.asset("assets/svgs/expert.svg"),
       ),
     ].toList();
@@ -224,7 +241,7 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
             ],
           );
         }),
-        leading: _currentStep > 1
+        leading: _currentStep > 0
             ? GestureDetector(
                 onTap: () {
                   if (_currentStep == 0) return;
@@ -256,11 +273,6 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
             child: SizedBox(
               height: MediaQuery.of(context).size.height,
               child: PageView(
-                onPageChanged: (value) {
-                  setState(() {
-                    _currentStep = value + 1;
-                  });
-                },
                 controller: _pageController,
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
@@ -322,10 +334,14 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                             );
                             if (index == 0) {
                               return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     "What would you like to learn?",
-                                    style: Theme.of(context).textTheme.titleLarge,
+                                    style: TextStyle(
+                                      fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                                      fontFamily: "CalSans",
+                                    ),
                                   ),
                                   const SizedBox(
                                     height: BASE_MARGIN * 6,
@@ -351,10 +367,14 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                     },
                   ),
                   Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         "How much ${_selectedLanguage?.name} do you know?",
-                        style: Theme.of(context).textTheme.titleLarge,
+                        style: TextStyle(
+                          fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                          fontFamily: "CalSans",
+                        ),
                       ),
                       const SizedBox(
                         height: BASE_MARGIN * 4,
@@ -368,7 +388,6 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                               fontSize: 20,
                             ),
                           ),
-                          leading: item.icon,
                           onTap: () {
                             setState(() {
                               _selectedKnowledge = item;
@@ -395,10 +414,14 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                     ],
                   ),
                   Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         "Why are you learning ${_selectedLanguage?.name}?",
-                        style: Theme.of(context).textTheme.titleLarge,
+                        style: TextStyle(
+                          fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                          fontFamily: "CalSans",
+                        ),
                       ),
                       const SizedBox(
                         height: BASE_MARGIN * 4,
@@ -443,10 +466,14 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                     ],
                   ),
                   Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         "How did you hear about Voice Learn?",
-                        style: Theme.of(context).textTheme.titleLarge,
+                        style: TextStyle(
+                          fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                          fontFamily: "CalSans",
+                        ),
                       ),
                       const SizedBox(
                         height: BASE_MARGIN * 4,
@@ -511,28 +538,31 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    if (_currentStep == 1 && _selectedLanguageId.isEmpty) {
+                    printWarning(_currentStep.toString());
+
+                    if (_currentStep == 0 && _selectedLanguageId.isEmpty) {
                       return;
                     }
-                    if (_currentStep == 2 && _selectedKnowledge == null) {
+                    if (_currentStep == 1 && _selectedKnowledge == null) {
                       return;
                     }
-                    if (_currentStep == 3 && _selectedReason == null) {
+                    if (_currentStep == 2 && _selectedReason == null) {
                       return;
                     }
-                    if (_currentStep == 4) {
+                    if (_currentStep == 3) {
                       if (_hearAbout == null) {
                         return;
                       } else {
                         _completeOnBoarding();
                       }
                     }
-                    if (_currentStep < 4) {
+                    if (_currentStep < 3) {
                       _pageController.nextPage(duration: const Duration(microseconds: 500), curve: Curves.linear);
                       setState(() {
                         _currentStep++;
                       });
                     }
+                    printWarning(_currentStep.toString());
                   },
                   style: ButtonStyle(
                     alignment: Alignment.center,
@@ -566,7 +596,7 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                           ),
                         )
                       : Text(
-                          _currentStep == 4 ? "Complete" : "Continue",
+                          _currentStep == 3 ? "Complete" : "Continue",
                           style: TextStyle(
                             fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                             fontWeight: FontWeight.w600,

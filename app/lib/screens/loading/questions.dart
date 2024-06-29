@@ -33,73 +33,79 @@ class _QuestionsGenerationLoadingScreenState extends State<QuestionsGenerationLo
   String message = "Your questions are being generated.";
   late Timer timer;
   void _fetchStatus() async {
+    _fetchGenerationStatus(null);
     timer = Timer.periodic(
       const Duration(seconds: 5),
-      (timer) async {
-        final prefs = await SharedPreferences.getInstance();
-        final token = prefs.getString("token")!;
-        final req = await http.get(
-            Uri.parse(
-              "$API_URL/lessons/${widget.lessonId}",
-            ),
-            headers: {"Authorization": "Bearer $token"});
-        final body = jsonDecode(req.body);
-        if (req.statusCode == 200) {
-          if (body['generated'] == false) {
-            if (body['position'] == null) {
-              setState(() {
-                message = "Your questions are being generated.";
-              });
-            } else {
-              setState(() {
-                message = "You are ${numberToOrdinal(body['position'])} in queue.";
-              });
-            }
-          } else {
-            final userState = context.read<UserBloc>().state;
-            if (userState.lives < 1) {
-              toastification.show(
-                type: ToastificationType.warning,
-                style: ToastificationStyle.minimal,
-                autoCloseDuration: const Duration(seconds: 5),
-                title: const Text("Not enough lives"),
-                description: const Text(
-                  "You don't have enough lives.",
-                ),
-                alignment: Alignment.topCenter,
-                showProgressBar: false,
-              );
-              Navigator.of(context).pushReplacement(
-                CupertinoPageRoute(
-                  builder: (context) => const HomeScreen(),
-                ),
-              );
-              return;
-            }
+      _fetchGenerationStatus,
+    );
+  }
 
-            Navigator.of(context).pushReplacement(
-              CupertinoPageRoute(
-                builder: (context) => QuestionsScreen(
-                  lessonId: widget.lessonId,
-                ),
-              ),
-            );
-          }
+  void _fetchGenerationStatus(timer) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString("token")!;
+    final req = await http.get(
+      Uri.parse(
+        "$API_URL/lessons/${widget.lessonId}",
+      ),
+      headers: {
+        "Authorization": "Bearer $token",
+      },
+    );
+    final body = jsonDecode(req.body);
+    if (req.statusCode == 200) {
+      if (body['generated'] == false) {
+        if (body['position'] == null) {
+          setState(() {
+            message = "Your questions are being generated.";
+          });
         } else {
+          setState(() {
+            message = "You are ${numberToOrdinal(body['position'])} in queue.";
+          });
+        }
+      } else {
+        final userState = context.read<UserBloc>().state;
+        if (userState.lives < 1) {
           toastification.show(
-            type: ToastificationType.error,
+            type: ToastificationType.warning,
             style: ToastificationStyle.minimal,
             autoCloseDuration: const Duration(seconds: 5),
-            title: const Text("An Error Occurred"),
-            description: Text(
-              ApiResponseHelper.getErrorMessage(body),
+            title: const Text("Not enough lives"),
+            description: const Text(
+              "You don't have enough lives.",
             ),
             alignment: Alignment.topCenter,
             showProgressBar: false,
           );
+          Navigator.of(context).pushReplacement(
+            CupertinoPageRoute(
+              builder: (context) => const HomeScreen(),
+            ),
+          );
+          return;
         }
-      },
-    );
+
+        Navigator.of(context).pushReplacement(
+          CupertinoPageRoute(
+            builder: (context) => QuestionsScreen(
+              lessonId: widget.lessonId,
+            ),
+          ),
+        );
+      }
+    } else {
+      toastification.show(
+        type: ToastificationType.error,
+        style: ToastificationStyle.minimal,
+        autoCloseDuration: const Duration(seconds: 5),
+        title: const Text("An Error Occurred"),
+        description: Text(
+          ApiResponseHelper.getErrorMessage(body),
+        ),
+        alignment: Alignment.topCenter,
+        showProgressBar: false,
+      );
+    }
   }
 
   @override

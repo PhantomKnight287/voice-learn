@@ -42,6 +42,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
   bool? correct;
   bool _valueEntered = false;
   final startDate = DateTime.now().toIso8601String();
+  String language = '';
 
   void _getLanguages(
     String locale,
@@ -59,12 +60,18 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString("token")!;
     final req = await http.get(
-        Uri.parse(
-          "$API_URL/questions/${widget.lessonId}",
-        ),
-        headers: {"Authorization": "Bearer $token"});
+      Uri.parse(
+        "$API_URL/questions/${widget.lessonId}",
+      ),
+      headers: {
+        "Authorization": "Bearer $token",
+      },
+    );
     final body = jsonDecode(req.body);
-    _getLanguages(body['locale']);
+    _getLanguages(
+      body['locale'],
+    );
+    language = body['language'];
     return (body['questions'] as List).map((q) => Question.toJSON(q)).toList();
   }
 
@@ -124,19 +131,18 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
   ) async {
     final userBloc = context.read<UserBloc>();
     final state = userBloc.state;
-    bool submitted = false;
-    userBloc.add(
-      UserLoggedInEvent.setEmeraldsAndLives(
-        state,
-        state.emeralds,
-        state.lives - 1,
-      ),
-    );
+    if (state.lives >= 1) {
+      userBloc.add(
+        UserLoggedInEvent.setEmeraldsAndLives(
+          state,
+          state.emeralds,
+          state.lives - 1,
+        ),
+      );
+    }
     _submitAnswer(questionId, yourAnswer, last).then(
       (value) {
-        if (last) {
-          submitted = true;
-        }
+        if (last) {}
       },
     );
     showModalBottomSheet(
@@ -553,7 +559,6 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
-                            
                             const SizedBox(
                               width: BASE_MARGIN * 1,
                             ),
@@ -594,15 +599,25 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                 alignment: WrapAlignment.center,
                                 crossAxisAlignment: WrapCrossAlignment.center,
                                 children: [
-                                  if (ttsSetup)
-                                    IconButton(
-                                      onPressed: () async {
+                                  IconButton(
+                                    onPressed: () async {
+                                      if (ttsSetup) {
                                         await flutterTts.speak(question.question.map((q) => q.word).join(" "));
-                                      },
-                                      icon: const HeroIcon(
-                                        HeroIcons.speakerWave,
-                                      ),
+                                      } else {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text('Please install $language in your TTS settings.'),
+                                            duration: const Duration(
+                                              seconds: 3,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    icon: const HeroIcon(
+                                      HeroIcons.speakerWave,
                                     ),
+                                  ),
                                   for (var word in question.question) ...{
                                     Tooltip(
                                       message: word.translation,

@@ -326,6 +326,10 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
       _fetchLearningPathFuture,
       initial: null,
       enabled: true,
+      refreshConfig: RefreshConfig.withDefaults(
+        context,
+        refreshOnMount: true,
+      ),
       builder: (context, query) {
         if (query.isLoading) {
           return Scaffold(
@@ -462,7 +466,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
               appBar: AppBar(
                 scrolledUnderElevation: 0.0,
                 systemOverlayStyle: SystemUiOverlayStyle.dark,
-                forceMaterialTransparency: true,
+                forceMaterialTransparency: false,
                 elevation: 0,
                 bottom: BOTTOM,
                 title: BlocBuilder<UserBloc, UserState>(
@@ -896,7 +900,6 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                               style: TextStyle(
                                 fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
                                 fontWeight: FontWeight.w600,
-                                fontFamily: "CalSans",
                               ),
                             ),
                             subtitle: Text(

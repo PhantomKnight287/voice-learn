@@ -25,40 +25,43 @@ class _LearningPathLoadingScreenState extends State<LearningPathLoadingScreen> {
   String message = "Your learning path is being generated.";
   late Timer timer;
   void _fetchStatus() async {
+    _fetchGenerationStatus(null);
     timer = Timer.periodic(
       const Duration(seconds: 5),
-      (timer) async {
-        final prefs = await SharedPreferences.getInstance();
-        final token = prefs.getString("token")!;
-        final req = await http.get(
-            Uri.parse(
-              "$API_URL/onboarding/${widget.pathId}",
-            ),
-            headers: {"Authorization": "Bearer $token"});
-        final body = jsonDecode(req.body);
-        if (req.statusCode == 200) {
-          if (body['generated'] == false) {
-            if (body['position'] == null) {
-              setState(() {
-                message = "Your learning path is being generated.";
-              });
-            } else {
-              setState(() {
-                message = "You are ${numberToOrdinal(body['position'])} in queue.";
-              });
-            }
-          } else {
-            Navigator.of(context).pushReplacement(
-              CupertinoPageRoute(
-                builder: (context) {
-                  return const HomeScreen();
-                },
-              ),
-            );
-          }
-        }
-      },
+      _fetchGenerationStatus,
     );
+  }
+
+  void _fetchGenerationStatus(timer) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString("token")!;
+    final req = await http.get(
+        Uri.parse(
+          "$API_URL/onboarding/${widget.pathId}",
+        ),
+        headers: {"Authorization": "Bearer $token"});
+    final body = jsonDecode(req.body);
+    if (req.statusCode == 200) {
+      if (body['generated'] == false) {
+        if (body['position'] == null) {
+          setState(() {
+            message = "Your learning path is being generated.";
+          });
+        } else {
+          setState(() {
+            message = "You are ${numberToOrdinal(body['position'])} in queue.";
+          });
+        }
+      } else {
+        Navigator.of(context).pushReplacement(
+          CupertinoPageRoute(
+            builder: (context) {
+              return const HomeScreen();
+            },
+          ),
+        );
+      }
+    }
   }
 
   @override
