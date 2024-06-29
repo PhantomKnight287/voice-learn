@@ -23,46 +23,9 @@ export const learning_path_schema = z.object({
                   .describe(
                     'The name of the lesson, must be in english and as short as possible.',
                   ),
-                // questions: z
-                //   .array(
-                //     z.object({
-                //       question: z
-                //         .array(
-                //           z.object({
-                //             translation: z
-                //               .string()
-                //               .describe('The translation of word in english'),
-                //             word: z
-                //               .string()
-                //               .describe(
-                //                 "The actual word in user's selected language",
-                //               ),
-                //           }),
-                //         )
-                //         .min(1),
-                //       type: z
-                //         .nativeEnum(QuestionType)
-                //         .describe(
-                //           "The type of question. Can be 'select_one' and 'sentence'",
-                //         ),
-                //       options: z
-                //         .array(z.string())
-                //         .describe(
-                //           "The options array for the question. Applicable for 'select_one' question.",
-                //         ),
-                //       correctAnswer: z
-                //         .string()
-                //         .describe('The correct answer of the question'),
-                //       instruction: z
-                //         .string()
-                //         .describe(
-                //           'Tell user what to do to solve this question.',
-                //         ),
-                //     }),
-                //   )
-                //   .describe('The questions for user to learn and practice'),
                 questionsCount: z.number(),
                 description: z.string(),
+                explanation: z.string(),
               }),
             ),
           }),

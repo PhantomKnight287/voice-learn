@@ -98,17 +98,22 @@ model Analytics {
 }
 
 model LearningPath {
-  id         String   @id @unique
+  id String @id @unique
+
   languageId String
-  reason     String
-  knowledge  String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  userId     String?
-  type       PathType @default(created)
   language   Language @relation(fields: [languageId], references: [id])
-  user       User?    @relation(fields: [userId], references: [id])
-  modules    Module[]
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  reason    String
+  knowledge String
+  type      PathType @default(created)
+
+  modules Module[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Module {
@@ -130,6 +135,7 @@ model Lesson {
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
   description      String?
+  explanation      String?
   questionsCount   Int             @default(0)
   questionsStatus  QuestionsStatus @default(not_generated)
   completed        Boolean         @default(false)

@@ -13,6 +13,11 @@ export class LanguagesService {
       where: {
         name: { not: 'English' },
       },
+      orderBy: [
+        {
+          name: 'asc',
+        },
+      ],
     });
   }
 }

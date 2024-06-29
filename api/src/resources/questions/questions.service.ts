@@ -43,6 +43,7 @@ export class QuestionsService {
     return {
       questions: lesson.questions,
       locale: locales[lesson.module.learningPath.language.name],
+      language: lesson.module.learningPath.language.name,
     };
   }
 
@@ -161,12 +162,19 @@ export class QuestionsService {
             answer: body.answer,
           },
         });
+        questions++;
         if (body.last) {
+          const lesson = await prisma.lesson.findFirst({
+            where: { id: body.lessonId },
+          });
           await tx.lesson.update({
             where: { id: body.lessonId },
             data: {
               correctAnswers: { increment: questions + (correct ? 1 : 0) },
-              incorrectAnswers: { increment: questions + (!correct ? 1 : 0) },
+              incorrectAnswers: {
+                increment:
+                  lesson.questionsCount - questions + (!correct ? 1 : 0),
+              },
               completed: body.last,
               startDate: new Date(body.startDate),
               endDate: new Date(body.endDate),
@@ -253,7 +261,7 @@ export class QuestionsService {
           },
         },
       });
-      if (answers.length > 1) {
+      if (answers.length > 0) {
         const currentLesson = await prisma.lesson.findFirst({
           where: { id: body.lessonId },
         });

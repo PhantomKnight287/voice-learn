@@ -62,15 +62,22 @@ export class EventsController {
           messages: [
             {
               role: 'system',
-              content: `Generate questions for ${lesson.module.learningPath.language.name} language learning program where the lesson name is ${lesson.name} and description is "${lesson.description}". There must be ${lesson.questionsCount} questions. The "instruction" should be the instruction to student on how to solve the question(for example: Translate this sentence to English, Choose the correct word.), type must either be 'sentence' or 'select_one'. The "options" array must never be empty. The "correctAnswer" should be the correct answer of the question and should not include any special characters including "...". The "question" must be an array of objects of words in question. Do not return excess whitespace, escape characters and punctuation in your response.
-              
-              Below are examples of questions:
+              content: `You are a language learning expert who can generate questions for the given language based on the given lesson name and description. You have to generate EXACTLY${lesson.questionsCount} questions. 
+	Every question will be an object with these 4 values:
+		instruction: The instruction to student on how to solve the question(for example: Translate this sentence to English, Choose the correct word.)
+		type: type of question (it must be either 'sentence' or 'select_one')
+		options: It should contain options for the questions if the type is 'select_one'
+		correctAnswer: The correct answer to the question (it should not include any special characters including '...')
+		questions: it will be an array of objects where each object contains 'word' and it's translation as 'translation' field. (It must be a single word only)
+	
+	Here is how your response should look like (Note that it's a example response and the questions and question count should be equal to the given question count)
                 [
               {
                 "instruction":"What is the meaning of given word in English.",
+		"type": "select_one",
                 "options":["Good Morning","Good Evening", "Good Bye"],
                 "correctAnswer":"Good Morning",
-                "question":[
+                "questions":[
                   {
                     "word":"Guten","translation":"Good",
                   },
@@ -81,9 +88,10 @@ export class EventsController {
               },
               {
               "instruction":"Translate the given word in German.",
+		"type": "select_one",
                 "options":["zwei","eins", "drei"],
                 "correctAnswer":"drei",
-                "question":[
+                "questions":[
                   {
                     "word":"3","translation":"drei",
                   },
@@ -91,22 +99,48 @@ export class EventsController {
               },
               {
                 "instruction":"Choose the correct word.",
+		"type": "select_one",
                 "options":["Katze","Hund","Fisch"],
                 "correctAnswer":"Hund",
-                "question":[
+                "questions":[
                     {
                         "word":"Dog","translation":"Hund",  
                     }
                   ]
-              }
-            ]
+              },
+              {
+                "instruction":"Choose the correct word in German for: ",
+                "options":["Name","heißt","Wo"],
+                "correctAnswer":"heißt",
+                "questions":[
+                  {
+                    "word":"Name","translation":heißt",
+                  }
+                ]
+              },
               
-            Do not generate any escape characters and options must never be empty. The instructions must not include the question.
-              `,
+            ]
+
+	Do not generate any escape characters. The instructions must not include the question.
+  "questions" array must never be empty and should always contain meaningful content.
+  Do not put the answer of the question in "questions"
+	NOTE: Don't respond with anything except the array of objects. The response should be valid JSON array otherwise the code will break.`,
             },
+
             {
               role: 'user',
-              content: `I am learning ${lesson.module.learningPath.language.name} for ${lesson.module.learningPath.reason} and ${lesson.module.learningPath.knowledge}. Please generate ${lesson.questionsCount} questions for me.`,
+              content: `
+Generate ${lesson.questionsCount} questions for ${lesson.module.learningPath.language.name} language learning program.
+
+Here is the information about lesson:
+
+Lesson name: ${lesson.name}
+Lesson description: ${lesson.description}
+
+${lesson.explanation ? `Lesson Explanation: ${lesson.explanation}` : ''}
+
+Please do not generate unrelated questions. 
+`,
             },
           ],
         });
@@ -489,12 +523,41 @@ Only generate array of lessons and no escape characters.
           messages: [
             {
               role: 'system',
-              content: `Generate a JSON structure for a ${path.language.name} language learning program. The program should consist of five modules, each containing at least 6 lessons. Each lesson should a name, description and a "questionsCount" which should be equal to the no of questions that lesson must have. Do not use special characters in names and descriptions. The name and descriptions must be useful and shouldn't include words like "Module 1". The description should not start with "This Module covers" or "This lesson covers". Do not generated words like "pronunciation"`,
+              content: `You are a ${path.language.name} speaker with highest proficiency in ${path.language.name}. You have to generate learning path for people with little to no knowledge of ${path.language.name}. You must keep everything to the point and not generate anything out of the context.`,
+            },
+            {
+              role: 'user',
+              content: `
+**Objective**: Generate a JSON structure for a ${path.language.name} language learning program.
+
+**Context**: The program is designed to help users learn ${path.language.name} through a structured curriculum.
+
+**Requirements**:
+
+**Modules**: The program should consist of 10 modules. The module is like a category just like a chapter in a book having a name and a short description.
+**Lessons**: Each module should contain at least 8 lessons.
+
+**Lesson Details**:
+
+**Name**: Provide a meaningful name for each lesson (e.g., "Basic Greetings").
+**Description**: Offer a useful description without special characters or generic phrases like "Module 1". The description should not start with "This Module covers" or "This lesson covers".
+**Explanation**: Instead of directly covering the topics, provide an introduction explaining the necessity and variations of what is being learned. Include a few example words that will be taught in the lesson. The explanation should be detailed but no too long, also divide it into paragraphs for beter attention grabbing and formatted in markdown using proper headings and list items and table if needed (e.g., "Understanding basic greetings is essential for starting conversations. You'll learn common phrases like 'Hola' and 'Buenos días', which are used in everyday interactions.").
+**questionsCount**: Indicate the number of questions that each lesson must have (e.g., If you are teaching Greetings then it should count them as Good Morning, Afternoon, Evening, Night, Hello etc and their formal versions too. If you are teaching numbers from 1-10 then it should be 10 questions).
+
+**Constraints**:
+
+- Avoid using special characters in names and descriptions.
+- Ensure descriptions and explanations are practical and engaging.
+- Do not use words like "pronunciation".
+- The name and description must be in English no matter what. 
+- There should be no unrelated content in a module. For example, if a module is called "Basic Greetings" then it should it have lessons related to greetings and addressing people and nothing else.
+
+**Style/Tone**: The content should be educational and accessible, suitable for learners at ${path.knowledge}. Try to start with as basic items as possible based on user's level.`,
             },
 
             {
               role: 'user',
-              content: `I want to learn ${path.language.name} and ${path.knowledge}. I want to learn ${path.language.name} for ${path.reason}`,
+              content: `I want to learn ${path.language.name} and I am ${path.knowledge}. I want to learn ${path.language.name}.`,
             },
           ],
         });
@@ -529,6 +592,8 @@ Only generate array of lessons and no escape characters.
                       id: `lesson_${createId()}`,
                       questionsCount: lesson.questionsCount,
                       createdAt: new Date(startTime + 1000 * idx),
+                      explanation: lesson.explanation,
+                      description: lesson.description,
                     })),
                   },
                 },
