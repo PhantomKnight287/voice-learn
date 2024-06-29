@@ -27,6 +27,7 @@ class UserModel {
   final int streaks;
   final bool isStreakActive;
   final Tiers tier;
+  final String? avatarHash;
 
   UserModel({
     required this.id,
@@ -41,6 +42,7 @@ class UserModel {
     required this.xp,
     required this.streaks,
     required this.tier,
+    this.avatarHash,
     this.isStreakActive = false,
   });
 
@@ -61,6 +63,7 @@ class UserModel {
       tier: tierFromString(
         json['tier'],
       ),
+      avatarHash: json['avatarHash'],
     );
   }
 

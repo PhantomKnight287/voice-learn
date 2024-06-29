@@ -94,7 +94,7 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   final item = board[index];
-                  final avatar = Gravatar(item.email);
+                  final avatar = item.avatarHash != null ? "$BASE_GRAVATAR_URL/${item.avatarHash}" : "https://api.dicebear.com/8.x/initials/png?seed=${item.name}";
                   return Column(
                     children: [
                       GestureDetector(
@@ -131,7 +131,7 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
                                 radius: 30,
                                 backgroundColor: Colors.grey.shade800,
                                 backgroundImage: NetworkImage(
-                                  avatar.imageUrl(),
+                                  avatar,
                                 ),
                               ),
                               const SizedBox(

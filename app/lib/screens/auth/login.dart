@@ -103,6 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
             streaks: response.user.streaks,
             isStreakActive: response.user.isStreakActive,
             tier: response.user.tier,
+            avatarHash: response.user.avatarHash,
           ),
         );
 

@@ -36,3 +36,5 @@ final BOTTOM = PreferredSize(
     height: 2.0,
   ),
 );
+
+const BASE_GRAVATAR_URL = "https://gravatar.com/avatar";

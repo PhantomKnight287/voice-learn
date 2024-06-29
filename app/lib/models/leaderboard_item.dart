@@ -1,10 +1,10 @@
 class LeaderboardItem {
   final int xp;
   final String name;
-  final String email;
+  final String? avatarHash;
   final String id;
   const LeaderboardItem({
-    required this.email,
+    this.avatarHash,
     required this.name,
     required this.xp,
     required this.id,
@@ -12,7 +12,7 @@ class LeaderboardItem {
 
   factory LeaderboardItem.fromJSON(Map<String, dynamic> json) {
     return LeaderboardItem(
-      email: json['email'],
+      avatarHash: json['avatarHash'],
       name: json['name'],
       xp: json['xp'],
       id: json['id'],

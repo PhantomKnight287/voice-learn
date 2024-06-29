@@ -13,6 +13,7 @@ import 'package:fl_query/fl_query.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:heroicons/heroicons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:app/main.dart';
 import 'package:shimmer/shimmer.dart';
@@ -225,21 +226,28 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
                             trailing: SizedBox(
                               width: 40,
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Image.asset(
-                                    "assets/images/emerald.png",
-                                    width: 25,
-                                    height: 25,
-                                  ),
-                                  const SizedBox(
-                                    width: BASE_MARGIN * 1,
-                                  ),
-                                  Text(
-                                    lesson.emeralds.toString(),
-                                    style: Theme.of(context).textTheme.titleSmall,
-                                  ),
-                                ],
+                                mainAxisAlignment: lesson.completed == false ? MainAxisAlignment.end : MainAxisAlignment.center,
+                                children: lesson.completed == false
+                                    ? [
+                                        Image.asset(
+                                          "assets/images/emerald.png",
+                                          width: 25,
+                                          height: 25,
+                                        ),
+                                        const SizedBox(
+                                          width: BASE_MARGIN * 1,
+                                        ),
+                                        Text(
+                                          lesson.emeralds.toString(),
+                                          style: Theme.of(context).textTheme.titleSmall,
+                                        ),
+                                      ]
+                                    : [
+                                        const HeroIcon(
+                                          HeroIcons.checkBadge,
+                                          color: Colors.green,
+                                        )
+                                      ],
                               ),
                             ),
                           );

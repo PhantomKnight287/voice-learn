@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { prisma } from 'src/db';
 import { UpdateProfileDTO } from './dto/update-profile.dto';
+import { createHash } from 'crypto';
 
 @Injectable()
 export class ProfileService {
@@ -33,6 +34,7 @@ export class ProfileService {
       },
       omit: {
         password: true,
+        email: true,
       },
       include: {
         paths: {
@@ -56,6 +58,11 @@ export class ProfileService {
       data: {
         email: body.email,
         name: body.name,
+        avatarHash: body.email
+          ? createHash('sha256')
+              .update(body.email.trim().toLowerCase())
+              .digest('hex')
+          : undefined,
       },
     });
     return {

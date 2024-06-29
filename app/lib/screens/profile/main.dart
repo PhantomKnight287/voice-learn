@@ -524,7 +524,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ],
                         );
                       }
-                      final avatar = Gravatar(data['email']);
+                      final avatar = data['avatarHash'] != null ? "$BASE_GRAVATAR_URL/${data['avatarHash']}" : "https://api.dicebear.com/8.x/initials/png?seed=${data['name']}";
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -547,7 +547,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             context,
                             monthName,
                             dateTime,
-                            avatar.imageUrl(),
+                            avatar,
                           ),
                           const SizedBox(
                             height: BASE_MARGIN * 3,

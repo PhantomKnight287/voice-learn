@@ -183,7 +183,7 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
                               child: Column(
                                 children: [
                                   Text(
-                                    "TOTAL XP",
+                                    "XP Earned",
                                     style: TextStyle(
                                       fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                                       fontWeight: FontWeight.w600,
@@ -235,7 +235,7 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
                               child: Column(
                                 children: [
                                   Text(
-                                    "DURATION",
+                                    "Time Taken",
                                     style: TextStyle(
                                       fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                                       fontWeight: FontWeight.w600,

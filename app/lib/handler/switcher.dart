@@ -58,6 +58,7 @@ class _ViewHandlerState extends State<ViewHandler> {
                 streaks: user.streaks,
                 isStreakActive: user.isStreakActive,
                 tier: user.tier,
+                avatarHash: user.avatarHash,
               ),
             );
         if (body['path']?['type'] == 'created') {

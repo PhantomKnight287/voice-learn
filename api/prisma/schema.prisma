@@ -18,6 +18,7 @@ model User {
   emeralds      Int      @default(100)
   lives         Int      @default(5)
   xp            Int      @default(0)
+  avatarHash    String?
   /// the current active streaks, will increase or reset based on completing a lesson
   activeStreaks Int      @default(0)
   longestStreak Int      @default(0)
@@ -41,14 +42,14 @@ model XP {
   id     String @id @unique @default(cuid())
   earned Int    @default(0)
 
-  language Language @relation(fields: [languageId], references: [id])
+  language   Language @relation(fields: [languageId], references: [id])
   languageId String
 
   User   User?   @relation(fields: [userId], references: [id])
   userId String?
 
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Upload {
@@ -178,8 +179,8 @@ model Language {
   key           String?
   chats         Chat[]
   learningPaths LearningPath[]
-  
-  XP            XP[]
+
+  XP XP[]
 }
 
 model Chat {

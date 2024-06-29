@@ -15,6 +15,7 @@ abstract class UserEvent extends UserModel {
     required super.xp,
     required super.streaks,
     required super.tier,
+    super.avatarHash,
     super.isStreakActive,
   });
 }
@@ -32,6 +33,7 @@ class UserLoggedInEvent extends UserEvent {
     required super.lives,
     required super.xp,
     required super.streaks,
+    super.avatarHash,
     super.isStreakActive,
     required super.tier,
   });
@@ -50,6 +52,7 @@ class UserLoggedInEvent extends UserEvent {
       streaks: user.streaks,
       isStreakActive: user.isStreakActive,
       tier: user.tier,
+      avatarHash: user.avatarHash,
     );
   }
   factory UserLoggedInEvent.setEmeraldsAndLives(UserModel user, int emeralds, int? lives) {
@@ -67,6 +70,7 @@ class UserLoggedInEvent extends UserEvent {
       streaks: user.streaks,
       isStreakActive: user.isStreakActive,
       tier: user.tier,
+      avatarHash: user.avatarHash,
     );
   }
 
@@ -85,6 +89,7 @@ class UserLoggedInEvent extends UserEvent {
       streaks: user.streaks,
       isStreakActive: user.isStreakActive,
       tier: tier,
+      avatarHash: user.avatarHash,
     );
   }
   factory UserLoggedInEvent.setEmailAndName(UserModel user, String email, String name) {
@@ -102,6 +107,7 @@ class UserLoggedInEvent extends UserEvent {
       streaks: user.streaks,
       isStreakActive: user.isStreakActive,
       tier: user.tier,
+      avatarHash: user.avatarHash,
     );
   }
 }
@@ -119,6 +125,7 @@ class UserLoggedOutEvent extends UserEvent {
     required super.xp,
     required super.streaks,
     super.isStreakActive,
+    super.avatarHash,
     required super.tier,
   });
 }
@@ -137,5 +144,6 @@ class DecreaseUserHeartEvent extends UserEvent {
     required super.xp,
     required super.tier,
     super.isStreakActive,
+    super.avatarHash,
   });
 }

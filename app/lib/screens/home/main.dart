@@ -459,10 +459,10 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
         return Stack(
           children: [
             Scaffold(
-              extendBodyBehindAppBar: true,
               appBar: AppBar(
                 scrolledUnderElevation: 0.0,
                 systemOverlayStyle: SystemUiOverlayStyle.dark,
+                forceMaterialTransparency: true,
                 elevation: 0,
                 bottom: BOTTOM,
                 title: BlocBuilder<UserBloc, UserState>(
@@ -896,6 +896,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                               style: TextStyle(
                                 fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
                                 fontWeight: FontWeight.w600,
+                                fontFamily: "CalSans",
                               ),
                             ),
                             subtitle: Text(

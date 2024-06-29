@@ -3,7 +3,7 @@ import { S3Service } from './services/s3/s3.service';
 import { readFileSync, writeFileSync } from 'fs';
 import { prisma } from './db';
 import { ConfigService } from '@nestjs/config';
-import { randomUUID } from 'crypto';
+import { createHash, randomUUID } from 'crypto';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { createId } from '@paralleldrive/cuid2';
@@ -17,6 +17,7 @@ export class AppService {
     protected readonly configService: ConfigService,
   ) {
     this.saveFlags();
+    this.generateAvatarHash();
   }
   async getHello() {
     for (let i = 0; i < 20; i++) {
@@ -78,6 +79,20 @@ export class AppService {
           id: `language_${createId()}`,
           name: flag.name,
           key: fileKey,
+        },
+      });
+    }
+  }
+
+  async generateAvatarHash() {
+    const users = await prisma.user.findMany({ where: { avatarHash: null } });
+    for (const user of users) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          avatarHash: createHash('sha256')
+            .update(user.email.trim().toLowerCase())
+            .digest('hex'),
         },
       });
     }

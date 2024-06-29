@@ -39,6 +39,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           streaks: event.streaks,
           isStreakActive: event.isStreakActive,
           tier: event.tier,
+          avatarHash: event.avatarHash,
         ),
       );
     });
@@ -63,6 +64,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           streaks: event.streaks,
           isStreakActive: event.isStreakActive,
           tier: event.tier,
+          avatarHash: event.avatarHash,
         ),
       );
     });

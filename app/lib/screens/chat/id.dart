@@ -26,6 +26,7 @@ import 'package:uuid/uuid.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:popover/popover.dart';
 
 class ChatScreen extends StatefulWidget {
   final String id;
@@ -108,28 +109,32 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     return Chat.fromJSON(body);
   }
 
-  Future<void> _initSocket() async {
+  Future<void> _initSocket(String id) async {
     final storage = await SharedPreferences.getInstance();
     final token = storage.getString("token");
-    final id = widget.id;
+
     socket = IO.io(
       removeVersionAndTrailingSlash(API_URL),
       IO.OptionBuilder()
           .setTransports(['websocket']) // for Flutter or Dart VM
           .enableAutoConnect()
-          .setQuery({'chatId': widget.id, "id": id})
+          .setQuery({
+            'chatId': id,
+          })
           .setAuth({
             "token": token,
-            "id": widget.id,
+            "id": id,
           })
+          .enableForceNew()
           .build(),
     );
-    socket!.connect();
+
     socket!.onConnect(
       (data) {
         _setupTutorial();
       },
     );
+
     socket!.on(
       "message",
       (data) async {
@@ -425,7 +430,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _initSocket();
+    _initSocket(widget.id);
     _controller.addListener(() {
       setState(() {
         _isWriting = _controller.text.isNotEmpty;
@@ -443,15 +448,16 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    super.dispose();
     socket?.disconnect();
     socket?.dispose();
+    IO.cache.clear();
     timer?.cancel();
     _recordingTimer?.cancel();
     _controller.dispose();
     playerController.dispose();
     record.dispose();
     WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   @override

@@ -34,18 +34,16 @@ export class CronService {
     });
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, {
+  @Cron(CronExpression.EVERY_DAY_AT_NOON, {
     timeZone: 'UTC',
   })
   async bonkLazyUsers() {
-    console.log('Running cron for streaks');
-    const currentDateInGMT = moment().utc().startOf('day').toDate(); // Start of the current day in GMT
-    const nextDateInGMT = moment().utc().add(1, 'day').startOf('day').toDate(); // Start of the next day in GMT
+    const currentDateInGMT = moment().utc().subtract(1, 'day').toDate(); // Yesterday at 12:00 UTC
+    const nextDateInGMT = moment().utc().toDate(); // today at 12:00 UTC
     const users = await prisma.user.findMany();
-
     try {
       for (const user of users) {
-        // Check if a streak record exists for today
+        // Check if a streak record exists between the timeframe
         const streakExists = await prisma.streak.findFirst({
           where: {
             userId: user.id,

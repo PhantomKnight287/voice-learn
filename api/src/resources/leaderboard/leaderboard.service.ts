@@ -8,8 +8,8 @@ export class LeaderboardService {
       select: {
         xp: true,
         name: true,
-        email: true,
-        id:true,
+        id: true,
+        avatarHash: true,
       },
       where: {
         xp: {
