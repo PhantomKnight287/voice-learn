@@ -173,6 +173,7 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
                                         id: lesson.id,
                                         title: lesson.name,
                                         generated: lesson.status == QuestionsStatus.generated,
+                                        completed: lesson.completed,
                                       );
                                     },
                                   ),

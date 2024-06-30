@@ -164,7 +164,8 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                 Text(
                   "Your answer",
                   style: TextStyle(
-                    fontSize: Theme.of(context).textTheme.titleMedium!.fontSize! * 0.7,
+                    fontSize: Theme.of(context).textTheme.titleMedium!.fontSize!,
+                    fontFamily: "CalSans",
                   ),
                 ),
                 Text(
@@ -180,7 +181,8 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                 Text(
                   "Correct Answer",
                   style: TextStyle(
-                    fontSize: Theme.of(context).textTheme.titleMedium!.fontSize! * 0.7,
+                    fontSize: Theme.of(context).textTheme.titleMedium!.fontSize!,
+                    fontFamily: "CalSans",
                   ),
                 ),
                 Text(
@@ -619,19 +621,24 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                     ),
                                   ),
                                   for (var word in question.question) ...{
-                                    Tooltip(
-                                      message: word.translation,
-                                      triggerMode: TooltipTriggerMode.tap,
-                                      onTriggered: () async {
-                                        if (ttsSetup == false) return;
-                                        await flutterTts.speak(word.word);
+                                    GestureDetector(
+                                      onLongPress: () {
+                                        print("long pressed");
                                       },
-                                      child: Text(
-                                        word.word,
-                                        style: TextStyle(
-                                          decoration: TextDecoration.underline,
-                                          decorationStyle: TextDecorationStyle.dashed,
-                                          fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                                      child: Tooltip(
+                                        message: word.translation,
+                                        triggerMode: TooltipTriggerMode.tap,
+                                        onTriggered: () async {
+                                          if (ttsSetup == false) return;
+                                          await flutterTts.speak(word.word);
+                                        },
+                                        child: Text(
+                                          word.word,
+                                          style: TextStyle(
+                                            decoration: TextDecoration.underline,
+                                            decorationStyle: TextDecorationStyle.dashed,
+                                            fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                                          ),
                                         ),
                                       ),
                                     ),

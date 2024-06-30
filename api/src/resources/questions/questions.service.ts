@@ -72,12 +72,14 @@ export class QuestionsService {
         correctAnswer: true,
       },
     });
-    if (!question)
+
+    if (!question) {
       throw new HttpException('No question found.', HttpStatus.NOT_FOUND);
+    }
+
     const correct =
       removePunctuation(body.answer.trim()).toLowerCase() ===
       removePunctuation(question.correctAnswer.trim()).toLowerCase();
-
     let questions = 0;
     if (body.last) {
       questions = await prisma.question.count({
@@ -89,6 +91,7 @@ export class QuestionsService {
           },
         },
       });
+
       const answers = await prisma.answer.count({
         where: {
           question: {
@@ -100,13 +103,14 @@ export class QuestionsService {
           },
         },
       });
-      // subracting 1 as user is submitting the last answer in this req
+
       if (questions - 1 != answers) {
         throw new HttpException(
           "Not all questions are answered but 'last' is set to true",
           HttpStatus.CONFLICT,
         );
       }
+
       questions = await prisma.answer.count({
         where: {
           question: {
@@ -120,36 +124,18 @@ export class QuestionsService {
         },
       });
     }
-    const existingAnswer = await prisma.answer.findFirst({
-      where: { questionId, userId },
-    });
+
     const user = await prisma.$transaction(async (tx) => {
+      const existingAnswer = await tx.answer.findFirst({
+        where: { questionId, userId },
+      });
+
       if (existingAnswer) {
         await tx.answer.update({
-          where: {
-            id: existingAnswer.id,
-          },
+          where: { id: existingAnswer.id },
           data: {
             type: correct ? 'correct' : 'incorrect',
             answer: body.answer,
-            question: {
-              update: {
-                lessons: {
-                  update: {
-                    data: {
-                      correctAnswers: { increment: correct ? 1 : 0 },
-                      incorrectAnswers: { increment: !correct ? 1 : 0 },
-                      completed: body.last,
-                      startDate: new Date(body.startDate),
-                      endDate: new Date(body.endDate),
-                    },
-                    where: {
-                      id: '',
-                    },
-                  },
-                },
-              },
-            },
           },
         });
       } else {
@@ -162,35 +148,43 @@ export class QuestionsService {
             answer: body.answer,
           },
         });
-        questions++;
-        if (body.last) {
-          const lesson = await prisma.lesson.findFirst({
-            where: { id: body.lessonId },
-          });
-          await tx.lesson.update({
-            where: { id: body.lessonId },
-            data: {
-              correctAnswers: { increment: questions + (correct ? 1 : 0) },
-              incorrectAnswers: {
-                increment:
-                  lesson.questionsCount - questions + (!correct ? 1 : 0),
+        questions;
+      }
+
+      if (body.last) {
+        const incorrectAnswersCount = await prisma.answer.count({
+          where: {
+            question: {
+              lessons: {
+                some: {
+                  id: body.lessonId,
+                },
               },
-              completed: body.last,
-              startDate: new Date(body.startDate),
-              endDate: new Date(body.endDate),
             },
-          });
-        }
+            type: 'incorrect',
+          },
+        });
+        await tx.lesson.update({
+          where: { id: body.lessonId },
+          data: {
+            correctAnswers: { increment: questions + (correct ? 1 : 0) },
+            incorrectAnswers: {
+              increment: incorrectAnswersCount - 1 + (!correct ? 1 : 0),
+            },
+            completed: body.last,
+            startDate: new Date(body.startDate),
+            endDate: new Date(body.endDate),
+          },
+        });
       }
-      if (body.last && correct) {
-        questions += 1;
-      }
+
       const currentDateInGMT = moment().utc().startOf('day').toDate();
       const nextDateInGMT = moment()
         .utc()
         .add(1, 'day')
         .startOf('day')
         .toDate();
+
       const existingStreak = await tx.streak.findFirst({
         where: {
           userId,
@@ -200,6 +194,7 @@ export class QuestionsService {
           },
         },
       });
+
       const user = await tx.user.findFirst({ where: { id: userId } });
 
       if (!existingStreak && body.last) {
@@ -220,9 +215,11 @@ export class QuestionsService {
           },
         });
       }
+
       const lesson = await prisma.lesson.findFirst({
         where: { id: body.lessonId },
       });
+
       return await tx.user.update({
         where: { id: userId },
         data: {
@@ -245,8 +242,8 @@ export class QuestionsService {
         },
       });
     });
+
     if (body.last) {
-      // craft a new chapter with questions whose answer was incorrect
       const answers = await prisma.question.findMany({
         where: {
           answers: {
@@ -261,16 +258,19 @@ export class QuestionsService {
           },
         },
       });
+
       if (answers.length > 0) {
         const currentLesson = await prisma.lesson.findFirst({
           where: { id: body.lessonId },
         });
+
         const correctionLesson = await prisma.lesson.findFirst({
           where: {
             name: 'Mistake Correction',
             moduleId: currentLesson.moduleId,
           },
         });
+
         const lesson =
           correctionLesson ??
           (await prisma.lesson.create({
@@ -284,12 +284,14 @@ export class QuestionsService {
               emeralds: 0,
             },
           }));
+
         for (const answer of answers) {
           await prisma.question.update({
             where: { id: answer.id },
             data: { lessons: { connect: { id: lesson.id } } },
           });
         }
+
         if (correctionLesson) {
           await prisma.lesson.update({
             where: { id: correctionLesson.id },
@@ -298,26 +300,22 @@ export class QuestionsService {
         }
       }
     }
-    let isStreakActive = false;
-    if (body.last) {
-      const currentDateInGMT = moment().utc().startOf('day').toDate(); // Start of the current day in GMT
-      const nextDateInGMT = moment()
-        .utc()
-        .add(1, 'day')
-        .startOf('day')
-        .toDate(); // Start of the next day in GMT
 
-      const streak = await prisma.streak.findFirst({
-        where: {
-          createdAt: {
-            gte: currentDateInGMT,
-            lt: nextDateInGMT,
-          },
-          userId: user.id,
+    const currentDateInGMT = moment().utc().startOf('day').toDate();
+    const nextDateInGMT = moment().utc().add(1, 'day').startOf('day').toDate();
+
+    const streak = await prisma.streak.findFirst({
+      where: {
+        createdAt: {
+          gte: currentDateInGMT,
+          lt: nextDateInGMT,
         },
-      });
-      isStreakActive = streak ? true : false;
-    }
+        userId: user.id,
+      },
+    });
+
+    const isStreakActive = streak ? true : false;
+
     return {
       id: questionId,
       correct,

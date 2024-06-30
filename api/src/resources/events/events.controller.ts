@@ -63,11 +63,12 @@ export class EventsController {
             {
               role: 'system',
               content: `You are a language learning expert who can generate questions for the given language based on the given lesson name and description. You have to generate EXACTLY${lesson.questionsCount} questions. 
+
 	Every question will be an object with these 4 values:
 		instruction: The instruction to student on how to solve the question(for example: Translate this sentence to English, Choose the correct word.)
 		type: type of question (it must be either 'sentence' or 'select_one')
-		options: It should contain options for the questions if the type is 'select_one'
-		correctAnswer: The correct answer to the question (it should not include any special characters including '...')
+		options: It should contain options for the questions if the type is 'select_one' else it must be empty if type is 'sentence'
+		correctAnswer: The correct answer to the question (it should not include any special characters including '...' but can include punctuations and words that are in that language like umlaut). This must never be empty and should be one from "options" if type is "select_one".
 		questions: it will be an array of objects where each object contains 'word' and it's translation as 'translation' field. (It must be a single word only)
 	
 	Here is how your response should look like (Note that it's a example response and the questions and question count should be equal to the given question count)
@@ -77,6 +78,7 @@ export class EventsController {
 		"type": "select_one",
                 "options":["Good Morning","Good Evening", "Good Bye"],
                 "correctAnswer":"Good Morning",
+                "type":"select_one",
                 "questions":[
                   {
                     "word":"Guten","translation":"Good",
@@ -90,6 +92,7 @@ export class EventsController {
               "instruction":"Translate the given word in German.",
 		"type": "select_one",
                 "options":["zwei","eins", "drei"],
+                "type":"select_one",
                 "correctAnswer":"drei",
                 "questions":[
                   {
@@ -101,6 +104,7 @@ export class EventsController {
                 "instruction":"Choose the correct word.",
 		"type": "select_one",
                 "options":["Katze","Hund","Fisch"],
+                "type":"select_one",
                 "correctAnswer":"Hund",
                 "questions":[
                     {
@@ -112,13 +116,35 @@ export class EventsController {
                 "instruction":"Choose the correct word in German for: ",
                 "options":["Name","heißt","Wo"],
                 "correctAnswer":"heißt",
+                "type":"select_one",
                 "questions":[
                   {
                     "word":"Name","translation":heißt",
                   }
                 ]
               },
-              
+              {
+                "instruction":"Translate the following sentence into German",
+                "type":"sentence",
+                "questions": [
+    {
+      "word": "I",
+      "translation": "Ich"
+    },
+    {
+      "word": "am going",
+      "translation": "gehe"
+    },
+    {
+      "word": "to the",
+      "translation": "zum"
+    },
+    {
+      "word": "store",
+      "translation": "Laden"
+    }
+  ]
+              }
             ]
 
 	Do not generate any escape characters. The instructions must not include the question.
@@ -216,17 +242,36 @@ Please do not generate unrelated questions.
           {
             role: 'system',
             content: `
-Generate a JSON structure for a ${learningPath.language.name} language learning program. The program should consist of 10 modules, each containing at least 3 lessons. Each lesson should a name, description and a "questionsCount" which should be equal to the no of questions that lesson must have. Do not use special characters in names and descriptions. The name and descriptions must be useful and shouldn't include words like "Module 1". The description should not start with "This Module covers" or "This lesson covers".
+            **Objective**: Generate a JSON structure for a ${learningPath.language.name} language learning program.
 
-User wants to learn ${learningPath.language.name} for ${learningPath.reason} and ${learningPath.knowledge}.
- 
-User has already studied ${learningPath.modules.join(', ')}
+**Context**: The user wants to learn ${learningPath.language.name} for ${learningPath.reason} and their current knowledge level is ${learningPath.knowledge}. The user has already studied the following modules: ${learningPath.modules}
 
-Do not generate already generated modules.
+**Requirements**:
 
-Only generate array of modules and no escape characters. 
+**Modules**: The program should consist of 10 modules.
+**Lessons**: Each module should contain at least 8 lessons.
 
-`,
+
+**Lesson Details**:
+**Name**: Provide a meaningful name for each lesson (e.g., "Basic Greetings").
+**Description**: Offer a useful description without special characters or generic phrases like "Module 1". The description should not start with "This Module covers" or "This lesson covers".
+**Explanation**: Provide an introduction explaining the necessity and variations of what is being learned. Include a few example words that will be taught in the lesson. The explanation should be detailed but concise and formatted in markdown with proper list formatting, headings and tables if needed (e.g., "Understanding basic greetings is essential for starting conversations. You'll learn common phrases like 'Hola' and 'Buenos días', which are used in everyday interactions.").
+**questionsCount**: Indicate the number of questions that each lesson must have (e.g., If you are teaching Greetings then it should count them as Good Morning, Afternoon, Evening, Night, Hello etc and their formal versions too. If you are teaching numbers from 1-10 then it should be 10 questions).
+
+**Constraints**:
+
+- Avoid using special characters in names and descriptions.
+- Ensure descriptions and explanations are practical and engaging.
+- Do not use words like "pronunciation".
+- Do not generate already studied modules.
+
+**Output Requirements**:
+
+Only generate an array of modules.
+No escape characters in the JSON structure
+
+**Style/Tone**: The content should be educational and accessible, suitable for learners at different levels.
+            `,
           },
         ];
         if (request.prompt) {
@@ -298,6 +343,10 @@ Only generate array of modules and no escape characters.
                 name: true,
                 description: true,
                 questionsCount: true,
+                explanation: true,
+              },
+              where: {
+                name: { not: 'Mistake Correction' },
               },
             },
           },
@@ -308,15 +357,35 @@ Only generate array of modules and no escape characters.
           {
             role: 'system',
             content: `
-Generate a JSON structure for lessons belonging to ${module.learningPath.language.name} language learning program. You must generate 4 lessons. Each lesson should have a name, description and a "questionsCount" which should be equal to the no of questions that lesson must have. Do not use special characters in names and descriptions. The name and descriptions must be useful and shouldn't include words like "Module 1". The description should not start with "This Module covers" or "This lesson covers".
+**Objective**: Generate a JSON structure for lessons belonging to a ${module.learningPath.language.name} language learning program.
 
-User wants to learn ${module.learningPath.language.name} for ${module.learningPath.reason} and ${module.learningPath.knowledge}.
- 
-User has already studied ${module.lessons.join('\n, ')}
+**Context**: The user wants to learn ${module.learningPath.language.name} for ${module.learningPath.reason} and has a knowledge level of ${module.learningPath.knowledge}. The user has already studied the following lessons: ${module.lessons.join('\n, ')}.
 
-Do not generate already generated lessons.
+**Requirements**:
 
-Only generate array of lessons and no escape characters. 
+**Lessons**: Generate 8 lessons.
+
+
+**Lesson Details**:
+
+**Name**: Provide a meaningful and descriptive name for each lesson.
+**Description**: Offer a useful description without special characters or generic phrases like "Module 1". The description should not start with "This Module covers" or "This lesson covers".
+**Explanation**: Provide an introduction explaining the necessity and variations of what is being learned. Include a few example words that will be taught in the lesson. The explanation should be detailed but concise and formatted in markdown (e.g., "Understanding basic greetings is essential for starting conversations. You'll learn common phrases like 'Hola' and 'Buenos días', which are used in everyday interactions.").
+**questionsCount**: Indicate the number of questions that each lesson must have.
+
+
+Constraints:
+
+- Avoid using special characters in names and descriptions(punctuations and umlauts are allowed).
+- Ensure descriptions and explanations are practical and engaging.
+- Do not use words like "pronunciation".
+- Do not generate already studied lessons. This includes same lesson with different names.
+
+**Output Requirements**:
+
+- Only generate an array of lessons.
+- No escape characters in the JSON structure.
+- Style/Tone: The content should be educational and accessible, suitable for learners at different levels.
 
 `,
           },
@@ -347,6 +416,7 @@ Only generate array of lessons and no escape characters.
               name: response.name,
               createdAt: new Date(startTime + 1000 * index),
               moduleId: module.id,
+              explanation: response.explanation,
             })),
           });
         });

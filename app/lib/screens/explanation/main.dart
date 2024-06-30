@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/constants/main.dart';
+import 'package:app/screens/questions/complete.dart';
 import 'package:app/screens/questions/main.dart';
 import 'package:app/utils/error.dart';
 import 'package:app/utils/string.dart';
@@ -19,12 +20,14 @@ class ExplanationScreen extends StatefulWidget {
   final String title;
   final String id;
   final bool generated;
+  final bool completed;
   const ExplanationScreen({
     super.key,
     required this.explanation,
     required this.title,
     required this.id,
     required this.generated,
+    required this.completed,
   });
 
   @override
@@ -172,33 +175,43 @@ class _ExplanationScreenState extends State<ExplanationScreen> {
                     );
                     return;
                   }
-                  final userState = context.read<UserBloc>().state;
-                  if (userState.lives < 1) {
-                    toastification.show(
-                      type: ToastificationType.warning,
-                      style: ToastificationStyle.minimal,
-                      autoCloseDuration: const Duration(seconds: 5),
-                      title: const Text("Not enough lives"),
-                      description: const Text(
-                        "You don't have enough lives.",
+                  if (widget.completed == false) {
+                    final userState = context.read<UserBloc>().state;
+                    if (userState.lives < 1) {
+                      toastification.show(
+                        type: ToastificationType.warning,
+                        style: ToastificationStyle.minimal,
+                        autoCloseDuration: const Duration(seconds: 5),
+                        title: const Text("Not enough lives"),
+                        description: const Text(
+                          "You don't have enough lives.",
+                        ),
+                        alignment: Alignment.topCenter,
+                        showProgressBar: false,
+                      );
+
+                      return;
+                    }
+
+                    Navigator.of(context).pushReplacement(
+                      CupertinoPageRoute(
+                        builder: (context) => QuestionsScreen(
+                          lessonId: widget.id,
+                        ),
                       ),
-                      alignment: Alignment.topCenter,
-                      showProgressBar: false,
                     );
-
-                    return;
-                  }
-
-                  Navigator.of(context).pushReplacement(
-                    CupertinoPageRoute(
-                      builder: (context) => QuestionsScreen(
-                        lessonId: widget.id,
+                  } else {
+                    Navigator.of(context).pushReplacement(
+                      CupertinoPageRoute(
+                        builder: (context) {
+                          return LessonCompleteScreen(questionId: widget.id, showAd: false);
+                        },
                       ),
-                    ),
-                  );
+                    );
+                  }
                 },
                 child: Text(
-                  "Try the Questions",
+                  widget.completed ? "View Stats" : "Try the Questions",
                   style: TextStyle(
                     fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 0.95,
                     fontWeight: FontWeight.w600,

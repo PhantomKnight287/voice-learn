@@ -81,5 +81,6 @@ export const lessons_schema = z.array(
     name: z.string(),
     questionsCount: z.number(),
     description: z.string(),
+    explanation: z.string(),
   }),
 );
