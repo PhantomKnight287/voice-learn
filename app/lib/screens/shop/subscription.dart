@@ -279,13 +279,13 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
     final state = context.read<UserBloc>().state;
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "Membership",
         ),
         centerTitle: true,
         elevation: 0,
         scrolledUnderElevation: 0,
-        forceMaterialTransparency: true,
+        forceMaterialTransparency: false,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -823,6 +823,29 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                             DataCell(
                               Text(
                                 'Advanced AI for Chats',
+                              ),
+                            ),
+                            DataCell(
+                              Center(
+                                child: HeroIcon(
+                                  HeroIcons.xMark,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              Center(
+                                child: HeroIcon(
+                                  HeroIcons.check,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const DataRow(
+                          cells: [
+                            DataCell(
+                              Text(
+                                'ADs',
                               ),
                             ),
                             DataCell(

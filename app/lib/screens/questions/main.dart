@@ -604,7 +604,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                   IconButton(
                                     onPressed: () async {
                                       if (ttsSetup) {
-                                        await flutterTts.speak(question.question.map((q) => q.word).join(" "));
+                                        await flutterTts.speak(question.question.map((q) => q.translation).join(" "));
                                       } else {
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           SnackBar(
@@ -630,7 +630,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                         triggerMode: TooltipTriggerMode.tap,
                                         onTriggered: () async {
                                           if (ttsSetup == false) return;
-                                          await flutterTts.speak(word.word);
+                                          await flutterTts.speak(word.translation);
                                         },
                                         child: Text(
                                           word.word,

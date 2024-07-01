@@ -212,7 +212,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
       appBar: AppBar(
         elevation: 0,
         scrolledUnderElevation: 0,
-        forceMaterialTransparency: true,
+        forceMaterialTransparency: false,
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

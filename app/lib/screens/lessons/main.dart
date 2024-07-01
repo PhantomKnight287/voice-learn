@@ -71,7 +71,7 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
       appBar: AppBar(
         elevation: 0,
         scrolledUnderElevation: 0,
-        forceMaterialTransparency: true,
+        forceMaterialTransparency: false,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

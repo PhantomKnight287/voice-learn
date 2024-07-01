@@ -55,7 +55,7 @@ class _StreaksScreenState extends State<StreaksScreen> {
         bottom: BOTTOM,
         elevation: 0,
         scrolledUnderElevation: 0,
-        forceMaterialTransparency: true,
+        forceMaterialTransparency: false,
         title: const Text(
           "Streaks",
         ),

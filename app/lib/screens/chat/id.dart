@@ -68,6 +68,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   final playerController = PlayerController();
   bool _loading = false;
   final chatKey = GlobalKey();
+  double _speed = 1;
 
   @override
   void didChangeMetrics() {
@@ -431,6 +432,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _initSocket(widget.id);
+    _setSpeed();
     _controller.addListener(() {
       setState(() {
         _isWriting = _controller.text.isNotEmpty;
@@ -443,6 +445,14 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           _fetchOlderMessages();
         }
       }
+    });
+  }
+
+  void _setSpeed() async {
+    final prefs = await SharedPreferences.getInstance();
+    final speed = prefs.getDouble("audio_speed");
+    setState(() {
+      _speed = speed ?? 1;
     });
   }
 
@@ -494,7 +504,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         return Scaffold(
           resizeToAvoidBottomInset: true,
           appBar: AppBar(
-            forceMaterialTransparency: true,
+            forceMaterialTransparency: false,
             bottom: BOTTOM,
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -565,6 +575,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                         audioDuration: message.audioDuration,
                         audioId: message.audioId,
                         chatId: widget.id,
+                        speed: message.author == MessageAuthor.Bot ? _speed : null,
                       );
 
                       return bubble;
@@ -580,6 +591,128 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   children: [
+                    if (!_isRecording && !_isPreview)
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          right: 8.0,
+                        ),
+                        child: Center(
+                          child: CircleAvatar(
+                            radius: 22,
+                            backgroundColor: Colors.grey.shade300,
+                            child: IconButton(
+                              onPressed: () {
+                                FocusManager.instance.primaryFocus?.unfocus();
+                                showModalBottomSheet(
+                                  context: context,
+                                  builder: (context) {
+                                    return StatefulBuilder(builder: (context, setStateBuilder) {
+                                      return Container(
+                                        padding: const EdgeInsets.all(16.0),
+                                        height: 200,
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            const Text(
+                                              'Select Speed of AI Audio',
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              height: BASE_MARGIN * 4,
+                                            ),
+                                            Text('Speed: ${_speed.toStringAsFixed(1)}x'),
+                                            Slider(
+                                              min: 0.1,
+                                              max: 2.0,
+                                              divisions: 19,
+                                              value: _speed,
+                                              onChanged: (value) {
+                                                setStateBuilder(() {
+                                                  _speed = value;
+                                                });
+                                                setState(() {
+                                                  _speed = value;
+                                                });
+                                              },
+                                            ),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                              children: [
+                                                ElevatedButton(
+                                                  onPressed: () async {
+                                                    audio.setPlaybackRate(_speed);
+                                                    await audio.play(
+                                                      UrlSource(
+                                                        data.voiceUrl,
+                                                      ),
+                                                    );
+                                                  },
+                                                  style: ButtonStyle(
+                                                    shape: WidgetStateProperty.all(
+                                                      RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(
+                                                          10,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    backgroundColor: WidgetStateProperty.all(
+                                                      SECONDARY_BG_COLOR,
+                                                    ),
+                                                  ),
+                                                  child: const Text(
+                                                    'Preview',
+                                                    style: TextStyle(
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                ),
+                                                ElevatedButton(
+                                                  onPressed: () async {
+                                                    final prefs = await SharedPreferences.getInstance();
+                                                    prefs.setDouble("audio_speed", _speed);
+                                                    Navigator.of(context).pop();
+                                                    setState(() {});
+                                                  },
+                                                  style: ButtonStyle(
+                                                    shape: WidgetStateProperty.all(
+                                                      RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(
+                                                          10,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  child: const Text(
+                                                    'Save',
+                                                    style: TextStyle(
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    });
+                                  },
+                                );
+                              },
+                              icon: Center(
+                                child: Text(
+                                  _speed.toString(),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     Expanded(
                       child: _isRecording
                           ? Row(
@@ -864,6 +997,7 @@ class ChatBubble extends StatefulWidget {
   final int? audioDuration;
   final String? audioId;
   final String chatId;
+  final double? speed;
   const ChatBubble({
     super.key,
     required this.text,
@@ -873,6 +1007,7 @@ class ChatBubble extends StatefulWidget {
     this.audioUrl,
     this.audioDuration,
     this.audioId,
+    this.speed,
   });
 
   @override
@@ -977,7 +1112,7 @@ class _ChatBubbleState extends State<ChatBubble> {
                             setState(() {
                               duration = 0;
                             });
-
+                            await controller.setPlaybackRate(widget.speed ?? 1);
                             await controller.play(
                               widget.audioId != null
                                   ? UrlSource(
@@ -991,8 +1126,8 @@ class _ChatBubbleState extends State<ChatBubble> {
                               playing = true;
                             });
                             timer = Timer.periodic(
-                              const Duration(
-                                seconds: 1,
+                              Duration(
+                                milliseconds: (1000 / (widget.speed ?? 1)).toInt(),
                               ),
                               (timer) {
                                 setState(() {

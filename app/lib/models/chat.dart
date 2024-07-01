@@ -6,6 +6,7 @@ class Chat {
   final String? flag;
   final String lastMessage;
   final String voice;
+  final String voiceUrl;
 
   Chat({
     required this.id,
@@ -14,6 +15,7 @@ class Chat {
     required this.language,
     required this.lastMessage,
     required this.voice,
+    required this.voiceUrl,
     this.flag,
   });
 
@@ -30,6 +32,7 @@ class Chat {
           : '',
       flag: json['language']['flagUrl'],
       voice: json['voice']['name'],
+      voiceUrl: json['voice']['previewUrl'],
     );
   }
 }

@@ -7,7 +7,6 @@ import 'package:app/utils/error.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gravatar/flutter_gravatar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -57,7 +56,7 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
         bottom: BOTTOM,
         elevation: 0,
         scrolledUnderElevation: 0,
-        forceMaterialTransparency: true,
+        forceMaterialTransparency: false,
         title: const Text(
           "Leaderboard",
         ),
@@ -94,7 +93,10 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   final item = board[index];
-                  final avatar = item.avatarHash != null ? "$BASE_GRAVATAR_URL/${item.avatarHash}" : "https://api.dicebear.com/8.x/initials/png?seed=${item.name}";
+                  final defaultImage = Uri.parse("https://api.dicebear.com/8.x/initials/png?seed=${item.name}");
+
+                  final avatar = item.avatarHash != null ? "$BASE_GRAVATAR_URL/${item.avatarHash}?d=404" : defaultImage;
+
                   return Column(
                     children: [
                       GestureDetector(
@@ -129,9 +131,18 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
                               ),
                               CircleAvatar(
                                 radius: 30,
-                                backgroundColor: Colors.grey.shade800,
-                                backgroundImage: NetworkImage(
-                                  avatar,
+                                backgroundColor: Colors.transparent,
+                                child: ClipOval(
+                                  child: Image.network(
+                                    avatar.toString(),
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return const Icon(
+                                        Icons.account_circle_rounded,
+                                        size: 60,
+                                        color: Colors.grey,
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
                               const SizedBox(
