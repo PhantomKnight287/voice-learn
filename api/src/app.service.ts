@@ -57,22 +57,7 @@ export class AppService {
         Body: imageFile,
         ContentType: 'image/png',
       });
-      const now = moment().utc().toDate();
-      const oneWeekFromNow = new Date(now);
 
-      const daysInOneWeek = 7;
-      oneWeekFromNow.setDate(now.getDate() + daysInOneWeek);
-
-      const signedUrl = await getSignedUrl(
-        this.s3,
-        new GetObjectCommand({
-          Bucket: this.configService.getOrThrow('R2_PUBLIC_BUCKET_NAME'),
-          Key: fileKey,
-        }),
-        {
-          expiresIn: 60 * 60 * 24 * 7, // 1 week
-        },
-      );
       await prisma.language.create({
         data: {
           flagUrl: `${process.env.R2_PUBLIC_BUCKET_URL}/${fileKey}`,

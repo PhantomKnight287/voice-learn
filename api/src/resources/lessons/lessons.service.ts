@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import moment from 'moment';
 import { prisma } from 'src/db';
+import { generateTimestamps } from 'src/lib/time';
 import { queue } from 'src/services/queue/queue.service';
 
 @Injectable()
@@ -102,9 +103,22 @@ export class LessonsService {
     if (!lesson)
       throw new HttpException('No lesson found', HttpStatus.NOT_FOUND);
 
-    const currentDateInGMT = moment().utc().startOf('day').toDate(); // Start of the current day in GMT
-    const nextDateInGMT = moment().utc().add(1, 'day').startOf('day').toDate(); // Start of the next day in GMT
+    const { currentDateInGMT, nextDateInGMT } = generateTimestamps();
 
+    const questionIds = lesson.questions.map((q) => q.id);
+    const answers = await prisma.answer.groupBy({
+      by: 'type',
+      _count: {
+        type: true,
+      },
+      where: {
+        questionId: {
+          in: questionIds,
+        },
+      },
+    });
+
+    console.log(answers);
     const streak = await prisma.streak.findFirst({
       where: {
         createdAt: {
@@ -124,8 +138,10 @@ export class LessonsService {
       },
     });
     return {
-      correctAnswers: lesson.correctAnswers,
-      incorrectAnswers: lesson.incorrectAnswers,
+      correctAnswers:
+        answers.find((item) => item.type === 'correct')?._count.type || 0,
+      incorrectAnswers:
+        answers.find((item) => item.type === 'incorrect')?._count.type || 0,
       xpEarned: lesson.correctAnswers * 4,
       emeraldsEarned: 1,
       startDate: lesson.startDate,

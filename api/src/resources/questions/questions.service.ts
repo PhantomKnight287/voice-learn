@@ -5,6 +5,7 @@ import { removePunctuation } from 'src/utils/string';
 import { CreateAnswerDTO } from './dto/answer.dto';
 import moment from 'moment';
 import { locales } from 'src/constants';
+import { generateTimestamps } from 'src/lib/time';
 
 @Injectable()
 export class QuestionsService {
@@ -148,7 +149,6 @@ export class QuestionsService {
             answer: body.answer,
           },
         });
-        questions;
       }
 
       if (body.last) {
@@ -178,12 +178,7 @@ export class QuestionsService {
         });
       }
 
-      const currentDateInGMT = moment().utc().startOf('day').toDate();
-      const nextDateInGMT = moment()
-        .utc()
-        .add(1, 'day')
-        .startOf('day')
-        .toDate();
+      const { currentDateInGMT, nextDateInGMT } = generateTimestamps();
 
       const existingStreak = await tx.streak.findFirst({
         where: {
@@ -300,9 +295,7 @@ export class QuestionsService {
         }
       }
     }
-
-    const currentDateInGMT = moment().utc().startOf('day').toDate();
-    const nextDateInGMT = moment().utc().add(1, 'day').startOf('day').toDate();
+    const { currentDateInGMT, nextDateInGMT } = generateTimestamps();
 
     const streak = await prisma.streak.findFirst({
       where: {

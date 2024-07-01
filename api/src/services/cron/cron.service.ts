@@ -4,6 +4,7 @@ import moment from 'moment';
 import { prisma } from 'src/db';
 import { S3Service } from '../s3/s3.service';
 import { ConfigService } from '@nestjs/config';
+import { generateTimestamps } from 'src/lib/time';
 
 @Injectable()
 export class CronService {
@@ -38,8 +39,8 @@ export class CronService {
     timeZone: 'UTC',
   })
   async bonkLazyUsers() {
-    const currentDateInGMT = moment().utc().subtract(1, 'day').toDate(); // Yesterday at 12:00 UTC
-    const nextDateInGMT = moment().utc().toDate(); // today at 12:00 UTC
+    const { currentDateInGMT, nextDateInGMT } = generateTimestamps();
+
     const users = await prisma.user.findMany();
     try {
       for (const user of users) {

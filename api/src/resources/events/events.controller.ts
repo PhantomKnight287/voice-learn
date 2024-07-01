@@ -255,7 +255,7 @@ Please do not generate unrelated questions.
 **Lesson Details**:
 **Name**: Provide a meaningful name for each lesson (e.g., "Basic Greetings").
 **Description**: Offer a useful description without special characters or generic phrases like "Module 1". The description should not start with "This Module covers" or "This lesson covers".
-**Explanation**: Provide an introduction explaining the necessity and variations of what is being learned. Include a few example words that will be taught in the lesson. The explanation should be detailed but concise and formatted in markdown with proper list formatting, headings and tables if needed (e.g., "Understanding basic greetings is essential for starting conversations. You'll learn common phrases like 'Hola' and 'Buenos días', which are used in everyday interactions.").
+**Explanation**: Provide an introduction explaining the necessity and variations of what is being learned. Include a few example words that will be taught in the lesson. The explanation should be detailed and formatted in markdown with proper list formatting, headings and tables if needed (e.g., "Understanding basic greetings is essential for starting conversations. You'll learn common phrases like 'Hola' and 'Buenos días', which are used in everyday interactions.").
 **questionsCount**: Indicate the number of questions that each lesson must have (e.g., If you are teaching Greetings then it should count them as Good Morning, Afternoon, Evening, Night, Hello etc and their formal versions too. If you are teaching numbers from 1-10 then it should be 10 questions).
 
 **Constraints**:
@@ -370,7 +370,7 @@ No escape characters in the JSON structure
 
 **Name**: Provide a meaningful and descriptive name for each lesson.
 **Description**: Offer a useful description without special characters or generic phrases like "Module 1". The description should not start with "This Module covers" or "This lesson covers".
-**Explanation**: Provide an introduction explaining the necessity and variations of what is being learned. Include a few example words that will be taught in the lesson. The explanation should be detailed but concise and formatted in markdown (e.g., "Understanding basic greetings is essential for starting conversations. You'll learn common phrases like 'Hola' and 'Buenos días', which are used in everyday interactions.").
+**Explanation**: Provide an introduction explaining the necessity and variations of what is being learned. Include a few example words that will be taught in the lesson. The explanation should be detailed and formatted in markdown (e.g., "Understanding basic greetings is essential for starting conversations. You'll learn common phrases like 'Hola' and 'Buenos días', which are used in everyday interactions.").
 **questionsCount**: Indicate the number of questions that each lesson must have.
 
 
@@ -611,7 +611,7 @@ Constraints:
 
 **Name**: Provide a meaningful name for each lesson (e.g., "Basic Greetings").
 **Description**: Offer a useful description without special characters or generic phrases like "Module 1". The description should not start with "This Module covers" or "This lesson covers".
-**Explanation**: Instead of directly covering the topics, provide an introduction explaining the necessity and variations of what is being learned. Include a few example words that will be taught in the lesson. The explanation should be detailed but no too long, also divide it into paragraphs for beter attention grabbing and formatted in markdown using proper headings and list items and table if needed (e.g., "Understanding basic greetings is essential for starting conversations. You'll learn common phrases like 'Hola' and 'Buenos días', which are used in everyday interactions.").
+**Explanation**: Instead of directly covering the topics, provide an introduction explaining the necessity and variations of what is being learned. Include a few example words that will be taught in the lesson. The explanation should be detailed and divide it into paragraphs for better attention grabbing and formatted in markdown using proper headings and list items and table if needed (e.g., "Understanding basic greetings is essential for starting conversations. You'll learn common phrases like 'Hola' and 'Buenos días', which are used in everyday interactions.").
 **questionsCount**: Indicate the number of questions that each lesson must have (e.g., If you are teaching Greetings then it should count them as Good Morning, Afternoon, Evening, Night, Hello etc and their formal versions too. If you are teaching numbers from 1-10 then it should be 10 questions).
 
 **Constraints**:

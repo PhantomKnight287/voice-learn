@@ -8,6 +8,7 @@ import { createId } from '@paralleldrive/cuid2';
 import { prisma } from 'src/db';
 import moment from 'moment';
 import { UpdatePasswordDTO } from './dto/update-password.dto';
+import { generateTimestamps } from 'src/lib/time';
 
 @Injectable()
 export class AuthService {
@@ -36,8 +37,7 @@ export class AuthService {
     delete user.password;
     const token = sign({ id: user.id }, this.service.get('JWT_SECRET'));
 
-    const currentDateInGMT = moment().utc().startOf('day').toDate(); // Start of the current day in GMT
-    const nextDateInGMT = moment().utc().add(1, 'day').startOf('day').toDate();
+    const { currentDateInGMT, nextDateInGMT } = generateTimestamps();
     const path = await prisma.learningPath.findFirst({
       where: {
         userId: user.id,
@@ -125,12 +125,7 @@ export class AuthService {
       });
       if (!user)
         throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
-      const currentDateInGMT = moment().utc().startOf('day').toDate(); // Start of the current day in GMT
-      const nextDateInGMT = moment()
-        .utc()
-        .add(1, 'day')
-        .startOf('day')
-        .toDate(); // Start of the next day in GMT
+      const { currentDateInGMT, nextDateInGMT } = generateTimestamps();
 
       const streak = await prisma.streak.findFirst({
         where: {
