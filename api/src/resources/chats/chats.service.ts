@@ -39,6 +39,7 @@ export class ChatsService {
         voice: {
           select: {
             name: true,
+            previewUrl: true,
           },
         },
       },
@@ -121,6 +122,7 @@ export class ChatsService {
         voice: {
           select: {
             name: true,
+            previewUrl: true,
           },
         },
       },

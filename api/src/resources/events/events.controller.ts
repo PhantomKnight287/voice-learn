@@ -62,95 +62,101 @@ export class EventsController {
           messages: [
             {
               role: 'system',
-              content: `You are a language learning expert who can generate questions for the given language based on the given lesson name and description. You have to generate EXACTLY${lesson.questionsCount} questions. 
+              content: `You are a language learning expert who can generate questions for the given language based on the given lesson name and description. You have to generate EXACTLY ${lesson.questionsCount} questions.
 
-	Every question will be an object with these 4 values:
-		instruction: The instruction to student on how to solve the question(for example: Translate this sentence to English, Choose the correct word.)
-		type: type of question (it must be either 'sentence' or 'select_one')
-		options: It should contain options for the questions if the type is 'select_one' else it must be empty if type is 'sentence'
-		correctAnswer: The correct answer to the question (it should not include any special characters including '...' but can include punctuations and words that are in that language like umlaut). This must never be empty and should be one from "options" if type is "select_one".
-		questions: it will be an array of objects where each object contains 'word' and it's translation as 'translation' field. (It must be a single word only)
-	
-	Here is how your response should look like (Note that it's a example response and the questions and question count should be equal to the given question count)
-                [
-              {
-                "instruction":"What is the meaning of given word in English.",
-		"type": "select_one",
-                "options":["Good Morning","Good Evening", "Good Bye"],
-                "correctAnswer":"Good Morning",
-                "type":"select_one",
-                "questions":[
-                  {
-                    "word":"Guten","translation":"Good",
-                  },
-                  {
-                    "word":"Morgen","translation":"Morning"
-                  }
-                ]
-              },
-              {
-              "instruction":"Translate the given word in German.",
-		"type": "select_one",
-                "options":["zwei","eins", "drei"],
-                "type":"select_one",
-                "correctAnswer":"drei",
-                "questions":[
-                  {
-                    "word":"3","translation":"drei",
-                  },
-                ]
-              },
-              {
-                "instruction":"Choose the correct word.",
-		"type": "select_one",
-                "options":["Katze","Hund","Fisch"],
-                "type":"select_one",
-                "correctAnswer":"Hund",
-                "questions":[
-                    {
-                        "word":"Dog","translation":"Hund",  
-                    }
-                  ]
-              },
-              {
-                "instruction":"Choose the correct word in German for: ",
-                "options":["Name","heißt","Wo"],
-                "correctAnswer":"heißt",
-                "type":"select_one",
-                "questions":[
-                  {
-                    "word":"Name","translation":heißt",
-                  }
-                ]
-              },
-              {
-                "instruction":"Translate the following sentence into German",
-                "type":"sentence",
-                "questions": [
-    {
-      "word": "I",
-      "translation": "Ich"
-    },
-    {
-      "word": "am going",
-      "translation": "gehe"
-    },
-    {
-      "word": "to the",
-      "translation": "zum"
-    },
-    {
-      "word": "store",
-      "translation": "Laden"
-    }
-  ]
-              }
-            ]
+Every question will be an object with these 4 values:
 
-	Do not generate any escape characters. The instructions must not include the question.
-  "questions" array must never be empty and should always contain meaningful content.
-  Do not put the answer of the question in "questions"
-	NOTE: Don't respond with anything except the array of objects. The response should be valid JSON array otherwise the code will break.`,
+instruction: The instruction to student on how to solve the question (for example: "Translate this sentence to English", "Choose the correct word.")
+type: Type of question (it must be either 'sentence' or 'select_one')
+options: It should contain options for the questions if the type is 'select_one', otherwise it must be empty if type is 'sentence'. Ensure the options are unique to the question and do not repeat.
+correctAnswer: The correct answer to the question. This can include special characters. This must never be empty and should be one from "options" if type is "select_one" or the answer if type is "sentence".
+questions: It will be an array of objects where each object contains 'word' and its translation as 'translation' field. (It must be a single word only)
+Here is how your response should look like (note that it's an example response and the questions and question count should be equal to the given question count):
+               [
+  {
+    "instruction": "What is the meaning of given word in English.",
+    "type": "select_one",
+    "options": ["Good Morning", "Good Evening", "Good Bye"],
+    "correctAnswer": "Good Morning",
+    "questions": [
+      {
+        "word": "Guten",
+        "translation": "Good"
+      },
+      {
+        "word": "Morgen",
+        "translation": "Morning"
+      }
+    ]
+  },
+  {
+    "instruction": "Translate the given word in German.",
+    "type": "select_one",
+    "options": ["zwei", "eins", "drei"],
+    "correctAnswer": "drei",
+    "questions": [
+      {
+        "word": "3",
+        "translation": "drei"
+      }
+    ]
+  },
+  {
+    "instruction": "Choose the correct word.",
+    "type": "select_one",
+    "options": ["Katze", "Hund", "Fisch"],
+    "correctAnswer": "Hund",
+    "questions": [
+      {
+        "word": "Dog",
+        "translation": "Hund"
+      }
+    ]
+  },
+  {
+    "instruction": "Choose the correct word in German for:",
+    "type": "select_one",
+    "options": ["Name", "heißt", "Wo"],
+    "correctAnswer": "heißt",
+    "questions": [
+      {
+        "word": "Name",
+        "translation": "heißt"
+      }
+    ]
+  },
+  {
+    "instruction": "Translate the following sentence into German.",
+    "type": "sentence",
+    "questions": [
+      {
+        "word": "I",
+        "translation": "Ich"
+      },
+      {
+        "word": "am going",
+        "translation": "gehe"
+      },
+      {
+        "word": "to the",
+        "translation": "zum"
+      },
+      {
+        "word": "store",
+        "translation": "Laden"
+      }
+    ]
+  }
+]
+
+
+	**Constraints**:
+
+- Do not generate any escape characters.
+- The instructions must not include the question.
+- The "questions" array must never be empty and should always contain meaningful content.
+- Do not put the answer of the question in the "questions" array.
+- Note: Do not respond with anything except the array of objects. The response should be a valid JSON array, otherwise the code will break.`,
             },
 
             {
@@ -308,6 +314,7 @@ No escape characters in the JSON structure
                       description: lesson.description,
                       questionsCount: lesson.questionsCount,
                       createdAt: new Date(startTime + 1000 * index),
+                      explanation: lesson.explanation,
                     })),
                   },
                 },
@@ -376,7 +383,6 @@ No escape characters in the JSON structure
 
 Constraints:
 
-- Avoid using special characters in names and descriptions(punctuations and umlauts are allowed).
 - Ensure descriptions and explanations are practical and engaging.
 - Do not use words like "pronunciation".
 - Do not generate already studied lessons. This includes same lesson with different names.

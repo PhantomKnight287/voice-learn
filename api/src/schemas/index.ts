@@ -70,6 +70,7 @@ export const modules_schema = z
 
           questionsCount: z.number(),
           description: z.string(),
+          explanation: z.string(),
         }),
       ),
     }),

@@ -118,7 +118,6 @@ export class LessonsService {
       },
     });
 
-    console.log(answers);
     const streak = await prisma.streak.findFirst({
       where: {
         createdAt: {
@@ -139,10 +138,14 @@ export class LessonsService {
     });
     return {
       correctAnswers:
-        answers.find((item) => item.type === 'correct')?._count.type || 0,
+        answers.find((item) => item.type === 'correct')?._count.type ||
+        lesson.correctAnswers,
       incorrectAnswers:
-        answers.find((item) => item.type === 'incorrect')?._count.type || 0,
-      xpEarned: lesson.correctAnswers * 4,
+        answers.find((item) => item.type === 'incorrect')?._count.type ||
+        lesson.incorrectAnswers,
+      xpEarned:
+        (answers.find((item) => item.type === 'correct')?._count.type ||
+          lesson.correctAnswers) * 4,
       emeraldsEarned: 1,
       startDate: lesson.startDate,
       endDate: lesson.endDate,

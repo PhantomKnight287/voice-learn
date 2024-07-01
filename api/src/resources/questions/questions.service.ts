@@ -213,6 +213,13 @@ export class QuestionsService {
 
       const lesson = await prisma.lesson.findFirst({
         where: { id: body.lessonId },
+        include: {
+          module: {
+            include: {
+              learningPath: true,
+            },
+          },
+        },
       });
 
       return await tx.user.update({
@@ -220,6 +227,17 @@ export class QuestionsService {
         data: {
           xp: {
             increment: questions * (lesson ? lesson.xpPerQuestion : 4),
+          },
+          xpHistory: {
+            create: {
+              earned: questions * (lesson ? lesson.xpPerQuestion : 4),
+              id: `xp_${createId()}`,
+              language: {
+                connect: {
+                  id: lesson.module.learningPath.languageId,
+                },
+              },
+            },
           },
           lives: {
             decrement:
