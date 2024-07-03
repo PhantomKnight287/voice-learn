@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/handler/switcher.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -13,12 +14,17 @@ import 'package:fl_query/fl_query.dart';
 import 'package:upgrader/upgrader.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_update/in_app_update.dart' as update;
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 final RouteObserver<ModalRoute> routeObserver = RouteObserver<ModalRoute>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   unawaited(MobileAds.instance.initialize());
+  if (kDebugMode) {
+    OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+  }
+  OneSignal.initialize(ONESIGNAL_APP_ID);
   await QueryClient.initialize(
     cachePrefix: 'voice_learn',
     connectivity: FlQueryConnectivityPlusAdapter(),

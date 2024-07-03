@@ -7,12 +7,15 @@ import 'package:app/models/user.dart';
 import 'package:app/screens/onboarding/main.dart';
 import 'package:app/screens/settings/change_password.dart';
 import 'package:app/utils/error.dart';
+import 'package:app/utils/print.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gravatar/flutter_gravatar.dart';
 import 'package:flutter_gravatar/utils.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:shimmer/shimmer.dart';
@@ -32,6 +35,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final _emailController = TextEditingController();
   String? avatar;
   bool _loading = false;
+  bool _notificationsAllowed = false;
 
   Future<void> _updateProfile() async {
     setState(() {
@@ -106,6 +110,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
     _nameController.text = body['name'];
     _emailController.text = body['email'];
+    _notificationsAllowed = body['notificationToken'] != null && body['notificationToken'].isNotEmpty;
     return body;
   }
 
@@ -167,7 +172,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           prefs.remove("token");
                           Navigator.of(context).pushAndRemoveUntil(
                             MaterialPageRoute(
-                              builder: (context) => OnboardingScreen(),
+                              builder: (context) => const OnboardingScreen(),
                             ),
                             (Route<dynamic> route) => false,
                           );
@@ -411,6 +416,113 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
+                      ),
+                      const SizedBox(
+                        height: BASE_MARGIN * 6,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Notifications",
+                            style: TextStyle(
+                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: BASE_MARGIN * 2,
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: SECONDARY_BG_COLOR,
+                              borderRadius: BorderRadius.circular(
+                                10,
+                              ),
+                            ),
+                            padding: const EdgeInsets.all(
+                              BASE_MARGIN * 4,
+                            ),
+                            child: Row(
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Streak Notifications",
+                                      style: TextStyle(
+                                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const Text(
+                                      "Notify me 2 hours before my streak resets.",
+                                      style: TextStyle(
+                                        color: SECONDARY_TEXT_COLOR,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const Spacer(),
+                                Switch.adaptive(
+                                  value: _notificationsAllowed,
+                                  onChanged: (value) async {
+                                    final prefs = await SharedPreferences.getInstance();
+                                    final token = prefs.getString("token");
+                                    if (value == true) {
+                                      final res = await OneSignal.Notifications.requestPermission(
+                                        false,
+                                      );
+                                      if (res == false) {
+                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                          content: Text(
+                                            "Notifications Permission Denied. Please allow the permission.",
+                                          ),
+                                        ));
+                                        Future.delayed(
+                                          const Duration(seconds: 1),
+                                          () async {
+                                            await openAppSettings();
+                                          },
+                                        );
+                                        return;
+                                      }
+                                      await OneSignal.User.pushSubscription.optIn();
+                                      if (OneSignal.User.pushSubscription.id != null) {
+                                        setState(() {
+                                          _notificationsAllowed = true;
+                                        });
+                                        await http
+                                            .post(Uri.parse("$API_URL/notifications"),
+                                                headers: {"Authorization": "Bearer $token", "Content-Type": 'application/json'},
+                                                body: jsonEncode({
+                                                  "id": OneSignal.User.pushSubscription.id!,
+                                                }))
+                                            .catchError(
+                                              (_) {},
+                                            );
+                                      }
+                                    } else {
+                                      await OneSignal.User.pushSubscription.optOut();
+                                      setState(() {
+                                        _notificationsAllowed = false;
+                                      });
+                                      await http.delete(
+                                        Uri.parse("$API_URL/notifications"),
+                                        headers: {"Authorization": "Bearer $token", "Content-Type": 'application/json'},
+                                      ).catchError(
+                                        (_) {},
+                                      );
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: BASE_MARGIN * 4,
+                          ),
+                        ],
                       ),
                     ],
                   ),

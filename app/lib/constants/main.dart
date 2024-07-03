@@ -38,3 +38,5 @@ final BOTTOM = PreferredSize(
 );
 
 const BASE_GRAVATAR_URL = "https://gravatar.com/avatar";
+
+const ONESIGNAL_APP_ID = "4a33b3b9-6eba-46da-9a0e-2078cfec3ecd";

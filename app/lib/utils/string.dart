@@ -67,3 +67,31 @@ String secInTime(int sec) {
   int restSecs = sec % 60;
   return '$minutes:${restSecs.toString().padLeft(2, '0')}';
 }
+
+String getResetTime() {
+  // Get current phone time
+  DateTime currentPhoneTime = DateTime.now();
+
+  // Get today's date at 12 PM UTC
+  DateTime now = DateTime.now().toUtc();
+  DateTime utcNoon = DateTime.utc(now.year, now.month, now.day, 12);
+
+  // If the current UTC time is already past 12 PM, get tomorrow's 12 PM
+  if (now.isAfter(utcNoon)) {
+    utcNoon = utcNoon.add(
+      Duration(
+        days: 1,
+      ),
+    );
+  }
+
+  // Calculate the difference
+  Duration difference = utcNoon.difference(currentPhoneTime);
+
+  // Format the difference
+  int hours = difference.inHours;
+  int minutes = difference.inMinutes.remainder(60);
+
+  // Return the formatted result
+  return "$hours:${minutes.toString().padLeft(2, '0')}";
+}

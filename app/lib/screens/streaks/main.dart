@@ -4,6 +4,7 @@ import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/streak.dart';
 import 'package:app/utils/error.dart';
+import 'package:app/utils/string.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -123,9 +124,26 @@ class _StreaksScreenState extends State<StreaksScreen> {
                 ],
               ),
               const Divider(),
-              const SizedBox(
-                height: BASE_MARGIN * 6,
+              SizedBox(
+                height: BASE_MARGIN * (state.isStreakActive ? 6 : 3),
               ),
+              if (state.isStreakActive == false)
+                Column(
+                  children: [
+                    Center(
+                      child: Text(
+                        "${getResetTime()} hrs until streak resets",
+                        style: TextStyle(
+                          fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.1,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: BASE_MARGIN * 2,
+                    ),
+                    const Divider(),
+                  ],
+                ),
               Text(
                 "Streaks Calendar",
                 textAlign: TextAlign.start,
