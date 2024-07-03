@@ -10,6 +10,8 @@ import { Message, User } from '@prisma/client';
 import OpenAI from 'openai';
 export const ONBOARDING_QUEUE = 'onboarding';
 import { ElevenLabsClient } from 'elevenlabs';
+import * as OneSignal from '@onesignal/node-onesignal';
+
 export const PATH_GENERATION_SUBJECT = new Subject<string>();
 
 export const envSchema = z.object({
@@ -32,6 +34,8 @@ export const envSchema = z.object({
   DEV: z.string().optional(),
   R2_PUBLIC_BUCKET_NAME: z.string(),
   R2_PUBLIC_BUCKET_URL: z.string(),
+  ONESIGNAL_APP_ID: z.string(),
+  ONESIGNAL_REST_API_KEY: z.string(),
 });
 const safeParseResult = envSchema.safeParse(process.env);
 if (safeParseResult.success === false) {
@@ -121,3 +125,17 @@ export const PRODUCTS = {
   emeralds_500: 500,
   emeralds_1000: 1000,
 };
+
+export const onesignal = new OneSignal.DefaultApi(
+  OneSignal.createConfiguration({
+    authMethods: {
+      rest_api_key: {
+        tokenProvider: {
+          getToken() {
+            return process.env.ONESIGNAL_REST_API_KEY;
+          },
+        },
+      },
+    },
+  }),
+);

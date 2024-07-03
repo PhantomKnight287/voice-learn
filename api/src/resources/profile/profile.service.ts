@@ -35,6 +35,7 @@ export class ProfileService {
       omit: {
         password: true,
         email: true,
+        notificationToken: true,
       },
       include: {
         paths: {

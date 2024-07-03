@@ -5,6 +5,7 @@ import { prisma } from 'src/db';
 import { S3Service } from '../s3/s3.service';
 import { ConfigService } from '@nestjs/config';
 import { generateTimestamps } from 'src/lib/time';
+import { onesignal } from 'src/constants';
 
 @Injectable()
 export class CronService {
@@ -33,6 +34,51 @@ export class CronService {
         },
       },
     });
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_10AM, { timeZone: 'UTC' })
+  async notifyUsers() {
+    const { currentDateInGMT, nextDateInGMT } = generateTimestamps();
+
+    const users = await prisma.user.findMany({
+      where: {
+        notificationToken: { not: null },
+      },
+    });
+    const ids = [];
+    try {
+      for (const user of users) {
+        // Check if a streak record exists between the timeframe
+        const streakExists = await prisma.streak.findFirst({
+          where: {
+            userId: user.id,
+            createdAt: {
+              gte: currentDateInGMT,
+              lt: nextDateInGMT,
+            },
+          },
+        });
+        if (!streakExists) {
+          ids.push(user.notificationToken);
+        }
+      }
+
+      if (ids.length == 0) return;
+      const res = await onesignal.createNotification({
+        app_id: process.env.ONESIGNAL_APP_ID,
+        name: 'Streak Notification',
+        contents: {
+          en: 'Your streak will reset in 2 hours. Complete a lesson now to extend it.',
+        },
+        headings: {
+          en: 'Your streak is about to reset 💀',
+        },
+        include_subscription_ids: ids,
+      });
+      console.log(res);
+    } catch (error) {
+      console.error('Error resetting streaks:', error);
+    }
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_NOON, {

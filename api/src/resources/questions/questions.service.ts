@@ -74,16 +74,21 @@ export class QuestionsService {
       },
     });
 
+    const lesson = await prisma.lesson.findFirst({
+      where: { id: body.lessonId },
+    });
     if (!question) {
       throw new HttpException('No question found.', HttpStatus.NOT_FOUND);
     }
+    if (!lesson)
+      throw new HttpException('No lesson found.', HttpStatus.NOT_FOUND);
 
     const correct =
       removePunctuation(body.answer.trim()).toLowerCase() ===
       removePunctuation(question.correctAnswer.trim()).toLowerCase();
-    let questions = 0;
+
     if (body.last) {
-      questions = await prisma.question.count({
+      const questions = await prisma.question.count({
         where: {
           lessons: {
             some: {
@@ -104,28 +109,14 @@ export class QuestionsService {
           },
         },
       });
-
-      if (questions - 1 != answers) {
+      // subtracting one cause the last answer will be sent in current request
+      if (questions - 1 != answers && lesson.name !== 'Mistake Correction') {
         throw new HttpException(
           "Not all questions are answered but 'last' is set to true",
           HttpStatus.CONFLICT,
         );
       }
-
-      questions = await prisma.answer.count({
-        where: {
-          question: {
-            lessons: {
-              some: {
-                id: body.lessonId,
-              },
-            },
-          },
-          type: 'correct',
-        },
-      });
     }
-
     const user = await prisma.$transaction(async (tx) => {
       const existingAnswer = await tx.answer.findFirst({
         where: { questionId, userId },
@@ -152,7 +143,7 @@ export class QuestionsService {
       }
 
       if (body.last) {
-        const incorrectAnswersCount = await prisma.answer.count({
+        const incorrectAnswersCount = await tx.answer.count({
           where: {
             question: {
               lessons: {
@@ -164,16 +155,60 @@ export class QuestionsService {
             type: 'incorrect',
           },
         });
-        await tx.lesson.update({
+        const correctAnswersCount = await tx.answer.count({
+          where: {
+            question: {
+              lessons: {
+                some: {
+                  id: body.lessonId,
+                },
+              },
+            },
+            type: 'correct',
+          },
+        });
+        const lesson = await tx.lesson.update({
           where: { id: body.lessonId },
           data: {
-            correctAnswers: { increment: questions + (correct ? 1 : 0) },
+            correctAnswers: {
+              increment: correctAnswersCount + (correct ? 1 : 0),
+            },
             incorrectAnswers: {
               increment: incorrectAnswersCount - 1 + (!correct ? 1 : 0),
             },
             completed: body.last,
             startDate: new Date(body.startDate),
             endDate: new Date(body.endDate),
+          },
+          include: {
+            module: {
+              include: {
+                learningPath: true,
+              },
+            },
+          },
+        });
+        await tx.user.update({
+          where: { id: userId },
+          data: {
+            xp: {
+              increment:
+                correctAnswersCount +
+                (correct ? 1 : 0) * (lesson ? lesson.xpPerQuestion : 4),
+            },
+            xpHistory: {
+              create: {
+                earned:
+                  correctAnswersCount +
+                  (correct ? 1 : 0) * (lesson ? lesson.xpPerQuestion : 4),
+                id: `xp_${createId()}`,
+                language: {
+                  connect: {
+                    id: lesson.module.learningPath.languageId,
+                  },
+                },
+              },
+            },
           },
         });
       }
@@ -225,20 +260,6 @@ export class QuestionsService {
       return await tx.user.update({
         where: { id: userId },
         data: {
-          xp: {
-            increment: questions * (lesson ? lesson.xpPerQuestion : 4),
-          },
-          xpHistory: {
-            create: {
-              earned: questions * (lesson ? lesson.xpPerQuestion : 4),
-              id: `xp_${createId()}`,
-              language: {
-                connect: {
-                  id: lesson.module.learningPath.languageId,
-                },
-              },
-            },
-          },
           lives: {
             decrement:
               user.lives === 0
@@ -255,64 +276,6 @@ export class QuestionsService {
         },
       });
     });
-
-    if (body.last) {
-      const answers = await prisma.question.findMany({
-        where: {
-          answers: {
-            every: {
-              type: 'incorrect',
-            },
-          },
-          lessons: {
-            some: {
-              id: body.lessonId,
-            },
-          },
-        },
-      });
-
-      if (answers.length > 0) {
-        const currentLesson = await prisma.lesson.findFirst({
-          where: { id: body.lessonId },
-        });
-
-        const correctionLesson = await prisma.lesson.findFirst({
-          where: {
-            name: 'Mistake Correction',
-            moduleId: currentLesson.moduleId,
-          },
-        });
-
-        const lesson =
-          correctionLesson ??
-          (await prisma.lesson.create({
-            data: {
-              name: 'Mistake Correction',
-              moduleId: currentLesson.moduleId,
-              questionsCount: answers.length,
-              questionsStatus: 'generated',
-              completed: false,
-              xpPerQuestion: 0,
-              emeralds: 0,
-            },
-          }));
-
-        for (const answer of answers) {
-          await prisma.question.update({
-            where: { id: answer.id },
-            data: { lessons: { connect: { id: lesson.id } } },
-          });
-        }
-
-        if (correctionLesson) {
-          await prisma.lesson.update({
-            where: { id: correctionLesson.id },
-            data: { questionsCount: { increment: answers.length } },
-          });
-        }
-      }
-    }
     const { currentDateInGMT, nextDateInGMT } = generateTimestamps();
 
     const streak = await prisma.streak.findFirst({
