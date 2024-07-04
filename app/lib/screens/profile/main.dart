@@ -524,7 +524,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ],
                         );
                       }
-                      final avatar = data['avatarHash'] != null ? "$BASE_GRAVATAR_URL/${data['avatarHash']}" : "https://api.dicebear.com/8.x/initials/png?seed=${data['name']}";
+                      final avatar = data['avatarHash'] != null ? "$BASE_GRAVATAR_URL/${data['avatarHash']}?d=404" : "https://api.dicebear.com/8.x/initials/png?seed=${data['name']}";
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -1180,11 +1180,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             CircleAvatar(
               radius: 40,
-              backgroundColor: Colors.grey.shade800,
-              backgroundImage: NetworkImage(
-                profileUrl,
+              backgroundColor: Colors.transparent,
+              child: ClipOval(
+                child: Image.network(
+                  profileUrl.toString(),
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(
+                      Icons.account_circle_rounded,
+                      size: 80,
+                      color: Colors.grey,
+                    );
+                  },
+                ),
               ),
-            )
+            ),
           ],
         ),
       ],

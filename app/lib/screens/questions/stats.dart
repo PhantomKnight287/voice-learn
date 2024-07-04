@@ -48,7 +48,7 @@ class _LessonStatsScreenState extends State<LessonStatsScreen> {
     String locale,
   ) async {
     final exists = await flutterTts.isLanguageAvailable(locale);
-    if (exists && mounted) {
+    if (exists && mounted && !ttsSetup) {
       await flutterTts.setLanguage(locale);
       setState(() {
         ttsSetup = true;
@@ -100,6 +100,9 @@ class _LessonStatsScreenState extends State<LessonStatsScreen> {
                         10,
                       ),
                     ),
+                    trailing: const SizedBox(
+                      width: BASE_MARGIN * 2,
+                    ),
                     leading: Padding(
                       padding: const EdgeInsets.only(
                         left: BASE_MARGIN * 2,
@@ -135,40 +138,50 @@ class _LessonStatsScreenState extends State<LessonStatsScreen> {
                             padding: const EdgeInsets.all(
                               BASE_MARGIN * 4,
                             ),
-                            child: SizedBox(
-                              width: double.infinity,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    children: [
-                                      Text(
-                                        question['instruction'],
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.5,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                        textAlign: TextAlign.start,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      question['instruction'],
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.3,
+                                        fontWeight: FontWeight.w600,
                                       ),
-                                      Wrap(
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            children: [
-                                              if (ttsSetup)
-                                                IconButton(
-                                                  onPressed: () async {
-                                                    if (ttsSetup) {
-                                                      await flutterTts.speak(question['question'].map((q) => q['translation']).join(" "));
-                                                    }
-                                                  },
-                                                  icon: const HeroIcon(
-                                                    HeroIcons.speakerWave,
+                                      textAlign: TextAlign.start,
+                                    ),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Row(
+                                          mainAxisSize: MainAxisSize.max,
+                                          children: [
+                                            if (ttsSetup)
+                                              IconButton(
+                                                onPressed: () async {
+                                                  if (ttsSetup) {
+                                                    await flutterTts.speak(question['question'].map((q) => q['translation']).join(" "));
+                                                  }
+                                                },
+                                                style: ButtonStyle(
+                                                  padding: WidgetStateProperty.all(
+                                                    EdgeInsets.zero,
                                                   ),
                                                 ),
+                                                icon: const HeroIcon(
+                                                  HeroIcons.speakerWave,
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                        Expanded(
+                                          child: Wrap(
+                                            children: [
                                               for (var word in question['question']) ...{
                                                 Tooltip(
                                                   message: word['translation'],
@@ -194,128 +207,119 @@ class _LessonStatsScreenState extends State<LessonStatsScreen> {
                                               },
                                             ],
                                           ),
-                                        ],
-                                      ),
-                                      const SizedBox(
-                                        height: BASE_MARGIN * 2,
-                                      ),
-                                      if (correct)
-                                        Padding(
-                                          padding: const EdgeInsets.all(
-                                            10,
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                                            children: [
-                                              Text(
-                                                "Answer",
-                                                style: TextStyle(
-                                                  fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                              Text(
-                                                answer['answer'],
-                                                style: TextStyle(
-                                                  fontSize: Theme.of(context).textTheme.titleMedium!.fontSize! * 0.8,
-                                                  color: Colors.green,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
                                         ),
-                                      if (!correct)
-                                        Padding(
-                                          padding: const EdgeInsets.all(
-                                            10,
-                                          ),
-                                          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                                            Text(
-                                              "Your answer",
-                                              style: TextStyle(
-                                                fontSize: Theme.of(context).textTheme.titleMedium!.fontSize!,
-                                                fontFamily: "CalSans",
-                                              ),
-                                            ),
-                                            Text(
-                                              answer['answer'],
-                                              style: TextStyle(
-                                                fontSize: Theme.of(context).textTheme.titleMedium!.fontSize! * 0.7,
-                                                color: Colors.red,
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                              height: BASE_MARGIN * 4,
-                                            ),
-                                            Text(
-                                              "Correct Answer",
-                                              style: TextStyle(
-                                                fontSize: Theme.of(context).textTheme.titleMedium!.fontSize!,
-                                                fontFamily: "CalSans",
-                                              ),
-                                            ),
-                                            Text(
-                                              question['correctAnswer'],
-                                              style: TextStyle(
-                                                fontSize: Theme.of(context).textTheme.titleMedium!.fontSize! * 0.7,
-                                                color: Colors.green,
-                                              ),
-                                            ),
-                                          ]),
-                                        ),
-                                      const SizedBox(
-                                        height: BASE_MARGIN * 2,
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: ElevatedButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          style: ButtonStyle(
-                                            alignment: Alignment.center,
-                                            foregroundColor: WidgetStateProperty.all(Colors.black),
-                                            padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
-                                              (Set<WidgetState> states) {
-                                                return const EdgeInsets.all(15);
-                                              },
-                                            ),
-                                            shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                                              RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(10),
-                                              ),
-                                            ),
-                                          ),
-                                          child: const Text(
-                                            "Close",
+                                      ],
+                                    ),
+                                    const SizedBox(
+                                      height: BASE_MARGIN * 2,
+                                    ),
+                                    if (correct)
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                                        children: [
+                                          Text(
+                                            "Answer",
                                             style: TextStyle(
-                                              color: Colors.black,
+                                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
-                                        ),
+                                          Text(
+                                            answer['answer'],
+                                            style: TextStyle(
+                                              fontSize: Theme.of(context).textTheme.titleMedium!.fontSize! * 0.8,
+                                              color: Colors.green,
+                                              fontFamily: "CalSans",
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      const SizedBox(width: 10),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          border: Border.all(color: Colors.grey),
-                                          borderRadius: BorderRadius.circular(10),
+                                    if (!correct)
+                                      Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                                        Text(
+                                          "Your answer",
+                                          style: TextStyle(
+                                            fontSize: Theme.of(context).textTheme.titleMedium!.fontSize!,
+                                            fontFamily: "CalSans",
+                                          ),
                                         ),
-                                        child: IconButton(
-                                          onPressed: () {},
-                                          icon: const HeroIcon(
-                                            HeroIcons.flag,
+                                        Text(
+                                          answer['answer'],
+                                          style: TextStyle(
+                                            fontSize: Theme.of(context).textTheme.titleMedium!.fontSize! * 0.7,
                                             color: Colors.red,
                                           ),
                                         ),
-                                      )
-                                    ],
-                                  ),
-                                ],
-                              ),
+                                        const SizedBox(
+                                          height: BASE_MARGIN * 4,
+                                        ),
+                                        Text(
+                                          "Correct Answer",
+                                          style: TextStyle(
+                                            fontSize: Theme.of(context).textTheme.titleMedium!.fontSize!,
+                                            fontFamily: "CalSans",
+                                          ),
+                                        ),
+                                        Text(
+                                          question['correctAnswer'],
+                                          style: TextStyle(
+                                            fontSize: Theme.of(context).textTheme.titleMedium!.fontSize! * 0.7,
+                                            color: Colors.green,
+                                          ),
+                                        ),
+                                      ]),
+                                    const SizedBox(
+                                      height: BASE_MARGIN * 2,
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        style: ButtonStyle(
+                                          alignment: Alignment.center,
+                                          foregroundColor: WidgetStateProperty.all(Colors.black),
+                                          padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
+                                            (Set<WidgetState> states) {
+                                              return const EdgeInsets.all(15);
+                                            },
+                                          ),
+                                          shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                                            RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          "Close",
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: Colors.grey),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: IconButton(
+                                        onPressed: () {},
+                                        icon: const HeroIcon(
+                                          HeroIcons.flag,
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ],
                             ),
                           );
                         },
