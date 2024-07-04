@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import moment from 'moment';
+import { locales } from 'src/constants';
 import { prisma } from 'src/db';
 import { generateTimestamps } from 'src/lib/time';
 import { queue } from 'src/services/queue/queue.service';
@@ -181,5 +181,42 @@ export class LessonsService {
       ],
     });
     return lessons;
+  }
+
+  async getLessonDetailedStats(userId: string, lessonId: string) {
+    const lesson = await prisma.lesson.findFirst({
+      where: { id: lessonId, module: { learningPath: { userId } } },
+      include: {
+        questions: {
+          include: {
+            answers: true,
+          },
+        },
+        module: {
+          select: {
+            learningPath: {
+              select: {
+                language: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!lesson)
+      throw new HttpException('No lesson found.', HttpStatus.NOT_FOUND);
+    if (!lesson.completed)
+      throw new HttpException(
+        'Please complete the lesson before review.',
+        HttpStatus.CONFLICT,
+      );
+    return {
+      ...lesson,
+      locale: locales[lesson.module.learningPath.language.name],
+    };
   }
 }

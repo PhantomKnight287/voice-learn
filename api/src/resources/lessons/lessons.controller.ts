@@ -68,4 +68,9 @@ export class LessonsController {
   getModuleLessons(@Auth() user: User, @Param('id') id: string) {
     return this.lessonsService.getLessons(user.id, id);
   }
+
+  @Get(':id/detailed-stats')
+  getDetailedLessonStats(@Auth() user: User, @Param('id') id: string) {
+    return this.lessonsService.getLessonDetailedStats(user.id, id);
+  }
 }
