@@ -148,93 +148,97 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     showModalBottomSheet(
       context: context,
       builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: BASE_MARGIN * 3,
-            vertical: BASE_MARGIN * 4,
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(BASE_MARGIN * 3),
+        return PopScope(
+          canPop: false,
+          onPopInvoked: (didPop) {},
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: BASE_MARGIN * 3,
+              vertical: BASE_MARGIN * 4,
             ),
-            height: 250,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  "Your answer",
-                  style: TextStyle(
-                    fontSize: Theme.of(context).textTheme.titleMedium!.fontSize!,
-                    fontFamily: "CalSans",
-                  ),
-                ),
-                Text(
-                  yourAnswer,
-                  style: TextStyle(
-                    fontSize: Theme.of(context).textTheme.titleMedium!.fontSize! * 0.7,
-                    color: Colors.red,
-                  ),
-                ),
-                const SizedBox(
-                  height: BASE_MARGIN * 4,
-                ),
-                Text(
-                  "Correct Answer",
-                  style: TextStyle(
-                    fontSize: Theme.of(context).textTheme.titleMedium!.fontSize!,
-                    fontFamily: "CalSans",
-                  ),
-                ),
-                Text(
-                  correctAnswer,
-                  style: TextStyle(
-                    fontSize: Theme.of(context).textTheme.titleMedium!.fontSize! * 0.7,
-                    color: Colors.green,
-                  ),
-                ),
-                const Spacer(),
-                ElevatedButton(
-                  onPressed: () async {
-                    Navigator.of(context).pop();
-                    if (last) {
-                      Navigator.of(context).pushReplacement(
-                        CupertinoPageRoute(
-                          builder: (context) {
-                            return LessonCompleteScreen(
-                              questionId: questionId,
-                              showAd: true,
-                            );
-                          },
-                        ),
-                      );
-                    } else {
-                      await _onCorrectAnswer(
-                        last,
-                        questionId,
-                        yourAnswer,
-                        submit: false,
-                      );
-                    }
-                  },
-                  style: ButtonStyle(
-                    alignment: Alignment.center,
-                    foregroundColor: WidgetStateProperty.all(Colors.black),
-                    backgroundColor: WidgetStateProperty.all(
-                      PRIMARY_COLOR,
-                    ),
-                  ),
-                  child: Text(
-                    last ? "Confirm" : "Next",
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(BASE_MARGIN * 3),
+              ),
+              height: 250,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    "Your answer",
                     style: TextStyle(
-                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                      fontWeight: FontWeight.w600,
+                      fontSize: Theme.of(context).textTheme.titleMedium!.fontSize!,
+                      fontFamily: "CalSans",
                     ),
                   ),
-                ),
-                const SizedBox(
-                  height: BASE_MARGIN * 2,
-                ),
-              ],
+                  Text(
+                    yourAnswer,
+                    style: TextStyle(
+                      fontSize: Theme.of(context).textTheme.titleMedium!.fontSize! * 0.7,
+                      color: Colors.red,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: BASE_MARGIN * 4,
+                  ),
+                  Text(
+                    "Correct Answer",
+                    style: TextStyle(
+                      fontSize: Theme.of(context).textTheme.titleMedium!.fontSize!,
+                      fontFamily: "CalSans",
+                    ),
+                  ),
+                  Text(
+                    correctAnswer,
+                    style: TextStyle(
+                      fontSize: Theme.of(context).textTheme.titleMedium!.fontSize! * 0.7,
+                      color: Colors.green,
+                    ),
+                  ),
+                  const Spacer(),
+                  ElevatedButton(
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      if (last) {
+                        Navigator.of(context).pushReplacement(
+                          CupertinoPageRoute(
+                            builder: (context) {
+                              return LessonCompleteScreen(
+                                questionId: questionId,
+                                showAd: true,
+                              );
+                            },
+                          ),
+                        );
+                      } else {
+                        await _onCorrectAnswer(
+                          last,
+                          questionId,
+                          yourAnswer,
+                          submit: false,
+                        );
+                      }
+                    },
+                    style: ButtonStyle(
+                      alignment: Alignment.center,
+                      foregroundColor: WidgetStateProperty.all(Colors.black),
+                      backgroundColor: WidgetStateProperty.all(
+                        PRIMARY_COLOR,
+                      ),
+                    ),
+                    child: Text(
+                      last ? "Confirm" : "Next",
+                      style: TextStyle(
+                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: BASE_MARGIN * 2,
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -622,9 +626,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                   ),
                                   for (var word in question.question) ...{
                                     GestureDetector(
-                                      onLongPress: () {
-                                        print("long pressed");
-                                      },
+                                      onLongPress: () {},
                                       child: Tooltip(
                                         message: word.translation,
                                         triggerMode: TooltipTriggerMode.tap,

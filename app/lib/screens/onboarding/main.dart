@@ -49,7 +49,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                 ),
                 const SizedBox(
-                  height: BASE_MARGIN * 4,
+                  height: BASE_MARGIN * 2,
                 ),
                 LayoutBuilder(
                   builder: (context, constraints) {
@@ -110,9 +110,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     );
                   },
                 ),
-                const SizedBox(
-                  height: 40,
-                ),
                 const Spacer(),
                 const SizedBox(
                   child: Center(
@@ -123,9 +120,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       useArtboardSize: true,
                     ),
                   ),
-                ),
-                const SizedBox(
-                  height: 30,
                 ),
                 const Spacer(),
                 GestureDetector(

@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/responses/lessons/stats.dart';
+import 'package:app/screens/questions/stats.dart';
 import 'package:app/utils/string.dart';
 import 'package:async_builder/async_builder.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -104,7 +106,7 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "Lesson Completed",
         ),
         leading: IconButton(
@@ -152,8 +154,8 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
                         ad: _bannerAd,
                       ),
                     )
-                  : SizedBox(),
-              if (_bannerAd != null) Spacer(),
+                  : const SizedBox(),
+              if (_bannerAd != null) const Spacer(),
               AsyncBuilder(
                 waiting: (context) {
                   return const Column(
@@ -337,7 +339,7 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
                 future: _fetchLessonStats(),
               ),
               const SizedBox(
-                height: BASE_MARGIN * 12,
+                height: BASE_MARGIN * 5,
               ),
               ElevatedButton(
                 onPressed: () async {
@@ -365,6 +367,45 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
                   ),
                 ),
               ),
+              const SizedBox(
+                height: BASE_MARGIN * 2,
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pushReplacement(
+                    CupertinoPageRoute(
+                      builder: (context) => LessonStatsScreen(
+                        lessonId: widget.questionId,
+                      ),
+                    ),
+                  );
+                },
+                child: Container(
+                  width: double.infinity,
+                  alignment: Alignment.center,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 2,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Review",
+                        style: TextStyle(
+                          color: PRIMARY_COLOR,
+                          fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
             ],
           ),
         ),

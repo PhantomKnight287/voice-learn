@@ -125,7 +125,7 @@ class _StreaksScreenState extends State<StreaksScreen> {
               ),
               const Divider(),
               SizedBox(
-                height: BASE_MARGIN * (state.isStreakActive ? 6 : 3),
+                height: BASE_MARGIN * (state.isStreakActive ? 2 : 3),
               ),
               if (state.isStreakActive == false)
                 Column(

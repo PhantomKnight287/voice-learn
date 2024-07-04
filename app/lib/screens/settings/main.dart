@@ -7,7 +7,6 @@ import 'package:app/models/user.dart';
 import 'package:app/screens/onboarding/main.dart';
 import 'package:app/screens/settings/change_password.dart';
 import 'package:app/utils/error.dart';
-import 'package:app/utils/print.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -110,7 +109,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
     _nameController.text = body['name'];
     _emailController.text = body['email'];
-    _notificationsAllowed = body['notificationToken'] != null && body['notificationToken'].isNotEmpty;
+    _notificationsAllowed = (body['notificationToken'] != null && body['notificationToken'].isNotEmpty) && await Permission.notification.isGranted;
     return body;
   }
 
@@ -440,83 +439,78 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 10,
                               ),
                             ),
-                            padding: const EdgeInsets.all(
-                              BASE_MARGIN * 4,
-                            ),
-                            child: Row(
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Streak Notifications",
-                                      style: TextStyle(
-                                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const Text(
-                                      "Notify me 2 hours before my streak resets.",
-                                      style: TextStyle(
-                                        color: SECONDARY_TEXT_COLOR,
-                                      ),
-                                    ),
-                                  ],
+                            child: ListTile(
+                              title: Padding(
+                                padding: const EdgeInsets.only(
+                                  bottom: BASE_MARGIN * 1,
                                 ),
-                                const Spacer(),
-                                Switch.adaptive(
-                                  value: _notificationsAllowed,
-                                  onChanged: (value) async {
-                                    final prefs = await SharedPreferences.getInstance();
-                                    final token = prefs.getString("token");
-                                    if (value == true) {
-                                      final res = await OneSignal.Notifications.requestPermission(
-                                        false,
+                                child: Text(
+                                  "Streak Notifications",
+                                  style: TextStyle(
+                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              subtitle: const Text(
+                                "Notify me 2 hours before my streak resets.",
+                                style: TextStyle(
+                                  color: SECONDARY_TEXT_COLOR,
+                                ),
+                                softWrap: true,
+                              ),
+                              trailing: Switch.adaptive(
+                                value: _notificationsAllowed,
+                                onChanged: (value) async {
+                                  final prefs = await SharedPreferences.getInstance();
+                                  final token = prefs.getString("token");
+                                  if (value == true) {
+                                    final res = await OneSignal.Notifications.requestPermission(
+                                      false,
+                                    );
+                                    if (res == false) {
+                                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                        content: Text(
+                                          "Notifications Permission Denied. Please allow the permission.",
+                                        ),
+                                      ));
+                                      Future.delayed(
+                                        const Duration(seconds: 1),
+                                        () async {
+                                          await openAppSettings();
+                                        },
                                       );
-                                      if (res == false) {
-                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                                          content: Text(
-                                            "Notifications Permission Denied. Please allow the permission.",
-                                          ),
-                                        ));
-                                        Future.delayed(
-                                          const Duration(seconds: 1),
-                                          () async {
-                                            await openAppSettings();
-                                          },
-                                        );
-                                        return;
-                                      }
-                                      await OneSignal.User.pushSubscription.optIn();
-                                      if (OneSignal.User.pushSubscription.id != null) {
-                                        setState(() {
-                                          _notificationsAllowed = true;
-                                        });
-                                        await http
-                                            .post(Uri.parse("$API_URL/notifications"),
-                                                headers: {"Authorization": "Bearer $token", "Content-Type": 'application/json'},
-                                                body: jsonEncode({
-                                                  "id": OneSignal.User.pushSubscription.id!,
-                                                }))
-                                            .catchError(
-                                              (_) {},
-                                            );
-                                      }
-                                    } else {
-                                      await OneSignal.User.pushSubscription.optOut();
-                                      setState(() {
-                                        _notificationsAllowed = false;
-                                      });
-                                      await http.delete(
-                                        Uri.parse("$API_URL/notifications"),
-                                        headers: {"Authorization": "Bearer $token", "Content-Type": 'application/json'},
-                                      ).catchError(
-                                        (_) {},
-                                      );
+                                      return;
                                     }
-                                  },
-                                ),
-                              ],
+                                    await OneSignal.User.pushSubscription.optIn();
+                                    if (OneSignal.User.pushSubscription.id != null) {
+                                      setState(() {
+                                        _notificationsAllowed = true;
+                                      });
+                                      await http
+                                          .post(Uri.parse("$API_URL/notifications"),
+                                              headers: {"Authorization": "Bearer $token", "Content-Type": 'application/json'},
+                                              body: jsonEncode({
+                                                "id": OneSignal.User.pushSubscription.id!,
+                                              }))
+                                          .catchError(
+                                            (_) {},
+                                          );
+                                    }
+                                  } else {
+                                    await OneSignal.User.pushSubscription.optOut();
+                                    setState(() {
+                                      _notificationsAllowed = false;
+                                    });
+                                    await http.delete(
+                                      Uri.parse("$API_URL/notifications"),
+                                      headers: {"Authorization": "Bearer $token", "Content-Type": 'application/json'},
+                                    ).catchError(
+                                      (_) {},
+                                    );
+                                  }
+                                },
+                              ),
                             ),
                           ),
                           const SizedBox(
