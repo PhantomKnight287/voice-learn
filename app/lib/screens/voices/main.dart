@@ -1,14 +1,13 @@
 import 'dart:convert';
 
 import 'package:app/bloc/user/user_bloc.dart';
+import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/user.dart';
 import 'package:app/models/voice.dart';
 import 'package:app/screens/shop/subscription.dart';
-import 'package:app/utils/print.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:fl_query/fl_query.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:heroicons/heroicons.dart';
@@ -111,7 +110,7 @@ class _VoicesScreenState extends State<VoicesScreen> {
                     onTap: () {
                       if (paid && user.tier == Tiers.free) {
                         Navigator.of(context).push(
-                          CupertinoPageRoute(
+                          NoSwipePageRoute(
                             builder: (context) {
                               return const SubscriptionScreen();
                             },

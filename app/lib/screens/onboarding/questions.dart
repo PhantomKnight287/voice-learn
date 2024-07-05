@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/language.dart';
 import 'package:app/models/knowledge.dart';
@@ -197,7 +198,7 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
       return;
     }
     Navigator.of(context).pushReplacement(
-      CupertinoPageRoute(
+      NoSwipePageRoute(
         builder: (context) => LearningPathLoadingScreen(
           pathId: body['id'],
         ),

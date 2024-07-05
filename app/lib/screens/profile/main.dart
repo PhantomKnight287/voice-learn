@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:app/bloc/user/user_bloc.dart';
+import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/user.dart';
 import 'package:app/screens/settings/main.dart';
@@ -65,7 +66,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      CupertinoPageRoute(
+                      NoSwipePageRoute(
                         builder: (context) {
                           return const SettingsScreen();
                         },

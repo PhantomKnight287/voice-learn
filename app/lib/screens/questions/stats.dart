@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
+import 'package:app/screens/questions/report.dart';
 import 'package:app/utils/error.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/material.dart';
@@ -310,7 +312,17 @@ class _LessonStatsScreenState extends State<LessonStatsScreen> {
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       child: IconButton(
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          Navigator.of(context).push(
+                                            NoSwipePageRoute(
+                                              builder: (context) {
+                                                return ReportScreen(
+                                                  questionId: question['id'],
+                                                );
+                                              },
+                                            ),
+                                          );
+                                        },
                                         icon: const HeroIcon(
                                           HeroIcons.flag,
                                           color: Colors.red,
@@ -386,6 +398,9 @@ class _LessonStatsScreenState extends State<LessonStatsScreen> {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const SizedBox(
+          height: BASE_MARGIN * 2,
+        ),
         Shimmer.fromColors(
           baseColor: Colors.grey.shade300,
           highlightColor: Colors.grey.shade400,

@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/bottom_bar.dart';
 import 'package:app/components/circular_progress.dart';
+import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/main.dart';
 import 'package:app/models/learning_path.dart';
@@ -468,6 +469,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                 systemOverlayStyle: SystemUiOverlayStyle.dark,
                 forceMaterialTransparency: false,
                 elevation: 0,
+                toolbarHeight: 60,
                 bottom: BOTTOM,
                 title: BlocBuilder<UserBloc, UserState>(
                     bloc: userBloc,
@@ -485,7 +487,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                             key: streaksKey,
                             onPressed: () {
                               Navigator.of(context).push(
-                                CupertinoPageRoute(
+                                NoSwipePageRoute(
                                   builder: (context) {
                                     return const StreaksScreen();
                                   },
@@ -521,7 +523,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                             key: emeraldsKey,
                             onPressed: () {
                               Navigator.of(context).push(
-                                CupertinoPageRoute(
+                                NoSwipePageRoute(
                                   builder: (context) {
                                     return const ShopScreen();
                                   },
@@ -839,7 +841,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
               floatingActionButton: FloatingActionButton(
                 onPressed: () {
                   Navigator.of(context).push(
-                    CupertinoPageRoute(
+                    NoSwipePageRoute(
                       builder: (context) {
                         return const GenerationsScreen(
                           type: "modules",
@@ -885,7 +887,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                             ),
                             onTap: () {
                               Navigator.of(context).push(
-                                CupertinoPageRoute(
+                                NoSwipePageRoute(
                                   builder: (context) {
                                     return LessonsListScreen(module: module);
                                   },

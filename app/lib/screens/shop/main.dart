@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/classes/sku.dart';
+import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/purchaseable_product.dart';
 import 'package:app/screens/shop/transaction.dart';
@@ -149,7 +150,7 @@ class _ShopScreenState extends State<ShopScreen> {
                               element,
                             ),
                             onPressed: () {
-                              Navigator.of(context).push(CupertinoPageRoute(
+                              Navigator.of(context).push(NoSwipePageRoute(
                                 builder: (context) {
                                   return TransactionScreen(
                                     sku: element.id,

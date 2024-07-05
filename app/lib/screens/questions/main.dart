@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:app/bloc/user/user_bloc.dart';
+import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/question.dart';
 import 'package:app/models/user.dart';
@@ -108,7 +109,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
         (value) {
           if (last) {
             Navigator.of(context).pushReplacement(
-              CupertinoPageRoute(
+              NoSwipePageRoute(
                 builder: (context) {
                   return LessonCompleteScreen(
                     questionId: questionId,
@@ -201,7 +202,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                       Navigator.of(context).pop();
                       if (last) {
                         Navigator.of(context).pushReplacement(
-                          CupertinoPageRoute(
+                          NoSwipePageRoute(
                             builder: (context) {
                               return LessonCompleteScreen(
                                 questionId: questionId,

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:app/bloc/user/user_bloc.dart';
+import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/lesson.dart';
 import 'package:app/screens/home/main.dart';
@@ -78,7 +79,7 @@ class _QuestionsGenerationLoadingScreenState extends State<QuestionsGenerationLo
             showProgressBar: false,
           );
           Navigator.of(context).pushReplacement(
-            CupertinoPageRoute(
+            NoSwipePageRoute(
               builder: (context) => const HomeScreen(),
             ),
           );
@@ -86,7 +87,7 @@ class _QuestionsGenerationLoadingScreenState extends State<QuestionsGenerationLo
         }
 
         Navigator.of(context).pushReplacement(
-          CupertinoPageRoute(
+          NoSwipePageRoute(
             builder: (context) => QuestionsScreen(
               lessonId: widget.lessonId,
             ),

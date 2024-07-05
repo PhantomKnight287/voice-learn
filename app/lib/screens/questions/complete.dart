@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:app/bloc/user/user_bloc.dart';
+import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/responses/lessons/stats.dart';
 import 'package:app/screens/questions/stats.dart';
@@ -373,7 +374,7 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
               GestureDetector(
                 onTap: () {
                   Navigator.of(context).pushReplacement(
-                    CupertinoPageRoute(
+                    NoSwipePageRoute(
                       builder: (context) => LessonStatsScreen(
                         lessonId: widget.questionId,
                       ),

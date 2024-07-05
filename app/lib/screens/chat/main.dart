@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/main.dart';
 import 'package:app/models/chat.dart';
@@ -80,7 +81,7 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).push(CupertinoPageRoute(
+          Navigator.of(context).push(NoSwipePageRoute(
             builder: (context) {
               return const CreateChatScreen();
             },
@@ -162,7 +163,7 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
                   ),
                   onTap: () {
                     Navigator.of(context).push(
-                      CupertinoPageRoute(
+                      NoSwipePageRoute(
                         builder: (context) {
                           return ChatScreen(id: chat.id);
                         },

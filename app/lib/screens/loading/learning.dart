@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/screens/home/main.dart';
 import 'package:app/utils/string.dart';
@@ -54,7 +55,7 @@ class _LearningPathLoadingScreenState extends State<LearningPathLoadingScreen> {
         }
       } else {
         Navigator.of(context).pushReplacement(
-          CupertinoPageRoute(
+          NoSwipePageRoute(
             builder: (context) {
               return const HomeScreen();
             },

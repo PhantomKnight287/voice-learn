@@ -2,11 +2,13 @@ import 'dart:convert';
 
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/input.dart';
+import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/user.dart';
 import 'package:app/screens/onboarding/main.dart';
 import 'package:app/screens/settings/change_password.dart';
 import 'package:app/utils/error.dart';
+import 'package:app/utils/print.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -111,6 +113,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _emailController.text = body['email'];
     _notificationsAllowed = (body['notificationToken'] != null && body['notificationToken'].isNotEmpty) && await Permission.notification.isGranted;
     return body;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    OneSignal.User.pushSubscription.addObserver((state) async {
+      printWarning("ok");
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString("token");
+      if (OneSignal.User.pushSubscription.id != null && OneSignal.User.pushSubscription.id!.isNotEmpty) {
+        await http
+            .post(
+              Uri.parse(
+                "$API_URL/notifications",
+              ),
+              headers: {
+                "Authorization": "Bearer $token",
+                "Content-Type": 'application/json',
+              },
+              body: jsonEncode(
+                {
+                  "id": OneSignal.User.pushSubscription.id!,
+                },
+              ),
+            )
+            .catchError(
+              (_) {},
+            );
+      } else {
+        await http.delete(
+          Uri.parse(
+            "$API_URL/notifications",
+          ),
+          headers: {
+            "Authorization": "Bearer $token",
+            "Content-Type": 'application/json',
+          },
+        ).catchError(
+          (_) {},
+        );
+      }
+    });
   }
 
   @override
@@ -345,7 +389,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           GestureDetector(
                             onTap: () async {
                               Navigator.of(context).push(
-                                CupertinoPageRoute(
+                                NoSwipePageRoute(
                                   builder: (context) {
                                     return const ChangePasswordScreen();
                                   },
@@ -482,32 +526,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       );
                                       return;
                                     }
+
                                     await OneSignal.User.pushSubscription.optIn();
                                     if (OneSignal.User.pushSubscription.id != null) {
                                       setState(() {
                                         _notificationsAllowed = true;
                                       });
-                                      await http
-                                          .post(Uri.parse("$API_URL/notifications"),
-                                              headers: {"Authorization": "Bearer $token", "Content-Type": 'application/json'},
-                                              body: jsonEncode({
-                                                "id": OneSignal.User.pushSubscription.id!,
-                                              }))
-                                          .catchError(
-                                            (_) {},
-                                          );
+                                      try {
+                                        await http.post(
+                                          Uri.parse(
+                                            "$API_URL/notifications",
+                                          ),
+                                          headers: {
+                                            "Authorization": "Bearer $token",
+                                            "Content-Type": 'application/json',
+                                          },
+                                          body: jsonEncode(
+                                            {
+                                              "id": OneSignal.User.pushSubscription.id!,
+                                            },
+                                          ),
+                                        );
+                                      } catch (e) {}
                                     }
                                   } else {
                                     await OneSignal.User.pushSubscription.optOut();
                                     setState(() {
                                       _notificationsAllowed = false;
                                     });
-                                    await http.delete(
-                                      Uri.parse("$API_URL/notifications"),
-                                      headers: {"Authorization": "Bearer $token", "Content-Type": 'application/json'},
-                                    ).catchError(
-                                      (_) {},
-                                    );
+                                    try {
+                                      await http.delete(
+                                        Uri.parse(
+                                          "$API_URL/notifications",
+                                        ),
+                                        headers: {
+                                          "Authorization": "Bearer $token",
+                                          "Content-Type": 'application/json',
+                                        },
+                                      );
+                                    } catch (e) {}
                                   }
                                 },
                               ),

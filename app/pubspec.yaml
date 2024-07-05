@@ -80,6 +80,7 @@ dependencies:
   popover: ^0.3.0+1
   flutter_markdown: ^0.7.3
   onesignal_flutter: ^5.2.1
+  collection: ^1.18.0
 
 
 dev_dependencies:

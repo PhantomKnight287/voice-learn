@@ -89,6 +89,7 @@ class _VoiceLearnAppState extends State<VoiceLearnApp> {
                 fontSize: 24,
                 color: Colors.black,
               ),
+              toolbarHeight: 50,
             ),
             textTheme: const TextTheme(
               labelMedium: TextStyle(

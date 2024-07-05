@@ -1,9 +1,8 @@
 import 'package:app/bloc/user/user_bloc.dart';
+import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/models/user.dart';
 import 'package:app/screens/shop/transaction.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart' as intl;
 import 'package:app/classes/sku.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/utils/print.dart';
@@ -484,7 +483,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                         onPressed: () {
                           if (state.tier == Tiers.premium) return;
                           Navigator.of(context).push(
-                            CupertinoPageRoute(
+                            NoSwipePageRoute(
                               builder: (context) {
                                 return TransactionScreen(
                                   sku: InAppSubscriptionsPurchaseSku.premium,

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/circular_progress.dart';
+import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/lesson.dart';
 import 'package:app/models/module.dart';
@@ -76,7 +77,7 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(
-            CupertinoPageRoute(
+            NoSwipePageRoute(
               builder: (context) {
                 return GenerationsScreen(
                   type: "lessons",
@@ -166,7 +167,7 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
                             onTap: () {
                               if (lesson.explanation != null) {
                                 Navigator.of(context).push(
-                                  CupertinoPageRoute(
+                                  NoSwipePageRoute(
                                     builder: (context) {
                                       return ExplanationScreen(
                                         explanation: lesson.explanation!,
@@ -199,13 +200,13 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
 
                                 Navigator.of(context).push(
                                   lesson.completed
-                                      ? CupertinoPageRoute(
+                                      ? NoSwipePageRoute(
                                           builder: (context) => LessonCompleteScreen(
                                             questionId: lesson.id,
                                             showAd: false,
                                           ),
                                         )
-                                      : CupertinoPageRoute(
+                                      : NoSwipePageRoute(
                                           builder: (context) => QuestionsScreen(
                                             lessonId: lesson.id,
                                           ),
@@ -213,7 +214,7 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
                                 );
                               } else {
                                 Navigator.of(context).push(
-                                  CupertinoPageRoute(
+                                  NoSwipePageRoute(
                                     builder: (context) => QuestionsGenerationLoadingScreen(
                                       lessonId: lesson.id,
                                       status: lesson.status,

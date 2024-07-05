@@ -13,6 +13,7 @@ import 'package:heroicons/heroicons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:http/http.dart' as http;
+import 'package:collection/collection.dart';
 
 class StreaksScreen extends StatefulWidget {
   const StreaksScreen({super.key});
@@ -219,11 +220,18 @@ class _StreaksScreenState extends State<StreaksScreen> {
                       calendarBuilders: CalendarBuilders(
                         defaultBuilder: (context, day, focusedDay) {
                           if (isTaskDate(data.map((e) => e.createdAt).toList(), day)) {
+                            final date = data.firstWhereOrNull(
+                              (d) => d.createdAt.toLocal().day == day.day && d.createdAt.toLocal().month == day.month && d.createdAt.toLocal().year == day.year,
+                            );
                             return Container(
                               margin: const EdgeInsets.all(6.0),
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
-                                color: PRIMARY_COLOR,
+                                color: date != null
+                                    ? date.type == "active"
+                                        ? PRIMARY_COLOR
+                                        : Colors.lime
+                                    : PRIMARY_COLOR,
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
                               child: Text(
@@ -241,12 +249,19 @@ class _StreaksScreenState extends State<StreaksScreen> {
                           final last = data.isNotEmpty ? data.last : null;
                           final today = DateTime.now();
                           final todayExists = last == null ? false : last.createdAt.day == today.day && last.createdAt.month == today.month && last.createdAt.year == today.year;
+                          final date = data.firstWhereOrNull(
+                            (d) => d.createdAt.toLocal().day == day.day && d.createdAt.toLocal().month == day.month && d.createdAt.toLocal().year == day.year,
+                          );
                           return Container(
                             margin: const EdgeInsets.all(6.0),
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
                               color: todayExists
-                                  ? PRIMARY_COLOR
+                                  ? date != null
+                                      ? date.type == "active"
+                                          ? PRIMARY_COLOR
+                                          : Colors.lime
+                                      : PRIMARY_COLOR
                                   : PRIMARY_COLOR.withAlpha(
                                       100,
                                     ),

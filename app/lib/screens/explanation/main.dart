@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:app/bloc/user/user_bloc.dart';
+import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/screens/questions/complete.dart';
 import 'package:app/screens/questions/main.dart';
@@ -194,7 +195,7 @@ class _ExplanationScreenState extends State<ExplanationScreen> {
                     }
 
                     Navigator.of(context).pushReplacement(
-                      CupertinoPageRoute(
+                      NoSwipePageRoute(
                         builder: (context) => QuestionsScreen(
                           lessonId: widget.id,
                         ),
@@ -202,7 +203,7 @@ class _ExplanationScreenState extends State<ExplanationScreen> {
                     );
                   } else {
                     Navigator.of(context).pushReplacement(
-                      CupertinoPageRoute(
+                      NoSwipePageRoute(
                         builder: (context) {
                           return LessonCompleteScreen(questionId: widget.id, showAd: false);
                         },

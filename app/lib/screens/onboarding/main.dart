@@ -1,3 +1,4 @@
+import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/screens/auth/login.dart';
 import 'package:app/screens/auth/register.dart';
@@ -125,7 +126,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 GestureDetector(
                   onTap: () {
                     Navigator.of(context).pushReplacement(
-                      CupertinoPageRoute(
+                      NoSwipePageRoute(
                         builder: (context) => const RegisterScreen(),
                       ),
                     );
@@ -165,7 +166,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 GestureDetector(
                   onTap: () {
                     Navigator.of(context).pushReplacement(
-                      CupertinoPageRoute(
+                      NoSwipePageRoute(
                         builder: (context) => const LoginScreen(),
                       ),
                     );

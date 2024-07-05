@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:app/bloc/user/user_bloc.dart';
+import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/user.dart';
 import 'package:app/screens/home/main.dart';
@@ -63,14 +64,14 @@ class _ViewHandlerState extends State<ViewHandler> {
             );
         if (body['path']?['type'] == 'created') {
           Navigator.of(context).pushReplacement(
-            CupertinoPageRoute(
+            NoSwipePageRoute(
               builder: (context) => LearningPathLoadingScreen(pathId: body['path']['id']),
             ),
           );
           return;
         } else if (body['path'] == null) {
           Navigator.of(context).pushReplacement(
-            CupertinoPageRoute(
+            NoSwipePageRoute(
               builder: (context) => const OnboardingQuestionsScreen(),
             ),
           );
