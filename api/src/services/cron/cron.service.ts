@@ -6,6 +6,7 @@ import { S3Service } from '../s3/s3.service';
 import { ConfigService } from '@nestjs/config';
 import { generateTimestamps } from 'src/lib/time';
 import { onesignal } from 'src/constants';
+import { createId } from '@paralleldrive/cuid2';
 
 @Injectable()
 export class CronService {
@@ -75,7 +76,7 @@ export class CronService {
         },
         include_subscription_ids: ids,
       });
-      console.log(res);
+      
     } catch (error) {
       console.error('Error resetting streaks:', error);
     }
@@ -85,6 +86,7 @@ export class CronService {
     timeZone: 'UTC',
   })
   async bonkLazyUsers() {
+
     const { currentDateInGMT, nextDateInGMT } = generateTimestamps();
 
     const users = await prisma.user.findMany();
@@ -103,11 +105,51 @@ export class CronService {
 
         // If no streak record exists for today, reset activeStreaks to 0
         if (!streakExists) {
-          await prisma.user.update({
-            where: { id: user.id },
-            data: { activeStreaks: 0 },
-          });
-          console.log(`Active streaks reset for user: ${user.id}`);
+          if (user.streakShields > 0) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: {
+                streakShields: { decrement: 1 },
+                streaks: {
+                  create: {
+                    id: `streak_${createId()}`,
+                    type: 'shielded',
+                  },
+                },
+              },
+            });
+            if (user.notificationToken) {
+              const res = await onesignal.createNotification({
+                app_id: process.env.ONESIGNAL_APP_ID,
+                name: 'Streak Shield Used Notification',
+                contents: {
+                  en: 'Your streak was saved due to streak shield. Complete a lesson on time.',
+                },
+                headings: {
+                  en: 'Your streak was saved by streak shield 💀',
+                },
+                include_subscription_ids: [user.notificationToken],
+              });
+              console.log(res);
+            }
+          } else {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { activeStreaks: 0 },
+            });
+            console.log(`Active streaks reset for user: ${user.id}`);
+            if (user.notificationToken) {
+              const res = await onesignal.createNotification({
+                app_id: process.env.ONESIGNAL_APP_ID,
+                name: 'Streak Reset Notification',
+                headings: {
+                  en: 'Your streak was reset 💀',
+                },
+                include_subscription_ids: [user.notificationToken],
+              });
+              console.log(res);
+            }
+          }
         }
       }
     } catch (error) {
@@ -115,7 +157,7 @@ export class CronService {
     }
   }
 
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_DAY_AT_NOON, { timeZone: 'UTC' })
   async giveEmeraldsToProUsers() {
     const users = await prisma.user.findMany({ where: { tier: 'premium' } });
     const ids = users.map((u) => u.id);

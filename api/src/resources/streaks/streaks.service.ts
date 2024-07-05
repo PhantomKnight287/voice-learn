@@ -17,6 +17,7 @@ export class StreaksService {
       select: {
         createdAt: true,
         id: true,
+        type:true,
       },
       orderBy: [
         {

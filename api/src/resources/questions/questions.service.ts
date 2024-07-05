@@ -199,8 +199,8 @@ export class QuestionsService {
             xpHistory: {
               create: {
                 earned:
-                  correctAnswersCount +
-                  (correct ? 1 : 0) * (lesson ? lesson.xpPerQuestion : 4),
+                  (correctAnswersCount + (correct ? 1 : 0)) *
+                  (lesson ? lesson.xpPerQuestion : 4),
                 id: `xp_${createId()}`,
                 language: {
                   connect: {

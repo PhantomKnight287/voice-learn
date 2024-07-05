@@ -183,9 +183,27 @@ export class LessonsService {
     return lessons;
   }
 
-  async getLessonDetailedStats(userId: string, lessonId: string) {
+  async getLessonDetailedStats(userId: string, id: string) {
     const lesson = await prisma.lesson.findFirst({
-      where: { id: lessonId, module: { learningPath: { userId } } },
+      where: {
+        OR: [
+          {
+            questions: {
+              some: {
+                id: id,
+              },
+            },
+          },
+          {
+            id: id,
+          },
+        ],
+        module: {
+          learningPath: {
+            userId,
+          },
+        },
+      },
       include: {
         questions: {
           include: {

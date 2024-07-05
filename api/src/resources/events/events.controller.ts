@@ -156,7 +156,10 @@ Here is how your response should look like (note that it's an example response a
 - The instructions must not include the question.
 - The "questions" array must never be empty and should always contain meaningful content.
 - Do not put the answer of the question in the "questions" array.
-- Note: Do not respond with anything except the array of objects. The response should be a valid JSON array, otherwise the code will break.`,
+- Please do not use any type of placeholders like [Enter your name here].
+- Note: Do not respond with anything except the array of objects. The response should be a valid JSON array, otherwise the code will break.
+
+`,
             },
 
             {
@@ -470,7 +473,7 @@ Constraints:
               role: 'system',
               content: `Your response must an object containing "response" which is array of objects where 'word' will be the actual word in ${chat.language.name} and 'translation' will be translation in english. Example: [{"word":"Guten","translation":"Good",},{"word":"morgen","translation":"morning"}]
               
-              Do not generate escape characters
+              Do not generate escape characters and provide sensible reply to users and do not repeat what the user said.
               `,
             },
             //@ts-expect-error

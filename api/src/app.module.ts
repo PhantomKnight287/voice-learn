@@ -37,6 +37,7 @@ import { WebhooksModule } from './resources/webhooks/webhooks.module';
 import { TransactionsModule } from './resources/transactions/transactions.module';
 import { TutorialsModule } from './resources/tutorials/tutorials.module';
 import { NotificationsModule } from './resources/notifications/notifications.module';
+import { ReportsModule } from './resources/reports/reports.module';
 
 @Module({
   imports: [
@@ -77,6 +78,7 @@ import { NotificationsModule } from './resources/notifications/notifications.mod
     TransactionsModule,
     TutorialsModule,
     NotificationsModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [

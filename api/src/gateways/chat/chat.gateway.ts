@@ -25,6 +25,8 @@ import { join } from 'path';
 import { createReadStream, createWriteStream } from 'fs';
 import { promisify } from 'util';
 import { pipeline } from 'stream';
+import { S3Service } from 'src/services/s3/s3.service';
+import { DeleteObjectCommand } from '@aws-sdk/client-s3';
 
 const streamPipeline = promisify(pipeline);
 
@@ -38,6 +40,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly chatService: ChatService,
     private readonly gemini: GeminiService,
+    private readonly s3Service: S3Service,
   ) {}
   async handleConnection(client: Socket) {
     const chatId = client.handshake.query.chatId;
@@ -121,6 +124,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           'Not enough emeralds to continue in voice chat mode. Please use text only chat.',
         );
         addToQueue = false;
+        await this.s3Service.deleteObject({
+          Bucket: process.env.R2_BUCKET_NAME,
+          Key: attachment.key,
+        });
+
       }
       if (user.tier === 'free') {
         const chat = await prisma.chat.findFirst({
@@ -128,10 +136,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           include: { voice: true },
         });
         if (chat.voice.provider === 'XILabs') {
-          return client.emit(
+          client.emit(
             'error',
             'This chat is using a premium voice. Please upgrade to premium to continue with voice messages in this chat.',
           );
+          await this.s3Service.deleteObject({
+            Bucket: process.env.R2_BUCKET_NAME,
+            Key: attachment.key,
+          });
+          return;
         }
       }
       const res = await fetch(attachment.url);
