@@ -1,13 +1,16 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/handler/switcher.dart';
+import 'package:app/utils/print.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 import 'package:fl_query_connectivity_plus_adapter/fl_query_connectivity_plus_adapter.dart';
 import 'package:fl_query/fl_query.dart';
@@ -15,6 +18,7 @@ import 'package:upgrader/upgrader.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_update/in_app_update.dart' as update;
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:http/http.dart' as http;
 
 final RouteObserver<ModalRoute> routeObserver = RouteObserver<ModalRoute>();
 
@@ -59,10 +63,53 @@ class _VoiceLearnAppState extends State<VoiceLearnApp> {
     }
   }
 
+  void _listenForOneSignalUpdates() async {
+    OneSignal.User.pushSubscription.addObserver((state) async {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final token = prefs.getString("token");
+        printWarning(OneSignal.User.pushSubscription.id ?? "noId");
+        if (OneSignal.User.pushSubscription.id != null && OneSignal.User.pushSubscription.id!.isNotEmpty) {
+          await http
+              .post(
+                Uri.parse(
+                  "$API_URL/notifications",
+                ),
+                headers: {
+                  "Authorization": "Bearer $token",
+                  "Content-Type": 'application/json',
+                },
+                body: jsonEncode(
+                  {
+                    "id": OneSignal.User.pushSubscription.id!,
+                  },
+                ),
+              )
+              .catchError(
+                (_) {},
+              );
+        } else {
+          await http.delete(
+            Uri.parse(
+              "$API_URL/notifications",
+            ),
+            headers: {
+              "Authorization": "Bearer $token",
+              "Content-Type": 'application/json',
+            },
+          ).catchError(
+            (_) {},
+          );
+        }
+      } catch (e) {}
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     _checkForUpdates();
+    _listenForOneSignalUpdates();
   }
 
   @override
@@ -76,7 +123,9 @@ class _VoiceLearnAppState extends State<VoiceLearnApp> {
           title: 'Voice Learn',
           navigatorObservers: [routeObserver],
           theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.deepPurple,
+            ),
             useMaterial3: true,
             fontFamily: "Geist",
             brightness: Brightness.light,

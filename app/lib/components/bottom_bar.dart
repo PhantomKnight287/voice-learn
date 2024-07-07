@@ -38,23 +38,29 @@ class _BottomNavigationBarState extends State<BottomBar> {
           label: "Home",
         ),
         BottomNavigationBarItem(
+          icon: Icon(
+            widget.currentIndex == 1 ? Icons.school_rounded : Icons.school_outlined,
+          ),
+          label: "Recall",
+        ),
+        BottomNavigationBarItem(
           icon: HeroIcon(
             HeroIcons.chartBar,
-            style: widget.currentIndex == 1 ? HeroIconStyle.solid : null,
+            style: widget.currentIndex == 2 ? HeroIconStyle.solid : null,
           ),
           label: "Leaderboard",
         ),
         BottomNavigationBarItem(
           icon: HeroIcon(
             HeroIcons.chatBubbleBottomCenterText,
-            style: widget.currentIndex == 2 ? HeroIconStyle.solid : null,
+            style: widget.currentIndex == 3 ? HeroIconStyle.solid : null,
           ),
           label: "Chat",
         ),
         BottomNavigationBarItem(
           icon: HeroIcon(
             HeroIcons.user,
-            style: widget.currentIndex == 3 ? HeroIconStyle.solid : null,
+            style: widget.currentIndex == 4 ? HeroIconStyle.solid : null,
           ),
           label: "Profile",
         )

@@ -103,10 +103,11 @@ class _VoicesScreenState extends State<VoicesScreen> {
               final data = query.data;
               if (data == null) return _buildLoader();
               return ListView.separated(
+                shrinkWrap: true,
                 itemBuilder: (context, index) {
                   final voice = data[index];
                   final paid = voice.tiers.contains(Tiers.epic) || voice.tiers.contains(Tiers.premium);
-                  return GestureDetector(
+                  final item = GestureDetector(
                     onTap: () {
                       if (paid && user.tier == Tiers.free) {
                         Navigator.of(context).push(
@@ -253,6 +254,17 @@ class _VoicesScreenState extends State<VoicesScreen> {
                       ],
                     ),
                   );
+                  if (index == 0) {
+                    return Column(
+                      children: [
+                        const SizedBox(
+                          height: BASE_MARGIN * 4,
+                        ),
+                        item,
+                      ],
+                    );
+                  }
+                  return item;
                 },
                 separatorBuilder: (context, index) {
                   return const SizedBox(

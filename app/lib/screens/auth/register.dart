@@ -12,6 +12,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -49,6 +50,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (_formKey.currentState!.validate() == false) {
       return;
     }
+    if (_loading) return;
+
     if (_accepted == false) {
       toastification.show(
         type: ToastificationType.error,
@@ -122,6 +125,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
             avatarHash: response.user.avatarHash,
           ),
         );
+    await OneSignal.login(response.user.id);
+
     Navigator.of(context).pushReplacement(
       NoSwipePageRoute(
         builder: (context) => const OnboardingQuestionsScreen(),
@@ -222,7 +227,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   InputField(
                     hintText: "*******",
-                    keyboardType: TextInputType.name,
+                    keyboardType: TextInputType.visiblePassword,
                     controller: _passwordController,
                     obscureText: !_passwordVisible,
                     suffixIcon: IconButton(

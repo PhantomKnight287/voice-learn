@@ -14,6 +14,7 @@ import 'package:app/screens/generations/modules.dart';
 import 'package:app/screens/leaderboards/main.dart';
 import 'package:app/screens/lessons/main.dart';
 import 'package:app/screens/profile/main.dart';
+import 'package:app/screens/recall/main.dart';
 import 'package:app/screens/shop/main.dart';
 import 'package:app/screens/streaks/main.dart';
 import 'package:app/utils/error.dart';
@@ -424,7 +425,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
             ),
           );
         }
-        if (_currentIndex == 3) {
+        if (_currentIndex == 4) {
           return Scaffold(
             body: const ProfileScreen(),
             bottomNavigationBar: BottomBar(
@@ -436,7 +437,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
               },
             ),
           );
-        } else if (_currentIndex == 2) {
+        } else if (_currentIndex == 3) {
           return Scaffold(
             body: const ChatsScreen(),
             bottomNavigationBar: BottomBar(
@@ -448,9 +449,21 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
               },
             ),
           );
-        } else if (_currentIndex == 1) {
+        } else if (_currentIndex == 2) {
           return Scaffold(
             body: const LeaderBoardScreen(),
+            bottomNavigationBar: BottomBar(
+              currentIndex: _currentIndex,
+              onPress: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+            ),
+          );
+        } else if (_currentIndex == 1) {
+          return Scaffold(
+            body: const RecallScreen(),
             bottomNavigationBar: BottomBar(
               currentIndex: _currentIndex,
               onPress: (index) {

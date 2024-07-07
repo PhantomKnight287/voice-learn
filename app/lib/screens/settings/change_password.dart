@@ -172,7 +172,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   ),
                   InputField(
                     hintText: "NewPassword@123",
-                    keyboardType: TextInputType.emailAddress,
+                    keyboardType: TextInputType.visiblePassword,
                     controller: _confirmPasswordController,
                     validator: (p0) {
                       if (p0 == null || p0.isEmpty) return 'Please enter your new password again';

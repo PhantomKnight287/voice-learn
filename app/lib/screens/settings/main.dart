@@ -118,43 +118,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    OneSignal.User.pushSubscription.addObserver((state) async {
-      printWarning("ok");
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString("token");
-      if (OneSignal.User.pushSubscription.id != null && OneSignal.User.pushSubscription.id!.isNotEmpty) {
-        await http
-            .post(
-              Uri.parse(
-                "$API_URL/notifications",
-              ),
-              headers: {
-                "Authorization": "Bearer $token",
-                "Content-Type": 'application/json',
-              },
-              body: jsonEncode(
-                {
-                  "id": OneSignal.User.pushSubscription.id!,
-                },
-              ),
-            )
-            .catchError(
-              (_) {},
-            );
-      } else {
-        await http.delete(
-          Uri.parse(
-            "$API_URL/notifications",
-          ),
-          headers: {
-            "Authorization": "Bearer $token",
-            "Content-Type": 'application/json',
-          },
-        ).catchError(
-          (_) {},
-        );
-      }
-    });
   }
 
   @override
@@ -328,7 +291,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           InputField(
                             hintText: "John Doe",
-                            keyboardType: TextInputType.emailAddress,
+                            keyboardType: TextInputType.text,
                             controller: _nameController,
                             validator: (p0) {
                               if (p0 == null || p0.isEmpty) return 'Name is required';

@@ -62,128 +62,131 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
         ),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          const SizedBox(
-            height: BASE_MARGIN * 2,
-          ),
-          InfiniteQueryBuilder<List<LeaderboardItem>, Exception, int>(
-            'leaderboard',
-            (page) => _fetchLeaderboardItem(page),
-            nextPage: (lastPage, lastPageData) {
-              if (lastPageData.length < 20) return null;
-              return lastPage + 1;
-            },
-            refreshConfig: RefreshConfig.withDefaults(
-              context,
-              refreshOnMount: true,
-            ),
-            builder: (context, query) {
-              final board = query.pages.map((e) => e).expand((e) => e).toList();
-              if (board.isEmpty) {
-                return const Center(
-                  child: Text(
-                    "It looks a little quiet here. Complete a lesson to get your name here.",
-                    textAlign: TextAlign.center,
-                  ),
-                );
-              }
-              return ListView.builder(
-                controller: _controller,
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  final item = board[index];
-                  final defaultImage = Uri.parse("https://api.dicebear.com/8.x/initials/png?seed=${item.name}");
-
-                  final avatar = item.avatarHash != null ? "$BASE_GRAVATAR_URL/${item.avatarHash}?d=404" : defaultImage;
-
-                  return Column(
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(NoSwipePageRoute(
-                            builder: (context) {
-                              return ProfileScreen(
-                                userId: item.id,
-                              );
-                            },
-                          ));
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: BASE_MARGIN * 0,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  right: 20,
-                                  left: 20,
-                                ),
-                                child: Text(
-                                  (index + 1).toString(),
-                                  style: TextStyle(
-                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                              CircleAvatar(
-                                radius: 30,
-                                backgroundColor: Colors.transparent,
-                                child: ClipOval(
-                                  child: Image.network(
-                                    avatar.toString(),
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return const Icon(
-                                        Icons.account_circle_rounded,
-                                        size: 60,
-                                        color: Colors.grey,
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(
-                                width: BASE_MARGIN * 4,
-                              ),
-                              Text(
-                                item.name,
-                                style: TextStyle(
-                                  fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                textAlign: TextAlign.start,
-                              ),
-                              const Spacer(),
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  right: 20,
-                                  left: 20,
-                                ),
-                                child: Text(
-                                  "${item.xp} XP",
-                                  style: TextStyle(
-                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const SizedBox(
+                height: BASE_MARGIN * 2,
+              ),
+              InfiniteQueryBuilder<List<LeaderboardItem>, Exception, int>(
+                'leaderboard',
+                (page) => _fetchLeaderboardItem(page),
+                nextPage: (lastPage, lastPageData) {
+                  if (lastPageData.length < 20) return null;
+                  return lastPage + 1;
+                },
+                refreshConfig: RefreshConfig.withDefaults(
+                  context,
+                  refreshOnMount: true,
+                ),
+                builder: (context, query) {
+                  final board = query.pages.map((e) => e).expand((e) => e).toList();
+                  if (board.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        "It looks a little quiet here. Complete a lesson to get your name here.",
+                        textAlign: TextAlign.center,
                       ),
-                      const Divider(),
-                    ],
+                    );
+                  }
+                  return ListView.builder(
+                    controller: _controller,
+                    shrinkWrap: true,
+                    scrollDirection: Axis.vertical,
+                    itemBuilder: (context, index) {
+                      final item = board[index];
+                      final defaultImage = Uri.parse("https://api.dicebear.com/8.x/initials/png?seed=${item.name}");
+                      final avatar = item.avatarHash != null ? "$BASE_GRAVATAR_URL/${item.avatarHash}?d=404" : defaultImage;
+                      return Column(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(NoSwipePageRoute(
+                                builder: (context) {
+                                  return ProfileScreen(
+                                    userId: item.id,
+                                  );
+                                },
+                              ));
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: BASE_MARGIN * 0,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      right: 20,
+                                      left: 20,
+                                    ),
+                                    child: Text(
+                                      (index + 1).toString(),
+                                      style: TextStyle(
+                                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                  CircleAvatar(
+                                    radius: 30,
+                                    backgroundColor: Colors.transparent,
+                                    child: ClipOval(
+                                      child: Image.network(
+                                        avatar.toString(),
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return const Icon(
+                                            Icons.account_circle_rounded,
+                                            size: 60,
+                                            color: Colors.grey,
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: BASE_MARGIN * 4,
+                                  ),
+                                  Text(
+                                    item.name,
+                                    style: TextStyle(
+                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    textAlign: TextAlign.start,
+                                  ),
+                                  const Spacer(),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      right: 20,
+                                      left: 20,
+                                    ),
+                                    child: Text(
+                                      "${item.xp} XP",
+                                      style: TextStyle(
+                                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const Divider(),
+                        ],
+                      );
+                    },
+                    itemCount: board.length,
                   );
                 },
-                itemCount: board.length,
-              );
-            },
-            initialPage: 1,
+                initialPage: 1,
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

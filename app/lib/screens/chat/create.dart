@@ -35,6 +35,7 @@ class _CreateChatScreenState extends State<CreateChatScreen> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
+    if (_loading) return;
     if (voice == null) {
       toastification.show(
         type: ToastificationType.error,
@@ -154,7 +155,7 @@ class _CreateChatScreenState extends State<CreateChatScreen> {
                       ),
                       InputField(
                         hintText: "In a mall",
-                        keyboardType: TextInputType.emailAddress,
+                        keyboardType: TextInputType.text,
                         controller: _titleController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -287,15 +288,9 @@ class _CreateChatScreenState extends State<CreateChatScreen> {
                       InputField(
                         hintMaxLines: 3,
                         hintText: "Tell how the AI should act and what is the scenario. Example: You are a cashier at a mall...",
-                        keyboardType: TextInputType.emailAddress,
+                        keyboardType: TextInputType.text,
                         minLines: 5,
                         controller: _promptController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter scenario for your chat.';
-                          }
-                          return null;
-                        },
                       ),
                     ],
                   ),

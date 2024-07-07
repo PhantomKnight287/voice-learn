@@ -121,7 +121,7 @@ class _ReportScreenState extends State<ReportScreen> {
                     ),
                     InputField(
                       hintText: "Enter a concise title for your report",
-                      keyboardType: TextInputType.emailAddress,
+                      keyboardType: TextInputType.text,
                       controller: _titleController,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -146,7 +146,7 @@ class _ReportScreenState extends State<ReportScreen> {
                     InputField(
                       hintMaxLines: 3,
                       hintText: "Explain your issue in detail like what you expected to happen and what happened.",
-                      keyboardType: TextInputType.emailAddress,
+                      keyboardType: TextInputType.text,
                       minLines: 5,
                       controller: _descriptionController,
                       validator: (value) {

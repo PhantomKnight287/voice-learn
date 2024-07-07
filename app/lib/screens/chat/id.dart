@@ -26,7 +26,6 @@ import 'package:uuid/uuid.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:http_parser/http_parser.dart';
-import 'package:popover/popover.dart';
 
 class ChatScreen extends StatefulWidget {
   final String id;
@@ -451,8 +450,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   void _setSpeed() async {
     final prefs = await SharedPreferences.getInstance();
     final speed = prefs.getDouble("audio_speed");
+
     setState(() {
-      _speed = speed ?? 1;
+      _speed = double.parse((speed ?? 1).toStringAsFixed(1));
     });
   }
 
@@ -631,10 +631,10 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                               value: _speed,
                                               onChanged: (value) {
                                                 setStateBuilder(() {
-                                                  _speed = value;
+                                                  _speed = double.parse(value.toStringAsFixed(1));
                                                 });
                                                 setState(() {
-                                                  _speed = value;
+                                                  _speed = double.parse(value.toStringAsFixed(1));
                                                 });
                                               },
                                             ),
@@ -801,7 +801,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                   controller: _controller,
                                   hintText: "Send a message",
                                   keyboardType: TextInputType.text,
-                                  enabled: !disabled,
                                   maxLines: 5,
                                   minLines: 1,
                                 ),

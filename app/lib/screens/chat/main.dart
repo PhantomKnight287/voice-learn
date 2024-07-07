@@ -143,14 +143,16 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         )
-                      : Text(
-                          chat.initialPrompt ?? "",
-                          style: const TextStyle(
-                            color: SECONDARY_TEXT_COLOR,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                      : chat.initialPrompt != null && chat.initialPrompt!.isNotEmpty
+                          ? Text(
+                              chat.initialPrompt ?? "",
+                              style: const TextStyle(
+                                color: SECONDARY_TEXT_COLOR,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            )
+                          : null,
                   tileColor: SECONDARY_BG_COLOR,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(BASE_MARGIN * 2),

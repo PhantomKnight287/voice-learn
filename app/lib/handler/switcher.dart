@@ -8,9 +8,9 @@ import 'package:app/screens/home/main.dart';
 import 'package:app/screens/loading/learning.dart';
 import 'package:app/screens/onboarding/main.dart';
 import 'package:app/screens/onboarding/questions.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -62,6 +62,7 @@ class _ViewHandlerState extends State<ViewHandler> {
                 avatarHash: user.avatarHash,
               ),
             );
+        await OneSignal.login(user.id);
         if (body['path']?['type'] == 'created') {
           Navigator.of(context).pushReplacement(
             NoSwipePageRoute(

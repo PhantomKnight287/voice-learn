@@ -10,10 +10,11 @@ import 'package:app/screens/home/main.dart';
 import 'package:app/screens/loading/learning.dart';
 import 'package:app/screens/onboarding/questions.dart';
 import 'package:app/utils/error.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:app/utils/print.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 
@@ -47,6 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_formKey.currentState!.validate() == false) {
       return;
     }
+    if (_loading) return;
     setState(() {
       _loading = true;
     });
@@ -80,7 +82,9 @@ class _LoginScreenState extends State<LoginScreen> {
     }
     final response = LoginResponse.fromJSON(body);
     final prefs = await SharedPreferences.getInstance();
+
     prefs.setString("token", response.token);
+    printWarning("token set to ${response.token}");
     toastification.show(
       type: ToastificationType.success,
       style: ToastificationStyle.minimal,
@@ -107,6 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
             avatarHash: response.user.avatarHash,
           ),
         );
+    await OneSignal.login(response.user.id);
 
     if (body['path']?['type'] == 'created') {
       Navigator.of(context).pushReplacement(
