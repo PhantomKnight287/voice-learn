@@ -76,6 +76,11 @@ export class ChatsService {
         HttpStatus.PAYMENT_REQUIRED,
       );
     }
+    if (user.tier === 'free' && voice.provider !== 'OpenAI')
+      throw new HttpException(
+        'You are only allowed to use free voices.',
+        HttpStatus.PAYMENT_REQUIRED,
+      );
     const chat = await prisma.chat.create({
       data: {
         id: `chat_${createId()}`,

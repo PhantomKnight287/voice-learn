@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Logger } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { OnEvent } from '@nestjs/event-emitter';
 import { prisma } from 'src/db';
@@ -30,6 +30,7 @@ import { parseBuffer } from 'music-metadata';
 import { openai as aiSdkOpenAI } from '@ai-sdk/openai';
 @Controller('events')
 export class EventsController {
+  private readonly logger = new Logger(EventsController.name);
   constructor(
     private readonly eventsService: EventsService,
     private readonly geminiService: GeminiService,
@@ -457,24 +458,23 @@ Constraints:
           },
         });
         const text = userMessage.content;
+
         const res = await this.geminiService.generateObject({
           schema: llmTextResponse,
-          model: aiSdkOpenAI('gpt-4o'),
           messages: [
             {
               role: 'system',
-              content: `${chat.initialPrompt}. ${
-                chat.language.name.toLocaleLowerCase() === 'multiple'
-                  ? 'Reply in language the question is asked'
-                  : `Reply in ${chat.language.name}`
-              }. The actions or expressions are inside asterisks. Try to add some expressions into your message as well. You are only allowed to do textual conversations and not provide any code help. You are free to tell others that you are made by OpenAI. `,
+              content: `${chat.initialPrompt ? `${chat.initialPrompt}. ` : ''}${
+                chat.language.name.toLowerCase() === 'multiple'
+                  ? 'Reply in the language the question is asked.'
+                  : `Reply in ${chat.language.name}.`
+              } Ensure your responses are sensible and relevant to the user's message. Avoid generating unrelated content and refrain from providing code assistance.`,
             },
             {
               role: 'system',
-              content: `Your response must an object containing "response" which is array of objects where 'word' will be the actual word in ${chat.language.name} and 'translation' will be translation in english. Example: [{"word":"Guten","translation":"Good",},{"word":"morgen","translation":"morning"}]
-              
-              Do not generate escape characters and provide sensible reply to users and do not repeat what the user said.
-              `,
+              content: `Your response must be an object containing "response", which is an array of objects where 'word' will be the actual word in ${chat.language.name} and 'translation' will be the translation in English. Example: [{"word":"Guten","translation":"Good"},{"word":"morgen","translation":"morning"}]
+  
+  Generate responses that are relevant and meaningful to the user's input. Avoid generating nonsensical or out-of-context content.`,
             },
             //@ts-expect-error
             ...(chat.user.tier === 'free'
@@ -484,9 +484,12 @@ Constraints:
               .reverse()
               .map((message) => ({
                 role: message.author === 'Bot' ? 'assistant' : 'user',
-                content: message.content
-                  .map((message) => (message as { word: string }).word)
-                  .join(' '),
+                content: `${message.content
+                  .map((message: any) => ({
+                    word: message.word,
+                    translation: message.translation || '',
+                  }))
+                  .join('\n')}`,
               })),
             {
               content: text.map((e) => (e as { word: string }).word).join(' '),

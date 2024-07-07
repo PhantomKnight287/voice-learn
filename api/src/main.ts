@@ -1,10 +1,11 @@
+import 'source-map-support/register';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import './constants';
-import { ELEVENLABS_API_URL, errorSubject$, onesignal } from './constants';
+import { ELEVENLABS_API_URL, errorSubject$ } from './constants';
 
 import { prisma } from './db';
 import { Voice } from './types/voice';

@@ -4,7 +4,7 @@ import { prisma } from 'src/db';
 import { removePunctuation } from 'src/utils/string';
 import { CreateAnswerDTO } from './dto/answer.dto';
 import moment from 'moment';
-import { locales } from 'src/constants';
+import { locales, testSentences } from 'src/constants';
 import { generateTimestamps } from 'src/lib/time';
 
 @Injectable()
@@ -45,6 +45,7 @@ export class QuestionsService {
       questions: lesson.questions,
       locale: locales[lesson.module.learningPath.language.name],
       language: lesson.module.learningPath.language.name,
+      sentence: testSentences[lesson.module.learningPath.language.name],
     };
   }
 
@@ -76,6 +77,13 @@ export class QuestionsService {
 
     const lesson = await prisma.lesson.findFirst({
       where: { id: body.lessonId },
+      include: {
+        module: {
+          include: {
+            learningPath: true,
+          },
+        },
+      },
     });
     if (!question) {
       throw new HttpException('No question found.', HttpStatus.NOT_FOUND);
@@ -171,10 +179,10 @@ export class QuestionsService {
           where: { id: body.lessonId },
           data: {
             correctAnswers: {
-              increment: correctAnswersCount + (correct ? 1 : 0),
+              increment: correctAnswersCount,
             },
             incorrectAnswers: {
-              increment: incorrectAnswersCount - 1 + (!correct ? 1 : 0),
+              increment: incorrectAnswersCount,
             },
             completed: body.last,
             startDate: new Date(body.startDate),
@@ -193,20 +201,50 @@ export class QuestionsService {
           data: {
             xp: {
               increment:
-                correctAnswersCount +
-                (correct ? 1 : 0) * (lesson ? lesson.xpPerQuestion : 4),
+                correctAnswersCount * (lesson ? lesson.xpPerQuestion : 4),
             },
             xpHistory: {
               create: {
                 earned:
-                  (correctAnswersCount + (correct ? 1 : 0)) *
-                  (lesson ? lesson.xpPerQuestion : 4),
+                  correctAnswersCount * (lesson ? lesson.xpPerQuestion : 4),
                 id: `xp_${createId()}`,
                 language: {
                   connect: {
                     id: lesson.module.learningPath.languageId,
                   },
                 },
+              },
+            },
+          },
+        });
+        const allIncorrectQuestions = await tx.question.findMany({
+          where: {
+            lessons: {
+              some: {
+                id: body.lessonId,
+              },
+            },
+            answers: {
+              every: {
+                type: 'incorrect',
+              },
+            },
+          },
+          select: {
+            id: true,
+          },
+        });
+        await tx.lesson.create({
+          data: {
+            id: `lesson_${createId()}`,
+            name: 'Mistake Correction',
+            completed: false,
+            questionsCount: allIncorrectQuestions.length,
+            emeralds: 0,
+            xpPerQuestion: 0,
+            module: {
+              connect: {
+                id: lesson.moduleId,
               },
             },
           },
@@ -245,17 +283,6 @@ export class QuestionsService {
           },
         });
       }
-
-      const lesson = await prisma.lesson.findFirst({
-        where: { id: body.lessonId },
-        include: {
-          module: {
-            include: {
-              learningPath: true,
-            },
-          },
-        },
-      });
 
       return await tx.user.update({
         where: { id: userId },

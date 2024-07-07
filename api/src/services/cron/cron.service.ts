@@ -76,7 +76,6 @@ export class CronService {
         },
         include_subscription_ids: ids,
       });
-      
     } catch (error) {
       console.error('Error resetting streaks:', error);
     }
@@ -86,7 +85,6 @@ export class CronService {
     timeZone: 'UTC',
   })
   async bonkLazyUsers() {
-
     const { currentDateInGMT, nextDateInGMT } = generateTimestamps();
 
     const users = await prisma.user.findMany();
@@ -145,6 +143,9 @@ export class CronService {
                 headings: {
                   en: 'Your streak was reset 💀',
                 },
+                contents: {
+                  en: 'Try not to skip more lessons.',
+                },
                 include_subscription_ids: [user.notificationToken],
               });
               console.log(res);
@@ -181,4 +182,26 @@ export class CronService {
       data: { questionsStatus: 'not_generated' },
     });
   }
+
+  // @Cron(CronExpression.EVERY_10_SECONDS, {
+  //   disabled: process.env.DEV !== 'true',
+  // })
+  // async testNotifications() {
+  //   console.log('sending notifications');
+  //   const users = await prisma.user.findMany({
+  //     where: { notificationToken: { not: null } },
+  //   });
+  //   const res = await onesignal.createNotification({
+  //     app_id: process.env.ONESIGNAL_APP_ID,
+  //     name: 'Test Notifications Using Cron',
+  //     headings: {
+  //       en: 'Your streak was reset 💀',
+  //     },
+  //     contents: {
+  //       en: 'Try not to skip more lessons.',
+  //     },
+  //     include_subscription_ids: users.map((u) => u.notificationToken),
+  //   });
+  //   console.log(res);
+  // }
 }

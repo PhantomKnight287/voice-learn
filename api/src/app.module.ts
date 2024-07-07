@@ -38,6 +38,7 @@ import { TransactionsModule } from './resources/transactions/transactions.module
 import { TutorialsModule } from './resources/tutorials/tutorials.module';
 import { NotificationsModule } from './resources/notifications/notifications.module';
 import { ReportsModule } from './resources/reports/reports.module';
+import { RecallsModule } from './resources/recalls/recalls.module';
 
 @Module({
   imports: [
@@ -79,6 +80,7 @@ import { ReportsModule } from './resources/reports/reports.module';
     TutorialsModule,
     NotificationsModule,
     ReportsModule,
+    RecallsModule,
   ],
   controllers: [AppController],
   providers: [

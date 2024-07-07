@@ -21,7 +21,7 @@ export class LeaderboardService {
           xp: 'desc',
         },
       ],
-      limit: 20,
+      limit: 30,
       page: page,
     });
     return users.result;
