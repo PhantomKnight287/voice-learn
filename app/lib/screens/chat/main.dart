@@ -31,6 +31,7 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
       "Authorization": "Bearer $token",
     });
     final body = jsonDecode(req.body);
+    logger.d("Fetched ${body.length} chats");
     final res = (body as List).map((e) => Chat.fromJSON(e)).toList();
     return res;
   }

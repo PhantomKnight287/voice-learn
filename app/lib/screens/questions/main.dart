@@ -3,9 +3,12 @@ import 'dart:convert';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
+import 'package:app/main.dart';
 import 'package:app/models/question.dart';
 import 'package:app/models/user.dart';
 import 'package:app/screens/questions/complete.dart';
+import 'package:app/screens/recall/notes/create.dart';
+import 'package:app/utils/error.dart';
 import 'package:app/utils/print.dart';
 import 'package:app/utils/string.dart';
 import 'package:async_builder/async_builder.dart';
@@ -320,9 +323,16 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
       final state = userBloc.state;
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString("token")!;
+      final url = Uri.parse(
+        "$API_URL/questions/$questionId/answer",
+      );
+      logger.d("Making request to ${url.toString()}");
       final req = await http.post(
-        Uri.parse("$API_URL/questions/$questionId/answer"),
-        headers: {"Authorization": "Bearer $token", "Content-type": "application/json"},
+        url,
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-type": "application/json",
+        },
         body: jsonEncode(
           {
             "answer": answer,
@@ -334,9 +344,9 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
         ),
       );
       final body = jsonDecode(req.body);
-      print(body);
 
       if (req.statusCode == 201) {
+        logger.d("Answer to question $questionId submitted");
         userBloc.add(
           DecreaseUserHeartEvent(
             id: state.id,
@@ -353,7 +363,10 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
             tier: state.tier,
           ),
         );
-      } else {}
+      } else {
+        final message = ApiResponseHelper.getErrorMessage(body);
+        logger.e("Failed to submit answer: $message");
+      }
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -690,7 +703,16 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                   ),
                                   for (var word in question.question) ...{
                                     GestureDetector(
-                                      onLongPress: () {},
+                                      onLongPress: () {
+                                        Navigator.of(context).push(NoSwipePageRoute(
+                                          builder: (context) {
+                                            return CreateNoteScreen(
+                                              title: word.word,
+                                              description: word.translation,
+                                            );
+                                          },
+                                        ));
+                                      },
                                       child: Tooltip(
                                         message: word.translation,
                                         triggerMode: TooltipTriggerMode.tap,

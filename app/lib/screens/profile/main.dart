@@ -4,6 +4,8 @@ import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/user.dart';
+import 'package:app/screens/developer/logs.dart';
+import 'package:app/screens/home/main.dart';
 import 'package:app/screens/settings/main.dart';
 import 'package:app/utils/error.dart';
 import 'package:fl_query/fl_query.dart';
@@ -37,6 +39,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     Colors.cyan,
     Colors.blue,
   ];
+  bool _devEnabled = false;
   Future<dynamic> _getUserProfile() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -46,6 +49,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
       throw ApiResponseHelper.getErrorMessage(body);
     }
     return body;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _checkDevMode();
+  }
+
+  void _checkDevMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isDevEnabled = prefs.getBool("dev_enabled");
+
+    setState(() {
+      _devEnabled = isDevEnabled ?? false;
+    });
   }
 
   @override
@@ -62,6 +80,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: widget.userId != null
             ? null
             : [
+                if (_devEnabled)
+                  IconButton(
+                    onPressed: () {
+                      Navigator.of(context).push(NoSwipePageRoute(
+                        builder: (context) {
+                          return const LogsScreen();
+                        },
+                      ));
+                    },
+                    icon: const HeroIcon(
+                      HeroIcons.exclamationTriangle,
+                    ),
+                  ),
                 IconButton(
                   onPressed: () {
                     Navigator.push(
@@ -71,6 +102,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           return const SettingsScreen();
                         },
                       ),
+                    ).then(
+                      (value) {
+                        _checkDevMode();
+                      },
                     );
                   },
                   icon: const Icon(

@@ -4,6 +4,7 @@ import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/input.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
+import 'package:app/main.dart';
 import 'package:app/models/responses/auth/main.dart';
 import 'package:app/screens/auth/register.dart';
 import 'package:app/screens/home/main.dart';
@@ -54,37 +55,40 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     final req = await http.post(
-        Uri.parse(
-          "$API_URL/auth/sign-in",
-        ),
-        body: jsonEncode({
-          "email": _emailController.text,
-          "password": _passwordController.text,
-        }),
-        headers: {"Content-Type": "application/json"});
+      Uri.parse(
+        "$API_URL/auth/sign-in",
+      ),
+      body: jsonEncode({
+        "email": _emailController.text,
+        "password": _passwordController.text,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    );
     final body = jsonDecode(req.body);
     setState(() {
       _loading = false;
     });
     if (req.statusCode != 200) {
+      final message = ApiResponseHelper.getErrorMessage(body);
       toastification.show(
         type: ToastificationType.error,
         style: ToastificationStyle.minimal,
         autoCloseDuration: const Duration(seconds: 5),
         title: const Text("An Error Occurred"),
-        description: Text(
-          ApiResponseHelper.getErrorMessage(body),
-        ),
+        description: Text(message),
         alignment: Alignment.topCenter,
         showProgressBar: false,
       );
+      logger.e("Failed to login: $message");
       return;
     }
     final response = LoginResponse.fromJSON(body);
     final prefs = await SharedPreferences.getInstance();
 
     prefs.setString("token", response.token);
-    printWarning("token set to ${response.token}");
+
     toastification.show(
       type: ToastificationType.success,
       style: ToastificationStyle.minimal,
@@ -111,7 +115,9 @@ class _LoginScreenState extends State<LoginScreen> {
             avatarHash: response.user.avatarHash,
           ),
         );
+    logger.d("Login Successful. User Id:${response.user.id}. Email:${response.user.email}");
     await OneSignal.login(response.user.id);
+    logger.d("Logged into OneSignal");
 
     if (body['path']?['type'] == 'created') {
       Navigator.of(context).pushReplacement(

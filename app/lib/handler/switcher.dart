@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
+import 'package:app/main.dart';
 import 'package:app/models/user.dart';
 import 'package:app/screens/home/main.dart';
 import 'package:app/screens/loading/learning.dart';
@@ -29,6 +30,7 @@ class _ViewHandlerState extends State<ViewHandler> {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString("token");
     if (token != null && token.isNotEmpty) {
+      logger.i("Authentication Token Present, Hydrating User");
       setState(() {
         _showOnBoarding = false;
       });
@@ -62,7 +64,9 @@ class _ViewHandlerState extends State<ViewHandler> {
                 avatarHash: user.avatarHash,
               ),
             );
+        logger.i("User State Hydrated");
         await OneSignal.login(user.id);
+        logger.i("Logged into onesignal");
         if (body['path']?['type'] == 'created') {
           Navigator.of(context).pushReplacement(
             NoSwipePageRoute(
@@ -80,6 +84,7 @@ class _ViewHandlerState extends State<ViewHandler> {
           setState(() {});
         }
       } else if (req.statusCode == 401 || req.statusCode == 403) {
+        logger.i("Hydrate API Threw Error, Deleting Saved token.");
         await prefs.remove("token");
         setState(() {
           _showOnBoarding = true;

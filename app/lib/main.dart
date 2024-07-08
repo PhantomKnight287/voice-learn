@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/handler/switcher.dart';
+import 'package:app/logs/main.dart';
 import 'package:app/utils/print.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +20,16 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_update/in_app_update.dart' as update;
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:logger/logger.dart';
 
 final RouteObserver<ModalRoute> routeObserver = RouteObserver<ModalRoute>();
+
+final logger = Logger(
+  filter: null,
+  printer: PrettyPrinter(),
+  output: FileLoggerOutput(),
+  level: Level.all,
+);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

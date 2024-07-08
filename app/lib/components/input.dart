@@ -19,7 +19,7 @@ class InputField extends StatelessWidget {
   final InputBorder? enabledBorder;
   final bool? enabled;
   final int? hintMaxLines;
-
+  final bool? autoFocus;
   const InputField({
     required this.hintText,
     required this.keyboardType,
@@ -39,12 +39,14 @@ class InputField extends StatelessWidget {
     this.enabledBorder,
     this.enabled,
     this.hintMaxLines,
+    this.autoFocus,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      autofocus: autoFocus ?? false,
       readOnly: readOnly ?? false,
       keyboardType: keyboardType,
       controller: controller,

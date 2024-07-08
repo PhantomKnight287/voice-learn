@@ -5,9 +5,11 @@ import 'dart:ui';
 
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/input.dart';
+import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/chat.dart';
 import 'package:app/models/message.dart';
+import 'package:app/screens/recall/notes/create.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/cupertino.dart';
@@ -1067,14 +1069,28 @@ class _ChatBubbleState extends State<ChatBubble> {
                         for (var word in widget.text!) ...{
                           if (word != null)
                             word['translation'] != null
-                                ? Tooltip(
-                                    message: word['translation'],
-                                    triggerMode: TooltipTriggerMode.tap,
-                                    child: Text(
-                                      word['word'],
-                                      style: const TextStyle(
-                                        decoration: TextDecoration.underline,
-                                        decorationStyle: TextDecorationStyle.dashed,
+                                ? GestureDetector(
+                                    onLongPress: () {
+                                      Navigator.of(context).push(
+                                        NoSwipePageRoute(
+                                          builder: (context) {
+                                            return CreateNoteScreen(
+                                              title: word['word'],
+                                              description: word['translation'],
+                                            );
+                                          },
+                                        ),
+                                      );
+                                    },
+                                    child: Tooltip(
+                                      message: word['translation'],
+                                      triggerMode: TooltipTriggerMode.tap,
+                                      child: Text(
+                                        word['word'],
+                                        style: const TextStyle(
+                                          decoration: TextDecoration.underline,
+                                          decorationStyle: TextDecorationStyle.dashed,
+                                        ),
                                       ),
                                     ),
                                   )

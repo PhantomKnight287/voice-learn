@@ -37,6 +37,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String? avatar;
   bool _loading = false;
   bool _notificationsAllowed = false;
+  bool _devModeEnabled = false;
 
   Future<void> _updateProfile() async {
     setState(() {
@@ -112,6 +113,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _nameController.text = body['name'];
     _emailController.text = body['email'];
     _notificationsAllowed = (body['notificationToken'] != null && body['notificationToken'].isNotEmpty) && await Permission.notification.isGranted;
+    _devModeEnabled = prefs.getBool("dev_enabled") ?? false;
     return body;
   }
 
@@ -529,6 +531,66 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       );
                                     } catch (e) {}
                                   }
+                                },
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: BASE_MARGIN * 4,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: BASE_MARGIN * 2,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Developer Mode",
+                            style: TextStyle(
+                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: BASE_MARGIN * 2,
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: SECONDARY_BG_COLOR,
+                              borderRadius: BorderRadius.circular(
+                                10,
+                              ),
+                            ),
+                            child: ListTile(
+                              title: Padding(
+                                padding: const EdgeInsets.only(
+                                  bottom: BASE_MARGIN * 1,
+                                ),
+                                child: Text(
+                                  "Enable Developer Mode",
+                                  style: TextStyle(
+                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              subtitle: const Text(
+                                "Enable a logs screen(only send logs to developer, it can include sensitive information)",
+                                style: TextStyle(
+                                  color: SECONDARY_TEXT_COLOR,
+                                ),
+                                softWrap: true,
+                              ),
+                              trailing: Switch.adaptive(
+                                value: _devModeEnabled,
+                                onChanged: (value) async {
+                                  final prefs = await SharedPreferences.getInstance();
+                                  await prefs.setBool("dev_enabled", value);
+                                  setState(() {
+                                    _devModeEnabled = value;
+                                  });
                                 },
                               ),
                             ),

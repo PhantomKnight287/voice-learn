@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/screens/questions/report.dart';
+import 'package:app/screens/recall/notes/create.dart';
 import 'package:app/utils/error.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/material.dart';
@@ -185,21 +186,35 @@ class _LessonStatsScreenState extends State<LessonStatsScreen> {
                                           child: Wrap(
                                             children: [
                                               for (var word in question['question']) ...{
-                                                Tooltip(
-                                                  message: word['translation'],
-                                                  triggerMode: TooltipTriggerMode.tap,
-                                                  onTriggered: () async {
-                                                    if (ttsSetup == false) return;
-                                                    await flutterTts.speak(
-                                                      word['translation'],
+                                                GestureDetector(
+                                                  onLongPress: () {
+                                                    Navigator.of(context).push(
+                                                      NoSwipePageRoute(
+                                                        builder: (context) {
+                                                          return CreateNoteScreen(
+                                                            title: word['word'],
+                                                            description: word['translation'],
+                                                          );
+                                                        },
+                                                      ),
                                                     );
                                                   },
-                                                  child: Text(
-                                                    word['word'],
-                                                    style: TextStyle(
-                                                      decoration: TextDecoration.underline,
-                                                      decorationStyle: TextDecorationStyle.dashed,
-                                                      fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                                                  child: Tooltip(
+                                                    message: word['translation'],
+                                                    triggerMode: TooltipTriggerMode.tap,
+                                                    onTriggered: () async {
+                                                      if (ttsSetup == false) return;
+                                                      await flutterTts.speak(
+                                                        word['translation'],
+                                                      );
+                                                    },
+                                                    child: Text(
+                                                      word['word'],
+                                                      style: TextStyle(
+                                                        decoration: TextDecoration.underline,
+                                                        decorationStyle: TextDecorationStyle.dashed,
+                                                        fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                                                      ),
                                                     ),
                                                   ),
                                                 ),

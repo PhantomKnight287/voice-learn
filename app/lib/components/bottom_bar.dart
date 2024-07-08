@@ -1,4 +1,5 @@
 import 'package:app/constants/main.dart';
+import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:heroicons/heroicons.dart';
 
@@ -20,7 +21,10 @@ class _BottomNavigationBarState extends State<BottomBar> {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       currentIndex: widget.currentIndex,
-      onTap: (value) => {widget.onPress(value)},
+      onTap: (value) {
+        widget.onPress(value);
+        logger.i("Navigating to screen with index: $value");
+      },
       selectedItemColor: PRIMARY_COLOR,
       type: BottomNavigationBarType.fixed,
       selectedLabelStyle: const TextStyle(
