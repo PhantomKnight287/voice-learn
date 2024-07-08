@@ -72,7 +72,7 @@ export class CronService {
           en: 'Your streak will reset in 2 hours. Complete a lesson now to extend it.',
         },
         headings: {
-          en: 'Your streak is about to reset 💀',
+          en: 'Your streak is about to reset 😱😱',
         },
         include_subscription_ids: ids,
       });
@@ -121,10 +121,10 @@ export class CronService {
                 app_id: process.env.ONESIGNAL_APP_ID,
                 name: 'Streak Shield Used Notification',
                 contents: {
-                  en: 'Your streak was saved due to streak shield. Complete a lesson on time.',
+                  en: 'Your streak is safe thanks to the Streak Shield! Keep up the great work by completing a lesson today.',
                 },
                 headings: {
-                  en: 'Your streak was saved by streak shield 💀',
+                  en: 'Your streak was saved by Streak Shield! 😊',
                 },
                 include_subscription_ids: [user.notificationToken],
               });

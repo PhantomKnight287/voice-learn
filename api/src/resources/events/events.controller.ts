@@ -390,6 +390,7 @@ Constraints:
 - Ensure descriptions and explanations are practical and engaging.
 - Do not use words like "pronunciation".
 - Do not generate already studied lessons. This includes same lesson with different names.
+- The lesson difficulty should go from least to most and it should increase slowly.
 
 **Output Requirements**:
 
@@ -633,6 +634,7 @@ Constraints:
 - Do not use words like "pronunciation".
 - The name and description must be in English no matter what. 
 - There should be no unrelated content in a module. For example, if a module is called "Basic Greetings" then it should it have lessons related to greetings and addressing people and nothing else.
+- The Modules should go from very basic to advanced bit by bit.
 
 **Style/Tone**: The content should be educational and accessible, suitable for learners at ${path.knowledge}. Try to start with as basic items as possible based on user's level.`,
             },
