@@ -6,6 +6,7 @@ import 'package:app/constants/main.dart';
 import 'package:app/main.dart';
 import 'package:app/models/note.dart';
 import 'package:app/screens/recall/notes/create.dart';
+import 'package:app/screens/recall/notes/id.dart';
 import 'package:app/utils/error.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/material.dart';
@@ -86,6 +87,7 @@ class _StackScreenState extends State<StackScreen> with RouteAware {
   void dispose() {
     super.dispose();
     controller.dispose();
+    routeObserver.unsubscribe(this);
   }
 
   @override
@@ -100,7 +102,9 @@ class _StackScreenState extends State<StackScreen> with RouteAware {
         onPressed: () {
           Navigator.of(context).push(NoSwipePageRoute(
             builder: (context) {
-              return const CreateNoteScreen();
+              return CreateNoteScreen(
+                stackId: widget.id,
+              );
             },
           ));
         },
@@ -154,11 +158,11 @@ class _StackScreenState extends State<StackScreen> with RouteAware {
                         ),
                       ),
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              "Coming Soon",
-                            ),
+                        Navigator.of(context).push(
+                          NoSwipePageRoute(
+                            builder: (context) {
+                              return NoteScreen(id: note.id);
+                            },
                           ),
                         );
                       },
@@ -177,6 +181,9 @@ class _StackScreenState extends State<StackScreen> with RouteAware {
               refreshConfig: RefreshConfig.withDefaults(
                 context,
                 refreshOnMount: true,
+                staleDuration: const Duration(
+                  seconds: 0,
+                ),
               ),
             ),
           ),

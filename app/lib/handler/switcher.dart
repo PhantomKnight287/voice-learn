@@ -27,6 +27,8 @@ class _ViewHandlerState extends State<ViewHandler> {
   String pathId = '';
   bool _showLoading = true;
   void _checkOnBoardingStatus() async {
+    final time = DateTime.now();
+    logger.t("User is residing in ${time.timeZoneName} timezone with offset ${time.timeZoneOffset.toString()}");
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString("token");
     if (token != null && token.isNotEmpty) {
@@ -36,7 +38,7 @@ class _ViewHandlerState extends State<ViewHandler> {
       });
       final req = await http.get(
         Uri.parse(
-          "$API_URL/auth/hydrate",
+          "$API_URL/auth/hydrate?timezone=${time.timeZoneName}&timeZoneOffset=${time.timeZoneOffset.toString()}",
         ),
         headers: {"Authorization": "Bearer $token"},
       );
@@ -84,7 +86,7 @@ class _ViewHandlerState extends State<ViewHandler> {
           setState(() {});
         }
       } else if (req.statusCode == 401 || req.statusCode == 403) {
-        logger.i("Hydrate API Threw Error, Deleting Saved token.");
+        logger.e("Hydrate API Threw Error, Deleting Saved token.");
         await prefs.remove("token");
         setState(() {
           _showOnBoarding = true;

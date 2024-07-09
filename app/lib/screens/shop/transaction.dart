@@ -147,7 +147,6 @@ class _TransactionScreenState extends State<TransactionScreen> {
         );
         await _iap.completePurchase(purchaseDetailsList[index]).then((value) async {
           if (purchaseStatus == PurchaseStatus.purchased) {
-            printWarning("bought");
             toastification.show(
               type: ToastificationType.success,
               style: ToastificationStyle.minimal,

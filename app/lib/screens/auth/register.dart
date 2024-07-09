@@ -68,17 +68,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
 
     final req = await http.post(
-        Uri.parse(
-          "$API_URL/auth/sign-up",
-        ),
-        body: jsonEncode(
-          {
-            "email": _emailController.text,
-            "password": _passwordController.text,
-            "name": _nameController.text,
-          },
-        ),
-        headers: {"Content-Type": "application/json"});
+      Uri.parse(
+        "$API_URL/auth/sign-up",
+      ),
+      body: jsonEncode(
+        {
+          "email": _emailController.text,
+          "password": _passwordController.text,
+          "name": _nameController.text,
+          "timezone": DateTime.now().timeZoneName,
+          "timeZoneOffset": DateTime.now().timeZoneOffset,
+        },
+      ),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    );
     final body = jsonDecode(req.body);
     setState(() {
       _loading = false;

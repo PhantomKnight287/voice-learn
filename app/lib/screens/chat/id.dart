@@ -364,7 +364,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       return;
     }
     if (granted) {
-      final directory = (await getApplicationDocumentsDirectory()).path;
+      final directory = (await getApplicationCacheDirectory()).path;
       String recording = '$directory/recordings';
       Directory appFolder = Directory(recording);
       bool appFolderExists = await appFolder.exists();

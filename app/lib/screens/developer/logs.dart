@@ -23,7 +23,7 @@ class _LogsScreenState extends State<LogsScreen> {
   }
 
   Future<void> _loadLogEntries() async {
-    final directory = (await getApplicationDocumentsDirectory()).path;
+    final directory = (await getApplicationCacheDirectory()).path;
     final info = await PackageInfo.fromPlatform();
     _logFile = File('$directory/logs/log_${info.buildNumber}_${info.version}.txt');
 
@@ -45,7 +45,7 @@ class _LogsScreenState extends State<LogsScreen> {
   }
 
   Future<void> _downloadLogFile() async {
-    final directory = await getApplicationDocumentsDirectory();
+    final directory = await getApplicationCacheDirectory();
     final logFilePath = '${directory.path}/logs/log_${DateTime.now().toIso8601String()}.txt';
     final newLogFile = File(logFilePath);
 

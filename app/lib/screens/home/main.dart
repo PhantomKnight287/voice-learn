@@ -18,6 +18,7 @@ import 'package:app/screens/recall/main.dart';
 import 'package:app/screens/shop/main.dart';
 import 'package:app/screens/streaks/main.dart';
 import 'package:app/utils/error.dart';
+import 'package:app/utils/print.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

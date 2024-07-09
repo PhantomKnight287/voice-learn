@@ -1,8 +1,11 @@
 import 'dart:convert';
 
 import 'package:app/components/input.dart';
+import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/main.dart';
+import 'package:app/models/language.dart';
+import 'package:app/screens/languages/main.dart';
 import 'package:app/utils/error.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,20 +18,23 @@ import 'package:toastification/toastification.dart';
 class CreateNoteScreen extends StatefulWidget {
   final String? title;
   final String? description;
+  final String? stackId;
   const CreateNoteScreen({
     super.key,
     this.description,
     this.title,
+    this.stackId,
   });
 
   @override
   State<CreateNoteScreen> createState() => _CreateNoteScreenState();
 }
 
-class _CreateNoteScreenState extends State<CreateNoteScreen> {
+class _CreateNoteScreenState extends State<CreateNoteScreen> with RouteAware {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  Language? language;
 
   Future<List<dynamic>> _fetchStacks() async {
     final prefs = await SharedPreferences.getInstance();
@@ -63,12 +69,13 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
         style: ToastificationStyle.minimal,
         autoCloseDuration: const Duration(seconds: 5),
         title: const Text("An Error Occurred"),
-        description: Text("Please select a stack"),
+        description: const Text("Please select a stack"),
         alignment: Alignment.topCenter,
         showProgressBar: false,
       );
       return;
     }
+
     if (_formKey.currentState!.validate() == false) return;
     setState(() {
       _loading = true;
@@ -89,6 +96,7 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
         {
           "title": _titleController.text,
           "description": _descriptionController.text,
+          "languageId": language?.id,
         },
       ),
     );
@@ -122,6 +130,9 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
       alignment: Alignment.topCenter,
       showProgressBar: false,
     );
+    if (context.mounted) {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -133,6 +144,9 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
     if (widget.description != null) {
       _descriptionController.text = widget.description!;
     }
+    if (widget.stackId != null) {
+      _stackId = widget.stackId!;
+    }
   }
 
   @override
@@ -140,6 +154,24 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
     super.dispose();
     _titleController.dispose();
     _descriptionController.dispose();
+    routeObserver.unsubscribe(this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(
+      this,
+      ModalRoute.of(context)!,
+    );
+  }
+
+  @override
+  void didPopNext() {
+    QueryClient.of(context).refreshQuery('stacks');
+    if (widget.stackId != null) {
+      QueryClient.of(context).refreshQuery('notes_$_stackId');
+    }
   }
 
   @override
@@ -246,6 +278,7 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
                       final data = query.data;
                       if (data == null || data.isEmpty) return Container();
                       return DropdownButtonFormField(
+                        value: _stackId,
                         hint: Center(
                           child: Text(
                             "Select a stack",
@@ -308,14 +341,72 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
                     ),
                   ),
                   const SizedBox(
+                    height: BASE_MARGIN * 6,
+                  ),
+                  Text(
+                    "Language",
+                    style: TextStyle(
+                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: BASE_MARGIN * 2,
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      final result = await Navigator.of(context).push(
+                        NoSwipePageRoute(
+                          builder: (context) {
+                            return const LanguagesScreen();
+                          },
+                        ),
+                      );
+                      if (!context.mounted) return;
+
+                      setState(() {
+                        language = result;
+                      });
+                    },
+                    child: Container(
+                      height: 50,
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: const Color(0xffe7e0e8),
+                      ),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Row(
+                          children: [
+                            if (language != null) ...{
+                              Image.network(
+                                language!.flagUrl,
+                                width: 35,
+                                height: 35,
+                              ),
+                              const SizedBox(
+                                width: BASE_MARGIN * 1,
+                              )
+                            },
+                            Text(
+                              language == null ? "Select a language" : language!.name,
+                              style: TextStyle(
+                                color: language == null ? Theme.of(context).hintColor : Colors.black,
+                                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
                     height: BASE_MARGIN * 4,
                   ),
                   ElevatedButton(
                     onPressed: () async {
                       await _createNote();
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                      }
                     },
                     style: ButtonStyle(
                       alignment: Alignment.center,
@@ -332,7 +423,7 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
                       ),
                     ),
                     child: _loading
-                        ? Center(
+                        ? const Center(
                             child: CupertinoActivityIndicator(),
                           )
                         : Text(

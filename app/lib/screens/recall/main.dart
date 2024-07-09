@@ -251,6 +251,9 @@ class _RecallScreenState extends State<RecallScreen> {
               refreshConfig: RefreshConfig.withDefaults(
                 context,
                 refreshOnMount: true,
+                staleDuration: Duration(
+                  seconds: 0,
+                ),
               ),
             ),
           ),

@@ -61,15 +61,17 @@ class _LoginScreenState extends State<LoginScreen> {
       body: jsonEncode({
         "email": _emailController.text,
         "password": _passwordController.text,
+        "timezone": DateTime.now().timeZoneName,
+        "timeZoneOffset": DateTime.now().timeZoneOffset.toString(),
       }),
       headers: {
         "Content-Type": "application/json",
       },
     );
-    final body = jsonDecode(req.body);
     setState(() {
       _loading = false;
     });
+    final body = jsonDecode(req.body);
     if (req.statusCode != 200) {
       final message = ApiResponseHelper.getErrorMessage(body);
       toastification.show(

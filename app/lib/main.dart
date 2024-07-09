@@ -77,7 +77,6 @@ class _VoiceLearnAppState extends State<VoiceLearnApp> {
       try {
         final prefs = await SharedPreferences.getInstance();
         final token = prefs.getString("token");
-        printWarning(OneSignal.User.pushSubscription.id ?? "noId");
         if (OneSignal.User.pushSubscription.id != null && OneSignal.User.pushSubscription.id!.isNotEmpty) {
           await http
               .post(

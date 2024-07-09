@@ -9,7 +9,6 @@ import 'package:app/models/user.dart';
 import 'package:app/screens/questions/complete.dart';
 import 'package:app/screens/recall/notes/create.dart';
 import 'package:app/utils/error.dart';
-import 'package:app/utils/print.dart';
 import 'package:app/utils/string.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -67,22 +66,23 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
           // Called when an ad is successfully received.
           onAdLoaded: (ad) {
             ad.fullScreenContentCallback = FullScreenContentCallback(
-                // Called when the ad showed the full screen content.
-                onAdShowedFullScreenContent: (ad) {},
-                // Called when an impression occurs on the ad.
-                onAdImpression: (ad) {},
-                // Called when the ad failed to show full screen content.
-                onAdFailedToShowFullScreenContent: (ad, err) {
-                  // Dispose the ad here to free resources.
-                  ad.dispose();
-                },
-                // Called when the ad dismissed full screen content.
-                onAdDismissedFullScreenContent: (ad) {
-                  // Dispose the ad here to free resources.
-                  ad.dispose();
-                },
-                // Called when a click is recorded for an ad.
-                onAdClicked: (ad) {});
+              // Called when the ad showed the full screen content.
+              onAdShowedFullScreenContent: (ad) {},
+              // Called when an impression occurs on the ad.
+              onAdImpression: (ad) {},
+              // Called when the ad failed to show full screen content.
+              onAdFailedToShowFullScreenContent: (ad, err) {
+                // Dispose the ad here to free resources.
+                ad.dispose();
+              },
+              // Called when the ad dismissed full screen content.
+              onAdDismissedFullScreenContent: (ad) {
+                // Dispose the ad here to free resources.
+                ad.dispose();
+              },
+              // Called when a click is recorded for an ad.
+              onAdClicked: (ad) {},
+            );
 
             debugPrint('$ad loaded.');
             // Keep a reference to the ad so you can show it later.
@@ -168,20 +168,50 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
       _submitAnswer(questionId, answer, last).then(
         (value) async {
           if (last) {
+            _interstitialAd?.fullScreenContentCallback = FullScreenContentCallback(
+              onAdDismissedFullScreenContent: (ad) {
+                ad.dispose();
+                Navigator.of(context).pushReplacement(
+                  NoSwipePageRoute(
+                    builder: (context) {
+                      return LessonCompleteScreen(
+                        questionId: questionId,
+                        showAd: true,
+                      );
+                    },
+                  ),
+                );
+              },
+              onAdFailedToShowFullScreenContent: (ad, error) {
+                ad.dispose();
+                logger.e("Failed to show full screen ad: ${error.message}");
+                Navigator.of(context).pushReplacement(
+                  NoSwipePageRoute(
+                    builder: (context) {
+                      return LessonCompleteScreen(
+                        questionId: questionId,
+                        showAd: true,
+                      );
+                    },
+                  ),
+                );
+              },
+            );
             final userState = context.read<UserBloc>().state;
             if (userState.tier == Tiers.free) {
               await _interstitialAd?.show();
+            } else {
+              Navigator.of(context).pushReplacement(
+                NoSwipePageRoute(
+                  builder: (context) {
+                    return LessonCompleteScreen(
+                      questionId: questionId,
+                      showAd: true,
+                    );
+                  },
+                ),
+              );
             }
-            Navigator.of(context).pushReplacement(
-              NoSwipePageRoute(
-                builder: (context) {
-                  return LessonCompleteScreen(
-                    questionId: questionId,
-                    showAd: true,
-                  );
-                },
-              ),
-            );
           }
         },
       );
@@ -357,7 +387,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
             token: state.token,
             emeralds: body['emeralds'],
             lives: body['lives'],
-            xp: body['xp'],
+            xp: body['xp'].toDouble(),
             streaks: body['streaks'] ?? last == true ? state.streaks + 1 : state.streaks,
             isStreakActive: body['isStreakActive'] ?? state.isStreakActive,
             tier: state.tier,
@@ -368,7 +398,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
         logger.e("Failed to submit answer: $message");
       }
     } catch (e) {
-      debugPrint(e.toString());
+      logger.e("Caught error while submitting answer: ${e.toString()}");
     }
   }
 
@@ -883,7 +913,6 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                                             children: [
                                                               ElevatedButton(
                                                                 onPressed: () async {
-                                                                  printWarning((_speed / 2).toString());
                                                                   flutterTts.setSpeechRate(_speed);
                                                                   await flutterTts.speak(testSentence);
                                                                 },

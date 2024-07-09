@@ -539,8 +539,6 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    printWarning(_currentStep.toString());
-
                     if (_currentStep == 0 && _selectedLanguageId.isEmpty) {
                       return;
                     }
@@ -563,7 +561,6 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                         _currentStep++;
                       });
                     }
-                    printWarning(_currentStep.toString());
                   },
                   style: ButtonStyle(
                     alignment: Alignment.center,
