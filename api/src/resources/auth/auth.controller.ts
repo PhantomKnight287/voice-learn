@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Headers, HttpCode, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  HttpCode,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDTO } from './dto/sign-in.dto';
 import { SignupDTO } from './dto/signup.dto';
@@ -114,8 +122,12 @@ export class AuthController {
     },
   })
   @Get('hydrate')
-  hydrate(@Headers('Authorization') token: string) {
-    return this.authService.hydrate(token);
+  hydrate(
+    @Headers('Authorization') token: string,
+    @Query('timezone') timezone: string,
+    @Query('timeZoneOffset') timeZoneOffset: string,
+  ) {
+    return this.authService.hydrate(token, timezone, timeZoneOffset);
   }
 
   @Post('password/update')

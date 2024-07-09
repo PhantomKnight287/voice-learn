@@ -25,7 +25,9 @@ model User {
   activeStreaks     Int      @default(0)
   longestStreak     Int      @default(0)
 
-  tier Tiers @default(free)
+  tier           Tiers   @default(free)
+  timezone       String?
+  timeZoneOffSet Int?
 
   homeScreenTutorialShown Boolean @default(false)
   chatScreenTutorialShown Boolean @default(false)
@@ -48,6 +50,9 @@ model Note {
   /// This is gonna support markdown
   description String
 
+  language   Language? @relation(fields: [languageId], references: [id])
+  languageId String?
+
   stack   Stack  @relation(fields: [stackId], references: [id])
   stackId String
 
@@ -63,7 +68,7 @@ model Stack {
   user   User?   @relation(fields: [userId], references: [id])
   userId String?
 
-  notes      Note[]
+  notes Note[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -233,8 +238,8 @@ model Language {
   key           String?
   chats         Chat[]
   learningPaths LearningPath[]
-
-  XP XP[]
+  notes         Note[]
+  XP            XP[]
 }
 
 model Chat {

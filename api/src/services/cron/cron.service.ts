@@ -37,17 +37,30 @@ export class CronService {
     });
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_10AM, { timeZone: 'UTC' })
+  @Cron('* 0/15 * * *')
   async notifyUsers() {
-    const { currentDateInGMT, nextDateInGMT } = generateTimestamps();
+    const timeZoneOffsets = Array.from(
+      { length: 24 * 4 },
+      (_, i) => i * 15 - 720,
+    ); // [-720, -705, ..., 705, 720]
 
-    const users = await prisma.user.findMany({
-      where: {
-        notificationToken: { not: null },
-      },
-    });
-    const ids = [];
-    try {
+    for (const offset of timeZoneOffsets) {
+      const localTime = moment().utcOffset(offset);
+      const localHour = localTime.hour();
+
+      // Check if it's 10:00 AM in the user's local time
+      if (localHour !== 10) continue;
+
+      const { currentDateInGMT, nextDateInGMT } = generateTimestamps(offset);
+
+      const users = await prisma.user.findMany({
+        where: {
+          notificationToken: { not: null },
+          timeZoneOffSet: offset,
+        },
+      });
+
+      const ids = [];
       for (const user of users) {
         // Check if a streak record exists between the timeframe
         const streakExists = await prisma.streak.findFirst({
@@ -59,12 +72,14 @@ export class CronService {
             },
           },
         });
+
         if (!streakExists) {
           ids.push(user.notificationToken);
         }
       }
 
-      if (ids.length == 0) return;
+      if (ids.length == 0) continue;
+
       const res = await onesignal.createNotification({
         app_id: process.env.ONESIGNAL_APP_ID,
         name: 'Streak Notification',
@@ -76,19 +91,30 @@ export class CronService {
         },
         include_subscription_ids: ids,
       });
-    } catch (error) {
-      console.error('Error resetting streaks:', error);
+      console.log(res);
     }
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_NOON, {
-    timeZone: 'UTC',
-  })
-  async bonkLazyUsers() {
-    const { currentDateInGMT, nextDateInGMT } = generateTimestamps();
+  @Cron('* 0/15 * * *')
+  async notifyLazyUsers() {
+    const currentPhoneTime = new Date();
+    const currentMinutes = currentPhoneTime.getUTCMinutes();
+    const timeZoneOffsets = Array.from(
+      { length: 24 * 4 },
+      (_, i) => i * 15 - 720,
+    ); // [-720, -705, ..., 705, 720]
 
-    const users = await prisma.user.findMany();
-    try {
+    for (const offset of timeZoneOffsets) {
+      if (currentMinutes % 15 !== 0) continue; // Ensure the cron only runs every 15 minutes
+
+      const { currentDateInGMT, nextDateInGMT } = generateTimestamps(offset);
+
+      const users = await prisma.user.findMany({
+        where: {
+          timeZoneOffSet: offset,
+        },
+      });
+
       for (const user of users) {
         // Check if a streak record exists between the timeframe
         const streakExists = await prisma.streak.findFirst({
@@ -101,7 +127,6 @@ export class CronService {
           },
         });
 
-        // If no streak record exists for today, reset activeStreaks to 0
         if (!streakExists) {
           if (user.streakShields > 0) {
             await prisma.user.update({
@@ -116,8 +141,9 @@ export class CronService {
                 },
               },
             });
+
             if (user.notificationToken) {
-              const res = await onesignal.createNotification({
+              await onesignal.createNotification({
                 app_id: process.env.ONESIGNAL_APP_ID,
                 name: 'Streak Shield Used Notification',
                 contents: {
@@ -128,16 +154,15 @@ export class CronService {
                 },
                 include_subscription_ids: [user.notificationToken],
               });
-              console.log(res);
             }
           } else {
             await prisma.user.update({
               where: { id: user.id },
               data: { activeStreaks: 0 },
             });
-            console.log(`Active streaks reset for user: ${user.id}`);
+
             if (user.notificationToken) {
-              const res = await onesignal.createNotification({
+              await onesignal.createNotification({
                 app_id: process.env.ONESIGNAL_APP_ID,
                 name: 'Streak Reset Notification',
                 headings: {
@@ -148,13 +173,10 @@ export class CronService {
                 },
                 include_subscription_ids: [user.notificationToken],
               });
-              console.log(res);
             }
           }
         }
       }
-    } catch (error) {
-      console.error('Error resetting streaks:', error);
     }
   }
 

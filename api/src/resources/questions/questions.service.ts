@@ -234,24 +234,50 @@ export class QuestionsService {
             id: true,
           },
         });
-        await tx.lesson.create({
-          data: {
-            id: `lesson_${createId()}`,
+        const olderCorrectionModule = await tx.lesson.findFirst({
+          where: {
             name: 'Mistake Correction',
-            completed: false,
-            questionsCount: allIncorrectQuestions.length,
             emeralds: 0,
             xpPerQuestion: 0,
-            module: {
-              connect: {
-                id: lesson.moduleId,
-              },
-            },
+            moduleId: lesson.moduleId,
           },
         });
+        const correctionModule =
+          olderCorrectionModule ??
+          (await tx.lesson.create({
+            data: {
+              id: `lesson_${createId()}`,
+              name: 'Mistake Correction',
+              completed: false,
+              questionsCount: allIncorrectQuestions.length,
+              questionsStatus: 'generated',
+              emeralds: 0,
+              xpPerQuestion: 0,
+              module: {
+                connect: {
+                  id: lesson.moduleId,
+                },
+              },
+            },
+          }));
+        for (const ques of allIncorrectQuestions) {
+          await tx.question.update({
+            where: { id: ques.id },
+            data: {
+              lessons: {
+                connect: {
+                  id: correctionModule.id,
+                },
+              },
+            },
+          });
+        }
       }
 
-      const { currentDateInGMT, nextDateInGMT } = generateTimestamps();
+      const user = await tx.user.findFirst({ where: { id: userId } });
+      const { currentDateInGMT, nextDateInGMT } = generateTimestamps(
+        user.timeZoneOffSet,
+      );
 
       const existingStreak = await tx.streak.findFirst({
         where: {
@@ -262,8 +288,6 @@ export class QuestionsService {
           },
         },
       });
-
-      const user = await tx.user.findFirst({ where: { id: userId } });
 
       if (!existingStreak && body.last) {
         await tx.user.update({
@@ -303,7 +327,9 @@ export class QuestionsService {
         },
       });
     });
-    const { currentDateInGMT, nextDateInGMT } = generateTimestamps();
+    const { currentDateInGMT, nextDateInGMT } = generateTimestamps(
+      user.timeZoneOffSet,
+    );
 
     const streak = await prisma.streak.findFirst({
       where: {

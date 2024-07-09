@@ -3,6 +3,7 @@ import { prisma } from 'src/db';
 import { CreateStackDTO } from './dto/create-stack.dto';
 import { createId } from '@paralleldrive/cuid2';
 import { CreateNoteDTO } from './dto/create-note.dto';
+import { locales } from 'src/constants';
 
 @Injectable()
 export class RecallsService {
@@ -55,6 +56,7 @@ export class RecallsService {
         title: body.title,
         id: `note_${createId()}`,
         stackId,
+        languageId: body.languageId,
       },
     });
     return {
@@ -103,5 +105,24 @@ export class RecallsService {
       },
     });
     return stacks;
+  }
+
+  async getNoteInfo(noteId: string, userId: string) {
+    const note = await prisma.note.findFirst({
+      where: { stack: { userId }, id: noteId },
+      include: {
+        language: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+    if (!note) throw new HttpException('No note found', HttpStatus.NOT_FOUND);
+
+    return {
+      ...note,
+      locale: note.languageId ? locales[note.language.name] : null,
+    };
   }
 }

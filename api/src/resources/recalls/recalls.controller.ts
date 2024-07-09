@@ -55,4 +55,9 @@ export class RecallsController {
   getAllStacks(@Auth() auth: User) {
     return this.recallsService.getStackNames(auth.id);
   }
+
+  @Get('notes/:id')
+  getNote(@Auth() auth: User, @Param('id') id: string) {
+    return this.recallsService.getNoteInfo(id, auth.id);
+  }
 }

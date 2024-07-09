@@ -67,6 +67,7 @@ export class LessonsService {
   }
 
   async getLessonCompletionStats(questionId: string, userId: string) {
+    const user = await prisma.user.findFirst({ where: { id: userId } });
     const lesson = await prisma.lesson.findFirst({
       where: {
         OR: [
@@ -103,7 +104,9 @@ export class LessonsService {
     if (!lesson)
       throw new HttpException('No lesson found', HttpStatus.NOT_FOUND);
 
-    const { currentDateInGMT, nextDateInGMT } = generateTimestamps();
+    const { currentDateInGMT, nextDateInGMT } = generateTimestamps(
+      user.timeZoneOffSet,
+    );
 
     const questionIds = lesson.questions.map((q) => q.id);
     const answers = await prisma.answer.groupBy({
@@ -131,11 +134,6 @@ export class LessonsService {
       },
     });
 
-    const user = await prisma.user.findFirst({
-      where: {
-        id: userId,
-      },
-    });
     return {
       correctAnswers:
         answers.find((item) => item.type === 'correct')?._count.type ||

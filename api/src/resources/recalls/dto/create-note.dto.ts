@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class CreateNoteDTO {
   @IsString()
@@ -6,4 +6,8 @@ export class CreateNoteDTO {
 
   @IsString()
   description: string;
+
+  @IsString()
+  @IsOptional()
+  languageId?: string;
 }

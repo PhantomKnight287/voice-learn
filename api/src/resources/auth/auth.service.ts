@@ -8,14 +8,14 @@ import { createId } from '@paralleldrive/cuid2';
 import { prisma } from 'src/db';
 import moment from 'moment';
 import { UpdatePasswordDTO } from './dto/update-password.dto';
-import { generateTimestamps } from 'src/lib/time';
+import { generateTimestamps, parseOffset } from 'src/lib/time';
 
 @Injectable()
 export class AuthService {
   constructor(private service: ConfigService) {}
 
   async signIn(body: SignInDTO) {
-    const { password, email } = body;
+    const { password, email, timezone, timeZoneOffSet } = body;
     const user = await prisma.user.findFirst({
       where: { email: { equals: email, mode: 'insensitive' } },
       include: {
@@ -37,7 +37,9 @@ export class AuthService {
     delete user.password;
     const token = sign({ id: user.id }, this.service.get('JWT_SECRET'));
 
-    const { currentDateInGMT, nextDateInGMT } = generateTimestamps();
+    const { currentDateInGMT, nextDateInGMT } = generateTimestamps(
+      timeZoneOffSet ? parseOffset(timeZoneOffSet) : user.timeZoneOffSet,
+    );
     const path = await prisma.learningPath.findFirst({
       where: {
         userId: user.id,
@@ -47,6 +49,17 @@ export class AuthService {
         id: true,
       },
     });
+    if (timezone || timeZoneOffSet) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          timezone,
+          timeZoneOffSet: timeZoneOffSet
+            ? parseOffset(timeZoneOffSet)
+            : undefined,
+        },
+      });
+    }
     const streak = await prisma.streak.findFirst({
       where: {
         createdAt: {
@@ -64,7 +77,7 @@ export class AuthService {
   }
 
   async signup(body: SignupDTO) {
-    const { email, password, name } = body;
+    const { email, password, name, timeZoneOffSet, timezone } = body;
     const existingUser = await prisma.user.findFirst({
       where: { email: { equals: email, mode: 'insensitive' } },
     });
@@ -83,6 +96,10 @@ export class AuthService {
         name,
         password: hashedPassword,
         email,
+        timeZoneOffSet: timeZoneOffSet
+          ? parseOffset(timeZoneOffSet)
+          : undefined,
+        timezone,
       },
       omit: {
         password: true,
@@ -108,7 +125,7 @@ export class AuthService {
     }
   }
 
-  async hydrate(token: string) {
+  async hydrate(token: string, timezone: string, timeZoneOffSet: string) {
     try {
       const payload = verifyJWT(
         token.replace('Bearer ', ''),
@@ -125,7 +142,20 @@ export class AuthService {
       });
       if (!user)
         throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
-      const { currentDateInGMT, nextDateInGMT } = generateTimestamps();
+      if (timezone || timeZoneOffSet) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            timezone,
+            timeZoneOffSet: timeZoneOffSet
+              ? parseOffset(timeZoneOffSet)
+              : undefined,
+          },
+        });
+      }
+      const { currentDateInGMT, nextDateInGMT } = generateTimestamps(
+        timeZoneOffSet ? parseOffset(timeZoneOffSet) : user.timeZoneOffSet,
+      );
 
       const streak = await prisma.streak.findFirst({
         where: {
