@@ -18,5 +18,5 @@ export class SignInDTO {
   @ApiProperty()
   @IsOptional()
   @IsString()
-  timeZoneOffSet: string
+  timeZoneOffset: string
 }

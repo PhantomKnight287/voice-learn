@@ -38,14 +38,14 @@ export class AllExceptionsFilter implements ExceptionFilter {
         ? exception.message
         : 'Unexpected error occurred';
 
-
     const errorMessage = {
       statusCode: status,
       message,
       timestamp: new Date().toISOString(),
       path: request.originalUrl,
-      detailedError
+      detailedError,
     };
+    console.error(exception.stack);
 
     if (req instanceof IncomingMessage) {
       errorSubject$.next({

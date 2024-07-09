@@ -22,5 +22,5 @@ export class SignupDTO {
   @ApiProperty()
   @IsOptional()
   @IsString()
-  timeZoneOffSet: string
+  timeZoneOffset: string
 }

@@ -6,8 +6,10 @@ POST {{url}}/auth/sign-in
 Content-Type: application/json
 
 {
-    "username":"phantomknight287",
-    "password":"password"
+    "email":"gillgurpal699+2@gmail.com",
+    "password":"password",
+    "timezone": "IST",
+	"timeZoneOffset": "5:30:00.000000"
 }
 
 
@@ -16,7 +18,7 @@ POST {{url}}/auth/sign-up
 Content-Type: application/json
 
 {
-    "username":"phantomknight287",
+    "email":"gillgurpal699+2@gmail.com",
     "password":"password",
     "name":"Gurpal Singh"
 }

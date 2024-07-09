@@ -15,7 +15,7 @@ export class AuthService {
   constructor(private service: ConfigService) {}
 
   async signIn(body: SignInDTO) {
-    const { password, email, timezone, timeZoneOffSet } = body;
+    const { password, email, timezone, timeZoneOffset } = body;
     const user = await prisma.user.findFirst({
       where: { email: { equals: email, mode: 'insensitive' } },
       include: {
@@ -36,9 +36,9 @@ export class AuthService {
 
     delete user.password;
     const token = sign({ id: user.id }, this.service.get('JWT_SECRET'));
-
+    console.log(user);
     const { currentDateInGMT, nextDateInGMT } = generateTimestamps(
-      timeZoneOffSet ? parseOffset(timeZoneOffSet) : user.timeZoneOffSet,
+      (timeZoneOffset ? parseOffset(timeZoneOffset) : user.timeZoneOffSet) || 0,
     );
     const path = await prisma.learningPath.findFirst({
       where: {
@@ -49,13 +49,13 @@ export class AuthService {
         id: true,
       },
     });
-    if (timezone || timeZoneOffSet) {
+    if (timezone || timeZoneOffset) {
       await prisma.user.update({
         where: { id: user.id },
         data: {
           timezone,
-          timeZoneOffSet: timeZoneOffSet
-            ? parseOffset(timeZoneOffSet)
+          timeZoneOffSet: timeZoneOffset
+            ? parseOffset(timeZoneOffset)
             : undefined,
         },
       });
@@ -77,7 +77,7 @@ export class AuthService {
   }
 
   async signup(body: SignupDTO) {
-    const { email, password, name, timeZoneOffSet, timezone } = body;
+    const { email, password, name, timezone, timeZoneOffset } = body;
     const existingUser = await prisma.user.findFirst({
       where: { email: { equals: email, mode: 'insensitive' } },
     });
@@ -96,8 +96,8 @@ export class AuthService {
         name,
         password: hashedPassword,
         email,
-        timeZoneOffSet: timeZoneOffSet
-          ? parseOffset(timeZoneOffSet)
+        timeZoneOffSet: timeZoneOffset
+          ? parseOffset(timeZoneOffset)
           : undefined,
         timezone,
       },
@@ -154,7 +154,8 @@ export class AuthService {
         });
       }
       const { currentDateInGMT, nextDateInGMT } = generateTimestamps(
-        timeZoneOffSet ? parseOffset(timeZoneOffSet) : user.timeZoneOffSet,
+        (timeZoneOffSet ? parseOffset(timeZoneOffSet) : user.timeZoneOffSet) ||
+          0,
       );
 
       const streak = await prisma.streak.findFirst({
