@@ -277,6 +277,61 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> with RouteAware {
                       if (query.hasError) return Text(query.error.toString());
                       final data = query.data;
                       if (data == null || data.isEmpty) return Container();
+                      if (_stackId.isEmpty) {
+                        return DropdownButtonFormField(
+                          hint: Center(
+                            child: Text(
+                              "Select a stack",
+                              style: TextStyle(
+                                fontSize: Theme.of(context).textTheme.titleSmall?.fontSize,
+                              ),
+                            ),
+                          ),
+                          decoration: InputDecoration(
+                            hintText: "Select a stack",
+                            contentPadding: const EdgeInsets.all(8.0),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: BorderSide.none,
+                            ),
+                            prefixIconColor: Colors.black,
+                            filled: true,
+                            hintStyle: TextStyle(
+                              fontSize: Theme.of(context).textTheme.titleSmall?.fontSize,
+                            ),
+                            errorStyle: TextStyle(
+                              color: Colors.red,
+                              fontSize: Theme.of(context).textTheme.titleSmall?.fontSize,
+                            ),
+                          ),
+                          items: data
+                              .map(
+                                (item) => DropdownMenuItem(
+                                  value: item['id'],
+                                  child: Text(
+                                    item['name'],
+                                    style: TextStyle(
+                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                    ),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (value) {
+                            if (value != null) {
+                              setState(() {
+                                _stackId = value as String;
+                              });
+                            }
+                          },
+                          validator: (value) {
+                            if (value == null || (value as String).isEmpty) {
+                              return 'Please select a stack.';
+                            }
+                            return null;
+                          },
+                        );
+                      }
                       return DropdownButtonFormField(
                         value: _stackId,
                         hint: Center(
@@ -306,7 +361,7 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> with RouteAware {
                         ),
                         items: data
                             .map(
-                              (item) => DropdownMenuItem(
+                              (item) => DropdownMenuItem<String>(
                                 value: item['id'],
                                 child: Text(
                                   item['name'],

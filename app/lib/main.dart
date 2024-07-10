@@ -6,7 +6,6 @@ import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/handler/switcher.dart';
 import 'package:app/logs/main.dart';
-import 'package:app/utils/print.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,7 +24,7 @@ import 'package:logger/logger.dart';
 final RouteObserver<ModalRoute> routeObserver = RouteObserver<ModalRoute>();
 
 final logger = Logger(
-  filter: null,
+  filter: ProductionFilter(),
   printer: PrettyPrinter(),
   output: FileLoggerOutput(),
   level: Level.all,

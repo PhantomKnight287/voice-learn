@@ -48,7 +48,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
   final startDate = DateTime.now().toIso8601String();
   String language = '';
   bool _disabled = false;
-  double _speed = 1;
+  double _speed = 0.5;
   String testSentence = "";
   InterstitialAd? _interstitialAd;
 
@@ -84,13 +84,12 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
               onAdClicked: (ad) {},
             );
 
-            debugPrint('$ad loaded.');
             // Keep a reference to the ad so you can show it later.
             _interstitialAd = ad;
           },
           // Called when an ad request failed.
           onAdFailedToLoad: (LoadAdError error) {
-            debugPrint('InterstitialAd failed to load: $error');
+            logger.e('InterstitialAd failed to load: $error');
           },
         ));
   }
@@ -100,8 +99,9 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     final speed = prefs.getDouble("tts_speed");
 
     setState(() {
-      _speed = double.parse((speed ?? 1).toStringAsFixed(1));
+      _speed = double.parse((speed ?? 0.5).toStringAsFixed(1));
     });
+    await flutterTts.setSpeechRate(speed ?? 0.5);
   }
 
   void _getLanguages(
@@ -874,94 +874,90 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                               context: context,
                                               builder: (context) {
                                                 return StatefulBuilder(builder: (context, setStateBuilder) {
-                                                  return Banner(
-                                                    location: BannerLocation.topEnd,
-                                                    message: "Experimental",
-                                                    child: Container(
-                                                      padding: const EdgeInsets.all(16.0),
-                                                      height: 200,
-                                                      child: Column(
-                                                        mainAxisAlignment: MainAxisAlignment.center,
-                                                        children: [
-                                                          const Text(
-                                                            'Select Speed of AI Audio',
-                                                            style: TextStyle(
-                                                              fontSize: 18,
-                                                              fontWeight: FontWeight.bold,
+                                                  return Container(
+                                                    padding: const EdgeInsets.all(16.0),
+                                                    height: 200,
+                                                    child: Column(
+                                                      mainAxisAlignment: MainAxisAlignment.center,
+                                                      children: [
+                                                        const Text(
+                                                          'Select Speed of AI Audio',
+                                                          style: TextStyle(
+                                                            fontSize: 18,
+                                                            fontWeight: FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                          height: BASE_MARGIN * 4,
+                                                        ),
+                                                        Text('Speed: ${(_speed).toStringAsFixed(1)}x'),
+                                                        Slider(
+                                                          min: 0.1,
+                                                          max: 1.0,
+                                                          divisions: 9,
+                                                          value: _speed,
+                                                          onChanged: (value) {
+                                                            setStateBuilder(() {
+                                                              _speed = double.parse(value.toStringAsFixed(1));
+                                                            });
+                                                            setState(() {
+                                                              _speed = double.parse(value.toStringAsFixed(1));
+                                                            });
+                                                          },
+                                                        ),
+                                                        Row(
+                                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                          children: [
+                                                            ElevatedButton(
+                                                              onPressed: () async {
+                                                                flutterTts.setSpeechRate(_speed);
+                                                                await flutterTts.speak(testSentence);
+                                                              },
+                                                              style: ButtonStyle(
+                                                                shape: WidgetStateProperty.all(
+                                                                  RoundedRectangleBorder(
+                                                                    borderRadius: BorderRadius.circular(
+                                                                      10,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                backgroundColor: WidgetStateProperty.all(
+                                                                  SECONDARY_BG_COLOR,
+                                                                ),
+                                                              ),
+                                                              child: const Text(
+                                                                'Preview',
+                                                                style: TextStyle(
+                                                                  color: Colors.black,
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
-                                                          const SizedBox(
-                                                            height: BASE_MARGIN * 4,
-                                                          ),
-                                                          Text('Speed: ${(_speed * 2).toStringAsFixed(1)}x'),
-                                                          Slider(
-                                                            min: 1.0,
-                                                            max: 2.0,
-                                                            divisions: 10,
-                                                            value: _speed * 2,
-                                                            onChanged: (value) {
-                                                              setStateBuilder(() {
-                                                                _speed = double.parse(value.toStringAsFixed(1)) / 2;
-                                                              });
-                                                              setState(() {
-                                                                _speed = double.parse(value.toStringAsFixed(1)) / 2;
-                                                              });
-                                                            },
-                                                          ),
-                                                          Row(
-                                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                            children: [
-                                                              ElevatedButton(
-                                                                onPressed: () async {
-                                                                  flutterTts.setSpeechRate(_speed);
-                                                                  await flutterTts.speak(testSentence);
-                                                                },
-                                                                style: ButtonStyle(
-                                                                  shape: WidgetStateProperty.all(
-                                                                    RoundedRectangleBorder(
-                                                                      borderRadius: BorderRadius.circular(
-                                                                        10,
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  backgroundColor: WidgetStateProperty.all(
-                                                                    SECONDARY_BG_COLOR,
-                                                                  ),
-                                                                ),
-                                                                child: const Text(
-                                                                  'Preview',
-                                                                  style: TextStyle(
-                                                                    color: Colors.black,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              ElevatedButton(
-                                                                onPressed: () async {
-                                                                  final prefs = await SharedPreferences.getInstance();
-                                                                  prefs.setDouble("tts_speed", _speed);
-                                                                  Navigator.of(context).pop();
-                                                                  setState(() {});
-                                                                },
-                                                                style: ButtonStyle(
-                                                                  shape: WidgetStateProperty.all(
-                                                                    RoundedRectangleBorder(
-                                                                      borderRadius: BorderRadius.circular(
-                                                                        10,
-                                                                      ),
+                                                            ElevatedButton(
+                                                              onPressed: () async {
+                                                                final prefs = await SharedPreferences.getInstance();
+                                                                prefs.setDouble("tts_speed", _speed);
+                                                                Navigator.of(context).pop();
+                                                                setState(() {});
+                                                              },
+                                                              style: ButtonStyle(
+                                                                shape: WidgetStateProperty.all(
+                                                                  RoundedRectangleBorder(
+                                                                    borderRadius: BorderRadius.circular(
+                                                                      10,
                                                                     ),
                                                                   ),
                                                                 ),
-                                                                child: const Text(
-                                                                  'Save',
-                                                                  style: TextStyle(
-                                                                    color: Colors.black,
-                                                                  ),
+                                                              ),
+                                                              child: const Text(
+                                                                'Save',
+                                                                style: TextStyle(
+                                                                  color: Colors.black,
                                                                 ),
                                                               ),
-                                                            ],
-                                                          ),
-                                                        ],
-                                                      ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
                                                     ),
                                                   );
                                                 });

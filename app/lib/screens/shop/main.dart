@@ -1,17 +1,24 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/classes/sku.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
+import 'package:app/main.dart';
 import 'package:app/models/purchaseable_product.dart';
 import 'package:app/screens/shop/transaction.dart';
-import 'package:app/utils/print.dart';
+import 'package:app/utils/error.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:heroicons/heroicons.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'package:shimmer/shimmer.dart';
+import 'package:toastification/toastification.dart';
 
 class ShopScreen extends StatefulWidget {
   const ShopScreen({super.key});
@@ -23,6 +30,81 @@ class ShopScreen extends StatefulWidget {
 class _ShopScreenState extends State<ShopScreen> {
   final _iap = InAppPurchase.instance;
   List<PurchasableProduct> products = [];
+  bool _refillShieldsLoading = false;
+  bool _buyOneShieldLoading = false;
+  Future<void> _buyOneStreakShield() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString("token");
+    final url = Uri.parse("$API_URL/streaks/shields/one");
+    logger.t("Fetching ${url.toString()}");
+    final req = await http.post(
+      url,
+      headers: {
+        "Authorization": "Bearer $token",
+      },
+    );
+    final body = jsonDecode(req.body);
+    if (req.statusCode != 201) {
+      final message = ApiResponseHelper.getErrorMessage(body);
+      logger.e("Failed to buy 1 shield: $message");
+      toastification.show(
+        type: ToastificationType.error,
+        style: ToastificationStyle.minimal,
+        autoCloseDuration: const Duration(seconds: 5),
+        title: const Text("An Error Occurred"),
+        description: Text(message),
+        alignment: Alignment.topCenter,
+        showProgressBar: false,
+      );
+    }
+    logger.t("Bought 1 Shield");
+    final userBloc = context.read<UserBloc>();
+    userBloc.add(
+      UserLoggedInEvent.setEmeraldsAndLives(
+        userBloc.state,
+        body['emeralds'],
+        userBloc.state.lives,
+      ),
+    );
+    setState(() {});
+  }
+
+  Future<void> _refillStreakShields() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString("token");
+    final url = Uri.parse("$API_URL/streaks/shields/refill");
+    logger.t("Fetching ${url.toString()}");
+    final req = await http.post(
+      url,
+      headers: {
+        "Authorization": "Bearer $token",
+      },
+    );
+    final body = jsonDecode(req.body);
+    if (req.statusCode != 201) {
+      final message = ApiResponseHelper.getErrorMessage(body);
+      logger.e("Failed to refill shields: $message");
+      toastification.show(
+        type: ToastificationType.error,
+        style: ToastificationStyle.minimal,
+        autoCloseDuration: const Duration(seconds: 5),
+        title: const Text("An Error Occurred"),
+        description: Text(message),
+        alignment: Alignment.topCenter,
+        showProgressBar: false,
+      );
+    }
+    logger.t("Refilled Shields");
+    final userBloc = context.read<UserBloc>();
+    userBloc.add(
+      UserLoggedInEvent.setEmeraldsAndLives(
+        userBloc.state,
+        body['emeralds'],
+        userBloc.state.lives,
+      ),
+    );
+    setState(() {});
+  }
 
   @override
   void initState() {
@@ -54,8 +136,29 @@ class _ShopScreenState extends State<ShopScreen> {
     try {
       await _iap.restorePurchases();
     } catch (error) {
-      //you can handle error if restore purchase fails
+      logger.e("Failed to restore purchases: ${error.toString()}");
     }
+  }
+
+  Future<int> _fetchStreakShields() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString("token");
+    final url = Uri.parse("$API_URL/streaks/shields");
+    logger.t("Fetching ${url.toString()}");
+    final req = await http.get(
+      url,
+      headers: {
+        "Authorization": "Bearer $token",
+      },
+    );
+    final body = jsonDecode(req.body);
+    if (req.statusCode != 200) {
+      final message = ApiResponseHelper.getErrorMessage(body);
+      logger.e("Failed to fetch shields: $message");
+      throw message;
+    }
+    logger.t("Fetched Shields");
+    return body['shields'] as int;
   }
 
   @override
@@ -112,6 +215,7 @@ class _ShopScreenState extends State<ShopScreen> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                  fontFamily: "CalSans",
                 ),
               ),
               QueryBuilder(
@@ -169,6 +273,326 @@ class _ShopScreenState extends State<ShopScreen> {
                   );
                 },
               ),
+              const SizedBox(
+                height: BASE_MARGIN * 4,
+              ),
+              Text(
+                "Streak",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                  fontFamily: "CalSans",
+                ),
+              ),
+              const SizedBox(
+                height: BASE_MARGIN * 2,
+              ),
+              QueryBuilder(
+                'shields',
+                _fetchStreakShields,
+                builder: (context, query) {
+                  if (query.hasError) {
+                    return Center(
+                      child: Text(query.error.toString()),
+                    );
+                  }
+                  final data = query.data;
+                  return GestureDetector(
+                    onTap: () {
+                      if (data == null) return;
+                      showModalBottomSheet(
+                        context: context,
+                        enableDrag: true,
+                        showDragHandle: true,
+                        builder: (context) {
+                          return StatefulBuilder(
+                            builder: (context, _setState) {
+                              final bloc = context.read<UserBloc>();
+                              final state = bloc.state;
+                              return Padding(
+                                padding: const EdgeInsets.all(BASE_MARGIN * 2),
+                                child: Column(
+                                  children: [
+                                    const SizedBox(
+                                      height: BASE_MARGIN * 2,
+                                    ),
+                                    const SizedBox(
+                                      height: BASE_MARGIN * 4,
+                                    ),
+                                    Text(
+                                      data >= 5 ? "You have full shields" : "You have ${data} ${data == 1 ? "shield" : "shields"}",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: BASE_MARGIN * 4,
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        if (data >= 5) return;
+                                        _setState(() {
+                                          _refillShieldsLoading = true;
+                                        });
+                                        await _refillStreakShields();
+                                        await query.refresh();
+                                        _setState(() {
+                                          _refillShieldsLoading = false;
+                                        });
+                                        Navigator.pop(context);
+                                      },
+                                      style: ButtonStyle(
+                                        backgroundColor: data < 5
+                                            ? WidgetStateProperty.all(
+                                                SECONDARY_BG_COLOR,
+                                              )
+                                            : WidgetStateProperty.all(
+                                                Colors.grey.shade500,
+                                              ),
+                                        alignment: Alignment.center,
+                                        foregroundColor: WidgetStateProperty.all(Colors.black),
+                                        padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
+                                          (Set<WidgetState> states) {
+                                            return const EdgeInsets.all(15);
+                                          },
+                                        ),
+                                        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                        ),
+                                      ),
+                                      child: _refillShieldsLoading
+                                          ? Container(
+                                              width: 24,
+                                              height: 24,
+                                              padding: const EdgeInsets.all(2.0),
+                                              child: const CupertinoActivityIndicator(
+                                                animating: true,
+                                                radius: 20,
+                                              ),
+                                            )
+                                          : Row(
+                                              children: [
+                                                const HeroIcon(
+                                                  HeroIcons.shieldExclamation,
+                                                  size: 30,
+                                                ),
+                                                const SizedBox(
+                                                  width: BASE_MARGIN * 2,
+                                                ),
+                                                Expanded(
+                                                  child: Text(
+                                                    "Refill shields",
+                                                    style: TextStyle(
+                                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
+                                                      fontWeight: FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ),
+                                                data > 5
+                                                    ? ColorFiltered(
+                                                        colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+                                                        child: Image.asset(
+                                                          "assets/images/emerald.png",
+                                                          width: 25,
+                                                          height: 25,
+                                                        ),
+                                                      )
+                                                    : Image.asset(
+                                                        "assets/images/emerald.png",
+                                                        width: 25,
+                                                        height: 25,
+                                                      ),
+                                                const SizedBox(
+                                                  width: BASE_MARGIN * 2,
+                                                ),
+                                                Text(
+                                                  data >= 5 ? "50" : ((5 - data!) * 10).toString(),
+                                                  style: TextStyle(
+                                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                    ),
+                                    const SizedBox(
+                                      height: BASE_MARGIN * 4,
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        if (data >= 5) return;
+                                        _setState(() {
+                                          _buyOneShieldLoading = true;
+                                        });
+                                        await _buyOneStreakShield();
+                                        await query.refresh();
+                                        _setState(() {
+                                          _buyOneShieldLoading = false;
+                                        });
+                                        Navigator.pop(context);
+                                      },
+                                      style: ButtonStyle(
+                                        backgroundColor: data < 5
+                                            ? WidgetStateProperty.all(
+                                                SECONDARY_BG_COLOR,
+                                              )
+                                            : WidgetStateProperty.all(
+                                                Colors.grey.shade500,
+                                              ),
+                                        alignment: Alignment.center,
+                                        foregroundColor: WidgetStateProperty.all(Colors.black),
+                                        padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
+                                          (Set<WidgetState> states) {
+                                            return const EdgeInsets.all(15);
+                                          },
+                                        ),
+                                        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                        ),
+                                      ),
+                                      child: _buyOneShieldLoading
+                                          ? Container(
+                                              width: 24,
+                                              height: 24,
+                                              padding: const EdgeInsets.all(2.0),
+                                              child: const CupertinoActivityIndicator(
+                                                animating: true,
+                                                radius: 20,
+                                              ),
+                                            )
+                                          : Row(
+                                              children: [
+                                                const HeroIcon(
+                                                  HeroIcons.shieldExclamation,
+                                                  size: 30,
+                                                ),
+                                                const SizedBox(
+                                                  width: BASE_MARGIN * 2,
+                                                ),
+                                                Expanded(
+                                                  child: Text(
+                                                    "Refill 1 shield",
+                                                    style: TextStyle(
+                                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
+                                                      fontWeight: FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ),
+                                                data > 5
+                                                    ? ColorFiltered(
+                                                        colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+                                                        child: Image.asset(
+                                                          "assets/images/emerald.png",
+                                                          width: 25,
+                                                          height: 25,
+                                                        ),
+                                                      )
+                                                    : Image.asset(
+                                                        "assets/images/emerald.png",
+                                                        width: 25,
+                                                        height: 25,
+                                                      ),
+                                                const SizedBox(
+                                                  width: BASE_MARGIN * 2,
+                                                ),
+                                                Text(
+                                                  "10",
+                                                  style: TextStyle(
+                                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: SECONDARY_BG_COLOR,
+                        borderRadius: BorderRadius.circular(
+                          10,
+                        ),
+                      ),
+                      padding: const EdgeInsets.all(
+                        BASE_MARGIN * 4,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const HeroIcon(
+                            HeroIcons.shieldExclamation,
+                            size: 30,
+                          ),
+                          const SizedBox(
+                            width: BASE_MARGIN * 4,
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  "Streak Shields protect your streak by covering a missed day, so you can keep your progress intact. Use them wisely to stay on track!",
+                                ),
+                                const SizedBox(
+                                  height: BASE_MARGIN * 2,
+                                ),
+                                if (query.isLoading)
+                                  Shimmer.fromColors(
+                                    baseColor: Colors.grey.shade300,
+                                    highlightColor: Colors.grey.shade400,
+                                    child: Container(
+                                      height: 20,
+                                      width: 150,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                  ),
+                                if (data != null)
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                    decoration: BoxDecoration(
+                                      color: data == 0 ? Colors.red.shade100 : Colors.green.shade100,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      "$data/5 equipped",
+                                      style: TextStyle(
+                                        color: data == 0 ? Colors.red[800] : Colors.green[800],
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  )
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+                refreshConfig: RefreshConfig.withDefaults(
+                  context,
+                  staleDuration: Duration(
+                    seconds: 0,
+                  ),
+                  refreshOnQueryFnChange: true,
+                ),
+              )
             ],
           ),
         ),
