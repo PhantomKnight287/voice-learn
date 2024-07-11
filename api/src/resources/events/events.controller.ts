@@ -573,7 +573,7 @@ Constraints:
             },
             data: {
               emeralds: {
-                decrement: chat.voice.provider === 'OpenAI' ? 1 : 2,
+                decrement: 1,
               },
             },
           });
