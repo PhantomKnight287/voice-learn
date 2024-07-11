@@ -83,7 +83,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           "Change Password",
         ),
         centerTitle: true,
-        bottom: BOTTOM,
+        bottom: BOTTOM(context),
       ),
       body: SafeArea(
         child: SingleChildScrollView(

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
@@ -12,6 +13,7 @@ import 'package:app/screens/onboarding/questions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:rive/rive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -112,6 +114,7 @@ class _ViewHandlerState extends State<ViewHandler> {
   Widget build(BuildContext context) {
     final userBloc = context.read<UserBloc>();
     final state = userBloc.state;
+
     return Stack(
       children: [
         if (state.id.isNotEmpty) const HomeScreen(),
@@ -121,14 +124,24 @@ class _ViewHandlerState extends State<ViewHandler> {
         if (_showLoading)
           const Scaffold(
             appBar: null,
-            body: Center(
-              child: CircularProgressIndicator(
-                color: Colors.black,
-                strokeWidth: 3,
-              ),
-            ),
+            body: VoiceLearnLoading(),
           ),
       ],
+    );
+  }
+}
+
+class VoiceLearnLoading extends StatelessWidget {
+  const VoiceLearnLoading({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: RiveAnimation.asset(
+        AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? "assets/animations/loading_dark.riv" : "assets/animations/loading_light.riv",
+      ),
     );
   }
 }

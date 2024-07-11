@@ -1,3 +1,4 @@
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/screens/auth/login.dart';
@@ -60,7 +61,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         text: textBeforeBrand,
                         style: TextStyle(
                           fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-                          color: Colors.black,
+                          color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                         ),
                       ),
                       textDirection: TextDirection.ltr,
@@ -71,7 +72,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-                          color: Colors.black,
+                          color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                         ),
                       ),
                       textDirection: TextDirection.ltr,
@@ -84,7 +85,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       text: TextSpan(
                         style: TextStyle(
                           fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-                          color: Colors.black,
+                          color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                         ),
                         children: <TextSpan>[
                           const TextSpan(text: textBeforeBrand),
@@ -94,7 +95,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-                                color: Colors.black,
+                                color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
+                                fontFamily: "CalSans",
                               ),
                             )
                           else
@@ -103,7 +105,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-                                color: Colors.black,
+                                color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
+                                fontFamily: "CalSans",
                               ),
                             ),
                         ],
@@ -155,6 +158,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                         const Icon(
                           Icons.arrow_forward,
+                          color: Colors.black,
                         ),
                       ],
                     ),

@@ -166,7 +166,7 @@ class _ShopScreenState extends State<ShopScreen> {
     final state = context.read<UserBloc>().state;
     return Scaffold(
       appBar: AppBar(
-        bottom: BOTTOM,
+        bottom: BOTTOM(context),
         elevation: 0,
         scrolledUnderElevation: 0,
         forceMaterialTransparency: false,
@@ -345,7 +345,7 @@ class _ShopScreenState extends State<ShopScreen> {
                                       style: ButtonStyle(
                                         backgroundColor: data < 5
                                             ? WidgetStateProperty.all(
-                                                SECONDARY_BG_COLOR,
+                                                getSecondaryColor(context),
                                               )
                                             : WidgetStateProperty.all(
                                                 Colors.grey.shade500,
@@ -437,7 +437,7 @@ class _ShopScreenState extends State<ShopScreen> {
                                       style: ButtonStyle(
                                         backgroundColor: data < 5
                                             ? WidgetStateProperty.all(
-                                                SECONDARY_BG_COLOR,
+                                                getSecondaryColor(context),
                                               )
                                             : WidgetStateProperty.all(
                                                 Colors.grey.shade500,
@@ -520,7 +520,7 @@ class _ShopScreenState extends State<ShopScreen> {
                     },
                     child: Container(
                       decoration: BoxDecoration(
-                        color: SECONDARY_BG_COLOR,
+                        color: getSecondaryColor(context),
                         borderRadius: BorderRadius.circular(
                           10,
                         ),

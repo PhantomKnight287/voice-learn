@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/circular_progress.dart';
 import 'package:app/components/no_swipe_page_route.dart';
@@ -91,8 +92,9 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        child: const Icon(
+        child: Icon(
           Icons.add_rounded,
+          color: Colors.black,
         ),
       ),
       body: SafeArea(
@@ -236,7 +238,7 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
                               maxItems: lesson.questions!.toDouble(),
                               bgColor: lesson.questions!.toDouble() > lesson.incorrectAnswers.toDouble() && lesson.correctAnswers.toDouble() > 1 ? Colors.red : null,
                             ),
-                            tileColor: SECONDARY_BG_COLOR,
+                            tileColor: getSecondaryColor(context),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(BASE_MARGIN * 2),
                             ),

@@ -92,7 +92,7 @@ class _ReportScreenState extends State<ReportScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        bottom: BOTTOM,
+        bottom: BOTTOM(context),
         title: Text("Report"),
       ),
       body: SafeArea(

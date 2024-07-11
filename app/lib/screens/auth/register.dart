@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/input.dart';
 import 'package:app/components/no_swipe_page_route.dart';
@@ -253,6 +254,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     },
                   ),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       CupertinoCheckbox(
                         value: _accepted,
@@ -277,7 +279,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         onPressed: () async {
                           if (!await launchUrl(Uri.parse("https://voicelearn.tech/legal/privacy"))) {}
                         },
-                        child: const Text("Privacy Policy"),
+                        child: Text(
+                          "Privacy Policy",
+                          style: TextStyle(
+                            color: Colors.blue.shade500,
+                          ),
+                        ),
                       )
                     ],
                   ),
@@ -312,8 +319,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             width: 24,
                             height: 24,
                             padding: const EdgeInsets.all(2.0),
-                            child: const CircularProgressIndicator(
-                              color: Colors.black,
+                            child: CircularProgressIndicator(
+                              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                               strokeWidth: 3,
                             ),
                           )
@@ -345,7 +352,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         text: TextSpan(
                           text: "Already have an account? ",
                           style: TextStyle(
-                            color: Colors.black,
+                            color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                             fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                           ),
                           children: [

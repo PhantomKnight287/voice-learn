@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/input.dart';
 import 'package:app/components/no_swipe_page_route.dart';
@@ -11,7 +12,6 @@ import 'package:app/screens/home/main.dart';
 import 'package:app/screens/loading/learning.dart';
 import 'package:app/screens/onboarding/questions.dart';
 import 'package:app/utils/error.dart';
-import 'package:app/utils/print.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
@@ -256,8 +256,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             width: 24,
                             height: 24,
                             padding: const EdgeInsets.all(2.0),
-                            child: const CircularProgressIndicator(
-                              color: Colors.black,
+                            child: CircularProgressIndicator(
+                              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                               strokeWidth: 3,
                             ),
                           )
@@ -289,7 +289,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         text: TextSpan(
                           text: "Don't have an account? ",
                           style: TextStyle(
-                            color: Colors.black,
+                            color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                             fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                           ),
                           children: [

@@ -53,7 +53,7 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        bottom: BOTTOM,
+        bottom: BOTTOM(context),
         elevation: 0,
         scrolledUnderElevation: 0,
         forceMaterialTransparency: false,

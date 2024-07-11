@@ -420,7 +420,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
               appBar: AppBar(
                 leading: Shimmer.fromColors(
                   baseColor: Colors.grey.shade400,
-                  highlightColor: SECONDARY_BG_COLOR,
+                  highlightColor: getSecondaryColor(context),
                   child: const Padding(
                     padding: EdgeInsets.all(8.0),
                     child: CircleAvatar(
@@ -435,7 +435,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                 actions: [
                   Shimmer.fromColors(
                     baseColor: Colors.grey.shade400,
-                    highlightColor: SECONDARY_BG_COLOR,
+                    highlightColor: getSecondaryColor(context),
                     child: const Padding(
                       padding: EdgeInsets.all(8.0),
                       child: CircleAvatar(
@@ -624,7 +624,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                             height: 15,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              color: Colors.grey.shade300,
+                              color: getSecondaryColor(context),
                             ),
                           ),
                           AnimatedContainer(
@@ -795,7 +795,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                         ),
                                         prefixIconColor: Colors.black,
                                         hintText: "Enter your answer here...",
-                                        fillColor: SECONDARY_BG_COLOR,
+                                        fillColor: getSecondaryColor(context),
                                         filled: true,
                                         hintStyle: TextStyle(
                                           fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
@@ -815,7 +815,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                     final option = question.options[index];
                                     return ListTile(
                                       title: Text(option),
-                                      tileColor: SECONDARY_BG_COLOR,
+                                      tileColor: getSecondaryColor(context),
                                       splashColor: Colors.transparent,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(BASE_MARGIN * 2),
@@ -866,7 +866,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                     child: Center(
                                       child: CircleAvatar(
                                         radius: 22,
-                                        backgroundColor: Colors.grey.shade300,
+                                        backgroundColor: getSecondaryColor(context),
                                         child: IconButton(
                                           onPressed: () {
                                             FocusManager.instance.primaryFocus?.unfocus();
@@ -937,6 +937,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                                                 final prefs = await SharedPreferences.getInstance();
                                                                 prefs.setDouble("tts_speed", _speed);
                                                                 Navigator.of(context).pop();
+                                                                await flutterTts.setSpeechRate(_speed);
                                                                 setState(() {});
                                                               },
                                                               style: ButtonStyle(

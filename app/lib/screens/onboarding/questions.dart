@@ -308,7 +308,7 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                                 });
                               },
                               splashColor: Colors.transparent,
-                              tileColor: SECONDARY_BG_COLOR,
+                              tileColor: getSecondaryColor(context),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 side: _selectedLanguageId == language.id
@@ -395,7 +395,7 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                             });
                           },
                           splashColor: Colors.transparent,
-                          tileColor: SECONDARY_BG_COLOR,
+                          tileColor: getSecondaryColor(context),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                             side: _selectedKnowledge?.message == item.message
@@ -447,7 +447,7 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                             });
                           },
                           splashColor: Colors.transparent,
-                          tileColor: SECONDARY_BG_COLOR,
+                          tileColor: getSecondaryColor(context),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                             side: _selectedReason?.reason == item.reason
@@ -499,7 +499,7 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                             });
                           },
                           splashColor: Colors.transparent,
-                          tileColor: SECONDARY_BG_COLOR,
+                          tileColor: getSecondaryColor(context),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                             side: _hearAbout?.reason == item.reason

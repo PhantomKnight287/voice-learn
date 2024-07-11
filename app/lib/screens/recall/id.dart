@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/main.dart';
@@ -96,7 +97,7 @@ class _StackScreenState extends State<StackScreen> with RouteAware {
       appBar: AppBar(
         title: Text(widget.name),
         centerTitle: true,
-        bottom: BOTTOM,
+        bottom: BOTTOM(context),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -112,8 +113,9 @@ class _StackScreenState extends State<StackScreen> with RouteAware {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        child: const Icon(
+        child: Icon(
           Icons.add_rounded,
+          color: Colors.black,
         ),
       ),
       body: SafeArea(
@@ -146,7 +148,7 @@ class _StackScreenState extends State<StackScreen> with RouteAware {
                       title: Text(
                         note.title,
                       ),
-                      tileColor: SECONDARY_BG_COLOR,
+                      tileColor: getSecondaryColor(context),
                       subtitle: Text(
                         note.description,
                         maxLines: 1,

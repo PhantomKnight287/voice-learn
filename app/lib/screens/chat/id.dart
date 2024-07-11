@@ -497,7 +497,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
               ),
             ),
             appBar: AppBar(
-              bottom: BOTTOM,
+              bottom: BOTTOM(context),
             ),
           );
         }
@@ -507,7 +507,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           resizeToAvoidBottomInset: true,
           appBar: AppBar(
             forceMaterialTransparency: false,
-            bottom: BOTTOM,
+            bottom: BOTTOM(context),
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -601,7 +601,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                         child: Center(
                           child: CircleAvatar(
                             radius: 22,
-                            backgroundColor: Colors.grey.shade300,
+                            backgroundColor: getSecondaryColor(context),
                             child: IconButton(
                               onPressed: () {
                                 FocusManager.instance.primaryFocus?.unfocus();
@@ -952,7 +952,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   Scaffold _buildLoader() {
     return Scaffold(
       appBar: AppBar(
-        bottom: BOTTOM,
+        bottom: BOTTOM(context),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1042,7 +1042,7 @@ class _ChatBubbleState extends State<ChatBubble> {
         child: Container(
           padding: const EdgeInsets.all(10.0),
           decoration: BoxDecoration(
-            color: widget.isSentByMe ? PRIMARY_COLOR : Colors.grey[300],
+            color: widget.isSentByMe ? PRIMARY_COLOR : getSecondaryColor(context),
             borderRadius: widget.isSentByMe
                 ? const BorderRadius.only(
                     topLeft: Radius.circular(10),
@@ -1096,6 +1096,9 @@ class _ChatBubbleState extends State<ChatBubble> {
                                   )
                                 : Text(
                                     word['word'],
+                                    style: TextStyle(
+                                      color: widget.isSentByMe ? Colors.black : null,
+                                    ),
                                   ),
                           SizedBox(
                             width: BASE_MARGIN.toDouble(),

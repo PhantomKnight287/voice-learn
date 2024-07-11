@@ -80,7 +80,7 @@ class _VoicesScreenState extends State<VoicesScreen> {
               ]
             : null,
         centerTitle: true,
-        bottom: BOTTOM,
+        bottom: BOTTOM(context),
       ),
       body: SafeArea(
         child: Padding(
@@ -132,7 +132,7 @@ class _VoicesScreenState extends State<VoicesScreen> {
                       children: [
                         Container(
                           decoration: BoxDecoration(
-                            color: SECONDARY_BG_COLOR,
+                            color: getSecondaryColor(context),
                             borderRadius: const BorderRadius.only(
                               bottomLeft: Radius.circular(10),
                               topLeft: Radius.circular(10),

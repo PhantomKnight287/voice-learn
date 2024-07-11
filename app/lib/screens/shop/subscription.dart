@@ -1,3 +1,4 @@
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/models/user.dart';
@@ -22,239 +23,6 @@ class SubscriptionScreen extends StatefulWidget {
 
 class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProviderStateMixin {
   late AnimationController _controller;
-  late final FREE_FEATURES = [
-    Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const HeroIcon(
-          HeroIcons.speakerWave,
-          style: HeroIconStyle.outline,
-          color: Colors.black,
-        ),
-        const SizedBox(
-          width: BASE_MARGIN * 2,
-        ),
-        Text(
-          "6 voices",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-          ),
-        ),
-      ],
-    ),
-    Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const HeroIcon(
-          HeroIcons.academicCap,
-          style: HeroIconStyle.outline,
-        ),
-        const SizedBox(
-          width: BASE_MARGIN * 2,
-        ),
-        Text(
-          "Unlimited Lessons",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-          ),
-        ),
-      ],
-    ),
-    Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const HeroIcon(
-          HeroIcons.bookOpen,
-          style: HeroIconStyle.outline,
-          color: Colors.black,
-        ),
-        const SizedBox(
-          width: BASE_MARGIN * 2,
-        ),
-        Text(
-          "Unlimited Questions",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-          ),
-        ),
-      ],
-    ),
-    Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const HeroIcon(
-          HeroIcons.microphone,
-          style: HeroIconStyle.outline,
-          color: Colors.black,
-        ),
-        const SizedBox(
-          width: BASE_MARGIN * 2,
-        ),
-        Text(
-          "Unlimited Voice Messages*",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-          ),
-        ),
-      ],
-    ),
-    Row(
-      children: [
-        SvgPicture.asset(
-          "assets/svgs/heart.svg",
-          width: 25,
-          height: 25,
-        ),
-        const SizedBox(
-          width: BASE_MARGIN * 2,
-        ),
-        Text(
-          "1 life every 4 hours",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-          ),
-        ),
-      ],
-    ),
-  ];
-  late final PREMIUM_FEATURES = [
-    Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const HeroIcon(
-          HeroIcons.check,
-          style: HeroIconStyle.outline,
-          color: Colors.black,
-        ),
-        const SizedBox(
-          width: BASE_MARGIN * 2,
-        ),
-        Text(
-          "All free plan features and...",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-          ),
-        ),
-      ],
-    ),
-    Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const HeroIcon(
-          HeroIcons.speakerWave,
-          style: HeroIconStyle.outline,
-          color: Colors.black,
-        ),
-        const SizedBox(
-          width: BASE_MARGIN * 2,
-        ),
-        Text(
-          "Unlock 40+ voices",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-          ),
-        ),
-      ],
-    ),
-    Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const HeroIcon(
-          HeroIcons.chatBubbleOvalLeft,
-          style: HeroIconStyle.outline,
-          color: Colors.black,
-        ),
-        const SizedBox(
-          width: BASE_MARGIN * 2,
-        ),
-        Text(
-          "Unlimited Chats",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-          ),
-        ),
-      ],
-    ),
-    Row(
-      children: [
-        Image.asset(
-          "assets/images/emerald.png",
-          width: 25,
-          height: 25,
-        ),
-        const SizedBox(
-          width: BASE_MARGIN * 2,
-        ),
-        Text(
-          "Get 100 emeralds daily",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-          ),
-        ),
-      ],
-    ),
-    Row(
-      children: [
-        SvgPicture.asset(
-          "assets/svgs/heart.svg",
-          width: 25,
-          height: 25,
-        ),
-        const SizedBox(
-          width: BASE_MARGIN * 2,
-        ),
-        const Icon(
-          Icons.all_inclusive_outlined,
-        ),
-        const SizedBox(
-          width: BASE_MARGIN * 2,
-        ),
-        Text(
-          "lives",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-          ),
-        ),
-      ],
-    ),
-    Row(
-      children: [
-        SvgPicture.asset(
-          "assets/svgs/queue.svg",
-          width: 25,
-          height: 25,
-          color: Colors.black,
-        ),
-        const SizedBox(
-          width: BASE_MARGIN * 2,
-        ),
-        Text(
-          "Priority in queue",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-          ),
-        ),
-      ],
-    ),
-  ];
 
   @override
   void initState() {
@@ -275,6 +43,240 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
 
   @override
   Widget build(BuildContext context) {
+    final FREE_FEATURES = [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          HeroIcon(
+            HeroIcons.speakerWave,
+            style: HeroIconStyle.outline,
+            color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+          ),
+          const SizedBox(
+            width: BASE_MARGIN * 2,
+          ),
+          Text(
+            "6 voices",
+            style: TextStyle(
+              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+            ),
+          ),
+        ],
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const HeroIcon(
+            HeroIcons.academicCap,
+            style: HeroIconStyle.outline,
+          ),
+          const SizedBox(
+            width: BASE_MARGIN * 2,
+          ),
+          Text(
+            "Unlimited Lessons",
+            style: TextStyle(
+              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+            ),
+          ),
+        ],
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          HeroIcon(
+            HeroIcons.bookOpen,
+            style: HeroIconStyle.outline,
+            color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+          ),
+          const SizedBox(
+            width: BASE_MARGIN * 2,
+          ),
+          Text(
+            "Unlimited Questions",
+            style: TextStyle(
+              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+            ),
+          ),
+        ],
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          HeroIcon(
+            HeroIcons.microphone,
+            style: HeroIconStyle.outline,
+            color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+          ),
+          const SizedBox(
+            width: BASE_MARGIN * 2,
+          ),
+          Text(
+            "Unlimited Voice Messages*",
+            style: TextStyle(
+              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+            ),
+          ),
+        ],
+      ),
+      Row(
+        children: [
+          SvgPicture.asset(
+            "assets/svgs/heart.svg",
+            width: 25,
+            height: 25,
+          ),
+          const SizedBox(
+            width: BASE_MARGIN * 2,
+          ),
+          Text(
+            "1 life every 4 hours",
+            style: TextStyle(
+              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+            ),
+          ),
+        ],
+      ),
+    ];
+    final PREMIUM_FEATURES = [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          HeroIcon(
+            HeroIcons.check,
+            style: HeroIconStyle.outline,
+            color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+          ),
+          const SizedBox(
+            width: BASE_MARGIN * 2,
+          ),
+          Text(
+            "All free plan features and...",
+            style: TextStyle(
+              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+            ),
+          ),
+        ],
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          HeroIcon(
+            HeroIcons.speakerWave,
+            style: HeroIconStyle.outline,
+            color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+          ),
+          const SizedBox(
+            width: BASE_MARGIN * 2,
+          ),
+          Text(
+            "Unlock 40+ voices",
+            style: TextStyle(
+              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+            ),
+          ),
+        ],
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          HeroIcon(
+            HeroIcons.chatBubbleOvalLeft,
+            style: HeroIconStyle.outline,
+            color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+          ),
+          const SizedBox(
+            width: BASE_MARGIN * 2,
+          ),
+          Text(
+            "Unlimited Chats",
+            style: TextStyle(
+              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+            ),
+          ),
+        ],
+      ),
+      Row(
+        children: [
+          Image.asset(
+            "assets/images/emerald.png",
+            width: 25,
+            height: 25,
+          ),
+          const SizedBox(
+            width: BASE_MARGIN * 2,
+          ),
+          Text(
+            "Get 100 emeralds daily",
+            style: TextStyle(
+              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+            ),
+          ),
+        ],
+      ),
+      Row(
+        children: [
+          SvgPicture.asset(
+            "assets/svgs/heart.svg",
+            width: 25,
+            height: 25,
+          ),
+          const SizedBox(
+            width: BASE_MARGIN * 2,
+          ),
+          const Icon(
+            Icons.all_inclusive_outlined,
+          ),
+          const SizedBox(
+            width: BASE_MARGIN * 2,
+          ),
+          Text(
+            "lives",
+            style: TextStyle(
+              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+            ),
+          ),
+        ],
+      ),
+      Row(
+        children: [
+          SvgPicture.asset(
+            "assets/svgs/queue.svg",
+            width: 25,
+            height: 25,
+            color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+          ),
+          const SizedBox(
+            width: BASE_MARGIN * 2,
+          ),
+          Text(
+            "Priority in queue",
+            style: TextStyle(
+              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+            ),
+          ),
+        ],
+      ),
+    ];
+
     final state = context.read<UserBloc>().state;
     return Scaffold(
       appBar: AppBar(
@@ -302,7 +304,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                       10,
                     ),
                     border: Border.all(
-                      color: const Color(0xffebebeb),
+                      color: getSecondaryColor(context),
                       width: 2,
                     ),
                   ),
@@ -313,7 +315,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                         "Free",
                         style: TextStyle(
                           fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-                          color: Colors.black,
+                          color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.5,
                           fontFamily: "CalSans",
@@ -323,7 +325,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                         "\$0 / mo",
                         style: TextStyle(
                           fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 0.8,
-                          color: Colors.black,
+                          color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -359,7 +361,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                         onPressed: () {},
                         style: ButtonStyle(
                           alignment: Alignment.center,
-                          foregroundColor: WidgetStateProperty.all(Colors.black),
+                          foregroundColor: WidgetStateProperty.all(AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white),
                           padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
                             (Set<WidgetState> states) {
                               return const EdgeInsets.all(15);
@@ -380,6 +382,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                             fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                             fontWeight: FontWeight.w600,
                             fontFamily: "CalSans",
+                            color: Colors.black,
                           ),
                         ),
                       ),
@@ -398,7 +401,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                       10,
                     ),
                     border: Border.all(
-                      color: const Color(0xffebebeb),
+                      color: getSecondaryColor(context),
                       width: 2,
                     ),
                   ),
@@ -409,7 +412,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                         "Premium",
                         style: TextStyle(
                           fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-                          color: Colors.black,
+                          color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.5,
                           fontFamily: "CalSans",
@@ -440,7 +443,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                                 height: 10,
                                 width: 70,
                                 decoration: BoxDecoration(
-                                  color: Colors.black,
+                                  color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
@@ -454,7 +457,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                             "${data.price} / month",
                             style: TextStyle(
                               fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 0.8,
-                              color: Colors.black,
+                              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
                               fontWeight: FontWeight.w600,
                             ),
                           );
@@ -502,7 +505,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                           backgroundColor: WidgetStateProperty.all(
                             state.tier == Tiers.free ? PRIMARY_COLOR : SECONDARY_BG_COLOR,
                           ),
-                          foregroundColor: WidgetStateProperty.all(Colors.black),
+                          foregroundColor: WidgetStateProperty.all(AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white),
                           padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
                             (Set<WidgetState> states) {
                               return const EdgeInsets.all(15);
@@ -520,6 +523,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                             fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                             fontWeight: FontWeight.w600,
                             fontFamily: "CalSans",
+                            color: Colors.black,
                           ),
                         ),
                       ),
@@ -544,11 +548,11 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                   children: [
                     DataTable(
                       columns: [
-                        const DataColumn(
+                        DataColumn(
                           label: Text(
                             'Monthly Price',
                             style: TextStyle(
-                              color: Colors.black,
+                              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
                             ),
                             textAlign: TextAlign.end,
                           ),
@@ -561,7 +565,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                                 "Free",
                                 style: TextStyle(
                                   fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
-                                  color: Colors.black,
+                                  color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 0.5,
                                   fontFamily: "CalSans",
@@ -574,7 +578,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                                 "\$0",
                                 style: TextStyle(
                                   fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 0.8,
-                                  color: Colors.black,
+                                  color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
                                   fontWeight: FontWeight.w600,
                                 ),
                               )
@@ -588,7 +592,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                                 "Premium",
                                 style: TextStyle(
                                   fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
-                                  color: Colors.black,
+                                  color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 0.5,
                                   fontFamily: "CalSans",
@@ -622,7 +626,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                                         height: 10,
                                         width: 70,
                                         decoration: BoxDecoration(
-                                          color: Colors.black,
+                                          color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
                                           borderRadius: BorderRadius.circular(10),
                                         ),
                                       ),
@@ -636,7 +640,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                                     data.price,
                                     style: TextStyle(
                                       fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 0.8,
-                                      color: Colors.black,
+                                      color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   );

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/constants/main.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -59,22 +60,22 @@ class _LogsScreenState extends State<LogsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        bottom: BOTTOM,
-        title: Text("Logs"),
+        bottom: BOTTOM(context),
+        title: const Text("Logs"),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.delete, color: Colors.red),
+            icon: const Icon(Icons.delete, color: Colors.red),
             onPressed: _clearLogEntries,
           ),
           IconButton(
-            icon: Icon(Icons.download, color: Colors.blue),
+            icon: const Icon(Icons.download, color: Colors.blue),
             onPressed: _downloadLogFile,
           ),
         ],
       ),
       body: _logEntries.isEmpty
-          ? Center(
+          ? const Center(
               child: Text("No Logs"),
             )
           : ListView.builder(
@@ -84,28 +85,11 @@ class _LogsScreenState extends State<LogsScreen> {
                 return Text(
                   entry,
                   style: TextStyle(
-                    color: _getColorForLevel(
-                      entry.split(" ")[0].replaceFirst("[", "").replaceFirst("]", ''),
-                    ),
+                    color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
                   ),
                 );
               },
             ),
     );
-  }
-
-  Color _getColorForLevel(String level) {
-    switch (level) {
-      case 'DEBUG':
-        return Colors.blue;
-      case 'INFO':
-        return Colors.purple;
-      case 'WARNING':
-        return Colors.orange;
-      case 'ERROR':
-        return Colors.red;
-      default:
-        return Colors.black;
-    }
   }
 }

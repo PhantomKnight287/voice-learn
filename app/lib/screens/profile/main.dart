@@ -114,9 +114,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
         scrolledUnderElevation: 0.0,
-        systemOverlayStyle: SystemUiOverlayStyle.dark,
         elevation: 0,
-        bottom: BOTTOM,
+        bottom: BOTTOM(context),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -200,7 +199,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                   decoration: BoxDecoration(
                                     border: Border.all(
-                                      color: SECONDARY_BG_COLOR,
+                                      color: getSecondaryColor(context),
                                       width: 2.0,
                                     ),
                                     borderRadius: BorderRadius.circular(
@@ -252,7 +251,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                                 decoration: BoxDecoration(
                                   border: Border.all(
-                                    color: SECONDARY_BG_COLOR,
+                                    color: getSecondaryColor(context),
                                     width: 2.0,
                                   ),
                                   borderRadius: BorderRadius.circular(
@@ -306,7 +305,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                   decoration: BoxDecoration(
                                     border: Border.all(
-                                      color: SECONDARY_BG_COLOR,
+                                      color: getSecondaryColor(context),
                                       width: 2.0,
                                     ),
                                     borderRadius: BorderRadius.circular(
@@ -358,7 +357,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                                 decoration: BoxDecoration(
                                   border: Border.all(
-                                    color: SECONDARY_BG_COLOR,
+                                    color: getSecondaryColor(context),
                                     width: 2.0,
                                   ),
                                   borderRadius: BorderRadius.circular(
@@ -893,7 +892,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: SECONDARY_BG_COLOR,
+                    color: getSecondaryColor(context),
                     width: 2.0,
                   ),
                   borderRadius: BorderRadius.circular(
@@ -950,7 +949,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: SECONDARY_BG_COLOR,
+                  color: getSecondaryColor(context),
                   width: 2.0,
                 ),
                 borderRadius: BorderRadius.circular(
@@ -1009,7 +1008,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: SECONDARY_BG_COLOR,
+                    color: getSecondaryColor(context),
                     width: 2.0,
                   ),
                   borderRadius: BorderRadius.circular(
@@ -1066,7 +1065,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: SECONDARY_BG_COLOR,
+                  color: getSecondaryColor(context),
                   width: 2.0,
                 ),
                 borderRadius: BorderRadius.circular(
@@ -1155,7 +1154,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         Shimmer.fromColors(
           baseColor: Colors.grey.shade400,
-          highlightColor: SECONDARY_BG_COLOR,
+          highlightColor: getSecondaryColor(context),
           child: const Padding(
             padding: EdgeInsets.all(8.0),
             child: CircleAvatar(

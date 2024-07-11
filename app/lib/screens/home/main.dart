@@ -6,6 +6,7 @@ import 'package:app/components/bottom_bar.dart';
 import 'package:app/components/circular_progress.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
+import 'package:app/handler/switcher.dart';
 import 'package:app/main.dart';
 import 'package:app/models/learning_path.dart';
 import 'package:app/models/user.dart';
@@ -18,11 +19,9 @@ import 'package:app/screens/recall/main.dart';
 import 'package:app/screens/shop/main.dart';
 import 'package:app/screens/streaks/main.dart';
 import 'package:app/utils/error.dart';
-import 'package:app/utils/print.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:heroicons/heroicons.dart';
@@ -335,76 +334,10 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
       ),
       builder: (context, query) {
         if (query.isLoading) {
-          return Scaffold(
-            appBar: AppBar(
-              leading: Shimmer.fromColors(
-                baseColor: Colors.grey.shade400,
-                highlightColor: SECONDARY_BG_COLOR,
-                child: const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: CircleAvatar(
-                    radius: 30,
-                    child: SizedBox(
-                      height: 30,
-                      width: 30,
-                    ),
-                  ),
-                ),
-              ),
-              actions: [
-                Shimmer.fromColors(
-                  baseColor: Colors.grey.shade400,
-                  highlightColor: SECONDARY_BG_COLOR,
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: CircleAvatar(
-                      radius: 30,
-                      child: SizedBox(
-                        height: 30,
-                        width: 30,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            body: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Shimmer.fromColors(
-                      baseColor: Colors.grey.shade300,
-                      highlightColor: Colors.grey.shade400,
-                      child: Container(
-                        height: 20,
-                        width: 150,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: BASE_MARGIN * 2,
-                    ),
-                    Shimmer.fromColors(
-                      baseColor: Colors.grey.shade300,
-                      highlightColor: Colors.grey.shade400,
-                      child: Container(
-                        height: 10,
-                        width: 200,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+          return const Scaffold(
+            appBar: null,
+            body: Center(
+              child: VoiceLearnLoading(),
             ),
           );
         } else if (query.hasError) {
@@ -480,11 +413,10 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
             Scaffold(
               appBar: AppBar(
                 scrolledUnderElevation: 0.0,
-                systemOverlayStyle: SystemUiOverlayStyle.dark,
                 forceMaterialTransparency: false,
                 elevation: 0,
                 toolbarHeight: 60,
-                bottom: BOTTOM,
+                bottom: BOTTOM(context),
                 title: BlocBuilder<UserBloc, UserState>(
                     bloc: userBloc,
                     builder: (context, state) {
@@ -638,7 +570,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                               style: ButtonStyle(
                                                 backgroundColor: state.lives < 5
                                                     ? WidgetStateProperty.all(
-                                                        SECONDARY_BG_COLOR,
+                                                        getSecondaryColor(context),
                                                       )
                                                     : WidgetStateProperty.all(
                                                         Colors.grey.shade500,
@@ -731,7 +663,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                               style: ButtonStyle(
                                                 backgroundColor: state.lives < 5
                                                     ? WidgetStateProperty.all(
-                                                        SECONDARY_BG_COLOR,
+                                                        getSecondaryColor(context),
                                                       )
                                                     : WidgetStateProperty.all(
                                                         Colors.grey.shade500,
@@ -868,8 +800,9 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.add_rounded,
+                  color: Colors.black,
                 ),
               ),
               body: SafeArea(
@@ -893,7 +826,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                 10,
                               ),
                             ),
-                            tileColor: SECONDARY_BG_COLOR,
+                            tileColor: getSecondaryColor(context),
                             leading: CircularProgressAnimated(
                               key: Key(module.id),
                               maxItems: module.lessons.length.toDouble(),

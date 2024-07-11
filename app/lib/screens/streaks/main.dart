@@ -54,7 +54,7 @@ class _StreaksScreenState extends State<StreaksScreen> {
     final state = userBloc.state;
     return Scaffold(
       appBar: AppBar(
-        bottom: BOTTOM,
+        bottom: BOTTOM(context),
         elevation: 0,
         scrolledUnderElevation: 0,
         forceMaterialTransparency: false,

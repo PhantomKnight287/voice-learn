@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/input.dart';
 import 'package:app/components/no_swipe_page_route.dart';
@@ -177,7 +178,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           // Perform log out action here
                           Navigator.of(context).pop(); // Close the dialog
                           final prefs = await SharedPreferences.getInstance();
-                          prefs.remove("token");
+                          prefs.clear();
+                          await AdaptiveTheme.of(context).persist();
                           Navigator.of(context).pushAndRemoveUntil(
                             MaterialPageRoute(
                               builder: (context) => const OnboardingScreen(),
@@ -366,7 +368,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
-                                color: const Color(0xffe7e0e8),
+                                color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Color(0xffe7e0e8) : Color(0xff36343a),
                               ),
                               child: Align(
                                 alignment: Alignment.centerLeft,
@@ -443,7 +445,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           Container(
                             decoration: BoxDecoration(
-                              color: SECONDARY_BG_COLOR,
+                              color: getSecondaryColor(context),
                               borderRadius: BorderRadius.circular(
                                 10,
                               ),
@@ -547,6 +549,81 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
+                            "Appearance",
+                            style: TextStyle(
+                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: BASE_MARGIN * 2,
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: getSecondaryColor(context),
+                              borderRadius: BorderRadius.circular(
+                                10,
+                              ),
+                            ),
+                            child: Banner(
+                              message: "Experimental",
+                              location: BannerLocation.topEnd,
+                              child: ListTile(
+                                  title: Padding(
+                                    padding: const EdgeInsets.only(
+                                      bottom: BASE_MARGIN * 1,
+                                    ),
+                                    child: Text(
+                                      "Theme",
+                                      style: TextStyle(
+                                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  subtitle: const Text(
+                                    "Change theme of app",
+                                    style: TextStyle(
+                                      color: SECONDARY_TEXT_COLOR,
+                                    ),
+                                    softWrap: true,
+                                  ),
+                                  trailing: DropdownButton(
+                                    value: AdaptiveTheme.of(context).mode.toString().replaceFirst("AdaptiveThemeMode.", "").toLowerCase(),
+                                    items: const [
+                                      DropdownMenuItem(
+                                        value: "light",
+                                        child: Text("Light"),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: "dark",
+                                        child: Text("Dark"),
+                                      ),
+                                    ],
+                                    onChanged: (value) async {
+                                      final prefs = await SharedPreferences.getInstance();
+                                      if (value == "light") {
+                                        AdaptiveTheme.of(context).setLight();
+                                      } else {
+                                        AdaptiveTheme.of(context).setDark();
+                                      }
+                                      prefs.setString("theme", value ?? "dark");
+                                    },
+                                  )),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: BASE_MARGIN * 4,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: BASE_MARGIN * 2,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
                             "Developer Mode",
                             style: TextStyle(
                               fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
@@ -558,7 +635,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           Container(
                             decoration: BoxDecoration(
-                              color: SECONDARY_BG_COLOR,
+                              color: getSecondaryColor(context),
                               borderRadius: BorderRadius.circular(
                                 10,
                               ),
@@ -577,7 +654,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                               ),
                               subtitle: const Text(
-                                "Enable a logs screen(only send logs to developer, it can include sensitive information)",
+                                "Enable a logs screen",
                                 style: TextStyle(
                                   color: SECONDARY_TEXT_COLOR,
                                 ),
@@ -655,7 +732,6 @@ class ChangeAvatarButton extends StatelessWidget {
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
-          color: Colors.black,
         ),
       ),
     );

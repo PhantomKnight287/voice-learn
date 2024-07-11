@@ -63,7 +63,7 @@ class _LessonStatsScreenState extends State<LessonStatsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        bottom: BOTTOM,
+        bottom: BOTTOM(context),
       ),
       body: SafeArea(
         child: Padding(
@@ -97,7 +97,7 @@ class _LessonStatsScreenState extends State<LessonStatsScreen> {
                   final correct = answer['type'] == "correct";
                   final color = correct ? Colors.green : Colors.red;
                   final item = ListTile(
-                    tileColor: SECONDARY_BG_COLOR,
+                    tileColor: getSecondaryColor(context),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
                         10,
@@ -323,7 +323,9 @@ class _LessonStatsScreenState extends State<LessonStatsScreen> {
                                     const SizedBox(width: 10),
                                     Container(
                                       decoration: BoxDecoration(
-                                        border: Border.all(color: Colors.grey),
+                                        border: Border.all(
+                                          color: Colors.grey,
+                                        ),
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       child: IconButton(

@@ -112,7 +112,7 @@ class _ExplanationScreenState extends State<ExplanationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        bottom: BOTTOM,
+        bottom: BOTTOM(context),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

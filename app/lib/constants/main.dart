@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -9,6 +10,12 @@ import 'package:flutter/widgets.dart';
 const PRIMARY_COLOR = Color(0xffFFBF00);
 const SECONDARY_TEXT_COLOR = Color(0xff808080);
 const SECONDARY_BG_COLOR = Color(0xffebebeb);
+
+Color getSecondaryColor(BuildContext context) {
+  final theme = AdaptiveTheme.of(context).mode;
+  if (theme == AdaptiveThemeMode.light) return SECONDARY_BG_COLOR;
+  return const Color(0xff212124);
+}
 
 const BASE_MARGIN = 4;
 
@@ -29,13 +36,15 @@ final LESSON_STATS_AD_ID = Platform.isAndroid
 
 const PUSHER_CLUSTER = "ap2";
 
-final BOTTOM = PreferredSize(
-  preferredSize: const Size.fromHeight(4.0),
-  child: Container(
-    color: const Color(0xffebebeb),
-    height: 2.0,
-  ),
-);
+PreferredSizeWidget BOTTOM(BuildContext context) {
+  return PreferredSize(
+    preferredSize: const Size.fromHeight(4.0),
+    child: Container(
+      color: getSecondaryColor(context),
+      height: 2.0,
+    ),
+  );
+}
 
 const BASE_GRAVATAR_URL = "https://gravatar.com/avatar";
 

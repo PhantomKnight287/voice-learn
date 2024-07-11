@@ -61,7 +61,7 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
               ]
             : null,
         centerTitle: true,
-        bottom: BOTTOM,
+        bottom: BOTTOM(context),
       ),
       body: Padding(
         padding: const EdgeInsets.all(10),
@@ -85,7 +85,7 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
                     language.name,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  tileColor: SECONDARY_BG_COLOR,
+                  tileColor: getSecondaryColor(context),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                     side: selected?.id == language.id

@@ -190,12 +190,13 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
                                     style: TextStyle(
                                       fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                                       fontWeight: FontWeight.w600,
+                                      color: Colors.black,
                                     ),
                                   ),
                                   const SizedBox(height: BASE_MARGIN * 2),
                                   Container(
                                     decoration: BoxDecoration(
-                                      color: SECONDARY_BG_COLOR,
+                                      color: getSecondaryColor(context),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     padding: const EdgeInsets.symmetric(
@@ -242,12 +243,13 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
                                     style: TextStyle(
                                       fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                                       fontWeight: FontWeight.w600,
+                                      color: Colors.black,
                                     ),
                                   ),
                                   const SizedBox(height: BASE_MARGIN * 2),
                                   Container(
                                     decoration: BoxDecoration(
-                                      color: SECONDARY_BG_COLOR,
+                                      color: getSecondaryColor(context),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     padding: const EdgeInsets.symmetric(
@@ -297,12 +299,13 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
                                     style: TextStyle(
                                       fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                                       fontWeight: FontWeight.w600,
+                                      color: Colors.black,
                                     ),
                                   ),
                                   const SizedBox(height: BASE_MARGIN * 2),
                                   Container(
                                     decoration: BoxDecoration(
-                                      color: SECONDARY_BG_COLOR,
+                                      color: getSecondaryColor(context),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     padding: const EdgeInsets.symmetric(

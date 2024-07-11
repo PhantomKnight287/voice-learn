@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/handler/switcher.dart';
@@ -126,60 +127,111 @@ class _VoiceLearnAppState extends State<VoiceLearnApp> {
         providers: [
           BlocProvider(create: (context) => UserBloc()),
         ],
-        child: MaterialApp(
-          title: 'Voice Learn',
-          navigatorObservers: [routeObserver],
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.deepPurple,
-            ),
-            useMaterial3: true,
-            fontFamily: "Geist",
-            brightness: Brightness.light,
-            primaryColor: PRIMARY_COLOR,
-            appBarTheme: const AppBarTheme(
-              elevation: 0,
-              scrolledUnderElevation: 0,
-              titleTextStyle: TextStyle(
-                fontFamily: "CalSans",
-                fontSize: 24,
-                color: Colors.black,
+        child: AdaptiveTheme(
+            light: ThemeData(
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: Colors.deepPurple,
               ),
-              toolbarHeight: 50,
-            ),
-            textTheme: const TextTheme(
-              labelMedium: TextStyle(
-                fontSize: 20,
-              ),
-              titleLarge: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-              ),
-              titleSmall: TextStyle(
-                fontSize: 16,
-                color: SECONDARY_TEXT_COLOR,
-              ),
-              titleMedium: TextStyle(
-                fontSize: 24,
-              ),
-            ),
-            elevatedButtonTheme: ElevatedButtonThemeData(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: PRIMARY_COLOR,
-              ),
-            ),
-          ),
-          home: Platform.isAndroid
-              ? const ViewHandler()
-              : UpgradeAlert(
-                  dialogStyle: UpgradeDialogStyle.cupertino,
-                  showIgnore: false,
-                  showLater: true,
-                  showReleaseNotes: true,
-                  child: const ViewHandler(),
+              useMaterial3: true,
+              fontFamily: "Geist",
+              brightness: Brightness.light,
+              primaryColor: PRIMARY_COLOR,
+              appBarTheme: const AppBarTheme(
+                elevation: 0,
+                scrolledUnderElevation: 0,
+                titleTextStyle: TextStyle(
+                  fontFamily: "CalSans",
+                  fontSize: 24,
+                  color: Colors.black,
                 ),
-          debugShowCheckedModeBanner: false,
-        ),
+                toolbarHeight: 50,
+              ),
+              textTheme: const TextTheme(
+                labelMedium: TextStyle(
+                  fontSize: 20,
+                ),
+                titleLarge: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                ),
+                titleSmall: TextStyle(
+                  fontSize: 16,
+                  color: SECONDARY_TEXT_COLOR,
+                ),
+                titleMedium: TextStyle(
+                  fontSize: 24,
+                ),
+              ),
+              elevatedButtonTheme: ElevatedButtonThemeData(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: PRIMARY_COLOR,
+                ),
+              ),
+            ),
+            dark: ThemeData(
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: Colors.deepPurple,
+                brightness: Brightness.dark,
+              ),
+              useMaterial3: true,
+              fontFamily: "Geist",
+              brightness: Brightness.dark,
+              primaryColor: PRIMARY_COLOR,
+              appBarTheme: const AppBarTheme(
+                elevation: 0,
+                scrolledUnderElevation: 0,
+                titleTextStyle: TextStyle(
+                  fontFamily: "CalSans",
+                  fontSize: 24,
+                  color: Colors.white,
+                ),
+                toolbarHeight: 50,
+              ),
+              textTheme: const TextTheme(
+                labelMedium: TextStyle(
+                  fontSize: 20,
+                ),
+                titleLarge: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                ),
+                titleSmall: TextStyle(
+                  fontSize: 16,
+                  color: SECONDARY_TEXT_COLOR,
+                ),
+                titleMedium: TextStyle(
+                  fontSize: 24,
+                ),
+              ),
+              elevatedButtonTheme: ElevatedButtonThemeData(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: PRIMARY_COLOR,
+                ),
+              ),
+            ),
+            initial: AdaptiveThemeMode.light,
+            debugShowFloatingThemeButton: kDebugMode,
+            builder: (theme, darkTheme) {
+              return MaterialApp(
+                title: 'Voice Learn',
+                navigatorObservers: [
+                  routeObserver,
+                ],
+                theme: theme,
+                darkTheme: theme,
+                themeMode: ThemeMode.light,
+                home: Platform.isAndroid
+                    ? const ViewHandler()
+                    : UpgradeAlert(
+                        dialogStyle: UpgradeDialogStyle.cupertino,
+                        showIgnore: false,
+                        showLater: true,
+                        showReleaseNotes: true,
+                        child: const ViewHandler(),
+                      ),
+                debugShowCheckedModeBanner: false,
+              );
+            }),
       ),
     );
   }

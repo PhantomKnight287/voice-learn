@@ -1,3 +1,4 @@
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 
 class CircularProgressAnimated extends StatefulWidget {
@@ -66,15 +67,19 @@ class _CircularProgressAnimatedState extends State<CircularProgressAnimated> wit
               child: CircularProgressIndicator(
                 value: (widget.animate ? animation.value : widget.currentItems) / widget.maxItems,
                 strokeWidth: 3,
-                backgroundColor: widget.bgColor ?? Colors.grey.shade300,
-                color: widget.color ?? Colors.green.shade500,
+                backgroundColor: widget.bgColor ?? (AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.grey.shade300 : Colors.grey.shade400),
+                color: widget.color ?? (AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.green.shade500 : Colors.green),
               ),
             ),
             widget.child != null
                 ? widget.child!
                 : Text(
                     widget.maxItems.toInt().toString(),
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: TextStyle(
+                      fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                      fontWeight: Theme.of(context).textTheme.titleMedium!.fontWeight,
+                      color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
+                    ),
                   )
           ],
         );

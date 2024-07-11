@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/main.dart';
@@ -92,8 +93,9 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        child: const Icon(
+        child: Icon(
           Icons.add_rounded,
+          color: Colors.black,
         ),
       ),
       appBar: AppBar(
@@ -102,9 +104,8 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
         ),
         centerTitle: true,
         scrolledUnderElevation: 0.0,
-        systemOverlayStyle: SystemUiOverlayStyle.dark,
         elevation: 0,
-        bottom: BOTTOM,
+        bottom: BOTTOM(context),
       ),
       body: SafeArea(
           child: Padding(
@@ -154,7 +155,7 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
                               overflow: TextOverflow.ellipsis,
                             )
                           : null,
-                  tileColor: SECONDARY_BG_COLOR,
+                  tileColor: getSecondaryColor(context),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(BASE_MARGIN * 2),
                   ),
