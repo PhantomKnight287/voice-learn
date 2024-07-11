@@ -1,5 +1,5 @@
 @url = http://localhost:5000/v1
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzZXJfeGdjNWFvYWx2ajVub2RiZDQwb2d6aXJjIiwiaWF0IjoxNzE3MTQyODc1fQ.UA8aGsG7EdI3T_yZrIl1mbsYKzLxkjzOcWlTNXPMsp4
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzZXJfdHR3OGU3YzVpZHMwNHJjNnFuNGU3a3BnIiwiaWF0IjoxNzIwNDk5MjY1fQ.wdQzJwh8i5wb4pUuwkJVnQaMKs41ufvM0ZdYdR9HxCY
 
 ###
 POST {{url}}/auth/sign-in
@@ -54,4 +54,9 @@ Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzZXJfeGdjNWFvYWx2
 
 ###
 GET {{url}}/streaks/2024/6
+Authorization: {{token}}
+
+
+###
+GET {{url}}/profile/@me
 Authorization: {{token}}

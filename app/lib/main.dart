@@ -21,6 +21,7 @@ import 'package:in_app_update/in_app_update.dart' as update;
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 final RouteObserver<ModalRoute> routeObserver = RouteObserver<ModalRoute>();
 
@@ -216,6 +217,15 @@ class _VoiceLearnAppState extends State<VoiceLearnApp> {
                 title: 'Voice Learn',
                 navigatorObservers: [
                   routeObserver,
+                ],
+                localizationsDelegates: [
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                supportedLocales: [
+                  Locale('en'),
+                  Locale('en', 'IN'),
                 ],
                 theme: theme,
                 darkTheme: theme,

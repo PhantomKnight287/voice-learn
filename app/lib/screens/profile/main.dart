@@ -1,17 +1,15 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/user.dart';
 import 'package:app/screens/developer/logs.dart';
-import 'package:app/screens/home/main.dart';
 import 'package:app/screens/settings/main.dart';
 import 'package:app/utils/error.dart';
 import 'package:fl_query/fl_query.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gravatar/utils.dart';
 import 'package:heroicons/heroicons.dart';
@@ -115,7 +113,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
         scrolledUnderElevation: 0.0,
         elevation: 0,
-        bottom: BOTTOM(context),
+        bottom: BOTTOM(
+          context,
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -399,134 +399,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ))
                             ],
                           ),
-                          // AspectRatio(
-                          //   aspectRatio: 1.7,
-                          //   child: Padding(
-                          //     padding: const EdgeInsets.only(
-                          //       right: 18,
-                          //       left: 12,
-                          //       top: 24,
-                          //       bottom: 12,
-                          //     ),
-                          //     child: LineChart(
-                          //       LineChartData(
-                          //         gridData: FlGridData(
-                          //           show: true,
-                          //           drawVerticalLine: true,
-                          //           horizontalInterval: 1,
-                          //           verticalInterval: 1,
-                          //           getDrawingHorizontalLine: (value) {
-                          //             return const FlLine(
-                          //               color: Colors.transparent,
-                          //               strokeWidth: 1,
-                          //             );
-                          //           },
-                          //           getDrawingVerticalLine: (value) {
-                          //             return const FlLine(
-                          //               color: Colors.transparent,
-                          //               strokeWidth: 1,
-                          //             );
-                          //           },
-                          //         ),
-                          //         titlesData: FlTitlesData(
-                          //           show: true,
-                          //           rightTitles: const AxisTitles(
-                          //             sideTitles: SideTitles(showTitles: false),
-                          //           ),
-                          //           topTitles: const AxisTitles(
-                          //             sideTitles: SideTitles(showTitles: false),
-                          //           ),
-                          //           bottomTitles: AxisTitles(
-                          //             sideTitles: SideTitles(
-                          //               showTitles: true,
-                          //               reservedSize: 30,
-                          //               interval: 1,
-                          //               getTitlesWidget: bottomTitleWidgets,
-                          //             ),
-                          //           ),
-                          //           leftTitles: AxisTitles(
-                          //             sideTitles: SideTitles(
-                          //               showTitles: true,
-                          //               interval: 1,
-                          //               getTitlesWidget: leftTitleWidgets,
-                          //               reservedSize: 42,
-                          //             ),
-                          //           ),
-                          //         ),
-                          //         borderData: FlBorderData(
-                          //           show: true,
-                          //           border: Border.all(color: const Color(0xff37434d)),
-                          //         ),
-                          //         minX: 0,
-                          //         maxX: 11,
-                          //         minY: 0,
-                          //         maxY: 6,
-                          //         lineBarsData: [
-                          //           LineChartBarData(
-                          //             spots: const [
-                          //               FlSpot(0, 3),
-                          //               FlSpot(2.6, 2),
-                          //               FlSpot(4.9, 5),
-                          //               FlSpot(6.8, 3.1),
-                          //               FlSpot(8, 4),
-                          //               FlSpot(9.5, 3),
-                          //               FlSpot(11, 4),
-                          //             ],
-                          //             isCurved: true,
-                          //             gradient: LinearGradient(
-                          //               colors: gradientColors,
-                          //             ),
-                          //             barWidth: 5,
-                          //             isStrokeCapRound: true,
-                          //             dotData: const FlDotData(
-                          //               show: false,
-                          //             ),
-                          //             belowBarData: BarAreaData(
-                          //               show: true,
-                          //               gradient: LinearGradient(
-                          //                 colors: gradientColors.map((color) => color.withOpacity(0.3)).toList(),
-                          //               ),
-                          //             ),
-                          //           ),
-                          //           LineChartBarData(
-                          //             spots: const [
-                          //               FlSpot(0, 1),
-                          //               FlSpot(2.6, 2),
-                          //               FlSpot(4.9, 5),
-                          //               FlSpot(6.8, 3.1),
-                          //               FlSpot(8, 4),
-                          //               FlSpot(9.5, 3),
-                          //               FlSpot(11, 4),
-                          //             ],
-                          //             isCurved: true,
-                          //             gradient: LinearGradient(
-                          //               colors: [
-                          //                 Colors.red,
-                          //                 Colors.green,
-                          //               ],
-                          //             ),
-                          //             barWidth: 5,
-                          //             isStrokeCapRound: true,
-                          //             dotData: const FlDotData(
-                          //               show: false,
-                          //             ),
-                          //             belowBarData: BarAreaData(
-                          //               show: true,
-                          //               gradient: LinearGradient(
-                          //                 begin: Alignment.topCenter,
-                          //                 end: Alignment.bottomCenter,
-                          //                 colors: [
-                          //                   Colors.yellow,
-                          //                   Colors.blue,
-                          //                 ],
-                          //               ),
-                          //             ),
-                          //           ),
-                          //         ],
-                          //       ),
-                          //     ),
-                          //   ),
-                          // ),
+                          const SizedBox(
+                            height: BASE_MARGIN * 3,
+                          ),
+                          _buildGraph(data),
                         ],
                       );
                     },
@@ -805,11 +681,75 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ))
                             ],
-                          )
+                          ),
+                          Text(
+                            "XP History",
+                            style: TextStyle(
+                              fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: BASE_MARGIN * 3,
+                          ),
+                          _buildGraph(data),
                         ],
                       );
                     },
                   ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  AspectRatio _buildGraph(data) {
+    return AspectRatio(
+      aspectRatio: 1,
+      child: LineChart(
+        LineChartData(
+          lineBarsData: [
+            LineChartBarData(
+              spots: ((data?['xpHistory'] as List) ?? [])
+                  .map(
+                    (history) => FlSpot(
+                      DateTime.parse(history['date']).day.toDouble(),
+                      double.parse(history['earned']),
+                    ),
+                  )
+                  .toList(),
+              isCurved: true,
+              dotData: FlDotData(
+                show: true,
+              ),
+              belowBarData: BarAreaData(
+                color: Colors.blue.withOpacity(0.3),
+                show: true,
+              ),
+            )
+          ],
+          minY: 0,
+          titlesData: FlTitlesData(
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 30,
+                interval: 1,
+                getTitlesWidget: (value, meta) {
+                  return Text('${value.toInt()} ${MONTHS[DateTime.now().month - 1]}');
+                },
+              ),
+            ),
+            topTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: false,
+              ),
+            ),
+            rightTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: false,
+              ),
+            ),
           ),
         ),
       ),

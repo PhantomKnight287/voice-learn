@@ -1,4 +1,7 @@
 import 'source-map-support/register';
+(BigInt as any).prototype.toJSON = function () {
+  return this.toString();
+};
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
