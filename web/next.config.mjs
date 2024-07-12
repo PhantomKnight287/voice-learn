@@ -1,5 +1,5 @@
-import createMDX from 'fumadocs-mdx/config';
- 
+import createMDX from "fumadocs-mdx/config";
+
 const withMDX = createMDX();
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -14,13 +14,7 @@ const nextConfig = {
     ],
   },
   typescript: { ignoreBuildErrors: true },
-  pageExtensions:[
-    "js",
-    "jsx",
-    "ts",
-    "tsx",
-    "mdx"
-  ],
+  pageExtensions: ["js", "jsx", "ts", "tsx", "mdx"],
 };
 
 export default withMDX(nextConfig);
