@@ -8,6 +8,7 @@ import 'package:app/constants/main.dart';
 import 'package:app/main.dart';
 import 'package:app/models/responses/auth/main.dart';
 import 'package:app/screens/auth/register.dart';
+import 'package:app/screens/auth/reset_password.dart';
 import 'package:app/screens/home/main.dart';
 import 'package:app/screens/loading/learning.dart';
 import 'package:app/screens/onboarding/questions.dart';
@@ -232,8 +233,30 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(
-                    height: BASE_MARGIN * 6,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const SizedBox(
+                        height: BASE_MARGIN * 6,
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            NoSwipePageRoute(
+                              builder: (context) {
+                                return const ResetPasswordScreen();
+                              },
+                            ),
+                          );
+                        },
+                        child: Text(
+                          "Forgot Password?",
+                          style: TextStyle(
+                            color: Colors.blue.shade500,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   ElevatedButton(
                     onPressed: _login,

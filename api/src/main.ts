@@ -19,7 +19,7 @@ const OPENAI_VOICES = ['Alloy', 'Echo', 'Fable', 'Onyx', 'Nova', 'Shimmer'];
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(morgan('dev'), helmet());
-
+  app.enableCors();
   app.enableVersioning({
     type: VersioningType.URI,
     defaultVersion: '1',

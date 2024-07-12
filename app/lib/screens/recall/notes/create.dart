@@ -448,7 +448,11 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> with RouteAware {
                             Text(
                               language == null ? "Select a language" : language!.name,
                               style: TextStyle(
-                                color: language == null ? Theme.of(context).hintColor : Colors.black,
+                                color: language == null
+                                    ? Theme.of(context).hintColor
+                                    : AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light
+                                        ? Colors.black
+                                        : Colors.white,
                                 fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                               ),
                             ),

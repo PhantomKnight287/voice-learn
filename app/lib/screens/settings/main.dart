@@ -9,14 +9,13 @@ import 'package:app/models/user.dart';
 import 'package:app/screens/onboarding/main.dart';
 import 'package:app/screens/settings/change_password.dart';
 import 'package:app/utils/error.dart';
-import 'package:app/utils/print.dart';
 import 'package:fl_query/fl_query.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gravatar/flutter_gravatar.dart';
 import 'package:flutter_gravatar/utils.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -39,6 +38,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _loading = false;
   bool _notificationsAllowed = false;
   bool _devModeEnabled = false;
+  String _appVersion = "";
 
   Future<void> _updateProfile() async {
     setState(() {
@@ -96,6 +96,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  Future<void> _setVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      _appVersion = '${packageInfo.version} (${packageInfo.buildNumber})';
+    });
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -121,6 +128,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
+    _setVersion();
   }
 
   @override
@@ -150,10 +158,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         onPressed: () {
                           Navigator.of(context).pop(); // Close the dialog
                         },
-                        child: const Text(
+                        child: Text(
                           "Cancel",
                           style: TextStyle(
-                            color: Colors.black,
+                            color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
                           ),
                         ),
                       ),
@@ -677,6 +685,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ],
                       ),
+                      SizedBox(
+                        height: BASE_MARGIN * 2,
+                      ),
+                      Text(
+                        "App Version: $_appVersion",
+                        textAlign: TextAlign.center,
+                      )
                     ],
                   ),
                 );

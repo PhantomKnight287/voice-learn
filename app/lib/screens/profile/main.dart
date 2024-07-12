@@ -192,55 +192,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           Row(
                             children: [
-                              Expanded(
-                                child: Container(
-                                  padding: const EdgeInsets.all(
-                                    BASE_MARGIN * 2.5,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: getSecondaryColor(context),
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(
-                                      10,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const HeroIcon(
-                                        HeroIcons.bolt,
-                                        color: PRIMARY_COLOR,
-                                        size: 30,
-                                        style: HeroIconStyle.solid,
-                                      ),
-                                      const SizedBox(
-                                        width: BASE_MARGIN * 2,
-                                      ),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            data['activeStreaks'].toString(),
-                                            style: TextStyle(
-                                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: BASE_MARGIN * 1,
-                                          ),
-                                          Text(
-                                            "Active streak",
-                                            style: Theme.of(context).textTheme.titleSmall,
-                                          )
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
                               const SizedBox(
                                 width: BASE_MARGIN * 2,
                               ),
@@ -298,55 +249,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           Row(
                             children: [
-                              Expanded(
-                                child: Container(
-                                  padding: const EdgeInsets.all(
-                                    BASE_MARGIN * 2.5,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: getSecondaryColor(context),
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(
-                                      10,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const HeroIcon(
-                                        HeroIcons.bolt,
-                                        color: PRIMARY_COLOR,
-                                        size: 30,
-                                        style: HeroIconStyle.solid,
-                                      ),
-                                      const SizedBox(
-                                        width: BASE_MARGIN * 2,
-                                      ),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            data['longestStreak'].toString(),
-                                            style: TextStyle(
-                                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: BASE_MARGIN * 1,
-                                          ),
-                                          Text(
-                                            "Longest streak",
-                                            style: Theme.of(context).textTheme.titleSmall,
-                                          )
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
                               const SizedBox(
                                 width: BASE_MARGIN * 2,
                               ),
@@ -402,7 +304,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SizedBox(
                             height: BASE_MARGIN * 3,
                           ),
-                          _buildGraph(data),
+                          if ((data?['xpHistory'] as List).isNotEmpty)
+                            Text(
+                              "XP History",
+                              style: TextStyle(
+                                fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          if ((data?['xpHistory'] as List).isNotEmpty)
+                            const SizedBox(
+                              height: BASE_MARGIN * 3,
+                            ),
+                          if ((data?['xpHistory'] as List).isNotEmpty) _buildGraph(data),
                         ],
                       );
                     },
@@ -476,58 +390,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Row(
                             children: [
                               Expanded(
-                                child: Container(
-                                  padding: const EdgeInsets.all(
-                                    BASE_MARGIN * 2.5,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.grey,
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(
-                                      10,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const HeroIcon(
-                                        HeroIcons.bolt,
-                                        color: PRIMARY_COLOR,
-                                        size: 30,
-                                        style: HeroIconStyle.solid,
-                                      ),
-                                      const SizedBox(
-                                        width: BASE_MARGIN * 2,
-                                      ),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            data['activeStreaks'].toString(),
-                                            style: TextStyle(
-                                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: BASE_MARGIN * 1,
-                                          ),
-                                          Text(
-                                            "Active streak",
-                                            style: Theme.of(context).textTheme.titleSmall,
-                                          )
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(
-                                width: BASE_MARGIN * 2,
-                              ),
-                              Expanded(
                                   child: Container(
                                 padding: const EdgeInsets.all(
                                   BASE_MARGIN * 2.5,
@@ -582,58 +444,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Row(
                             children: [
                               Expanded(
-                                child: Container(
-                                  padding: const EdgeInsets.all(
-                                    BASE_MARGIN * 2.5,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.grey,
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(
-                                      10,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const HeroIcon(
-                                        HeroIcons.bolt,
-                                        color: PRIMARY_COLOR,
-                                        size: 30,
-                                        style: HeroIconStyle.solid,
-                                      ),
-                                      const SizedBox(
-                                        width: BASE_MARGIN * 2,
-                                      ),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            data['longestStreak'].toString(),
-                                            style: TextStyle(
-                                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: BASE_MARGIN * 1,
-                                          ),
-                                          Text(
-                                            "Longest streak",
-                                            style: Theme.of(context).textTheme.titleSmall,
-                                          )
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(
-                                width: BASE_MARGIN * 2,
-                              ),
-                              Expanded(
                                   child: Container(
                                 padding: const EdgeInsets.all(
                                   BASE_MARGIN * 2.5,
@@ -682,17 +492,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ))
                             ],
                           ),
-                          Text(
-                            "XP History",
-                            style: TextStyle(
-                              fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-                              fontWeight: FontWeight.w600,
+                          if ((data?['xpHistory'] as List).isNotEmpty)
+                            Text(
+                              "XP History",
+                              style: TextStyle(
+                                fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
-                          const SizedBox(
-                            height: BASE_MARGIN * 3,
-                          ),
-                          _buildGraph(data),
+                          if ((data?['xpHistory'] as List).isNotEmpty)
+                            const SizedBox(
+                              height: BASE_MARGIN * 3,
+                            ),
+                          if ((data?['xpHistory'] as List).isNotEmpty) _buildGraph(data),
                         ],
                       );
                     },
@@ -729,6 +541,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             )
           ],
           minY: 0,
+          gridData: FlGridData(
+            show: false,
+          ),
           titlesData: FlTitlesData(
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
@@ -825,60 +640,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         Row(
           children: [
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(
-                  BASE_MARGIN * 2.5,
-                ),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: getSecondaryColor(context),
-                    width: 2.0,
-                  ),
-                  borderRadius: BorderRadius.circular(
-                    10,
-                  ),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const HeroIcon(
-                      HeroIcons.bolt,
-                      color: PRIMARY_COLOR,
-                      size: 30,
-                      style: HeroIconStyle.solid,
-                    ),
-                    const SizedBox(
-                      width: BASE_MARGIN * 2,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Shimmer.fromColors(
-                          baseColor: Colors.grey.shade300,
-                          highlightColor: Colors.grey.shade400,
-                          child: Container(
-                            height: 20,
-                            width: 50,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: BASE_MARGIN * 1,
-                        ),
-                        Text(
-                          "Active streak",
-                          style: Theme.of(context).textTheme.titleSmall,
-                        )
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
             const SizedBox(
               width: BASE_MARGIN * 2,
             ),

@@ -21,6 +21,7 @@ import 'package:app/screens/streaks/main.dart';
 import 'package:app/utils/error.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -429,42 +430,43 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                             width: 30,
                             height: 30,
                           ),
-                          IconButton(
-                            key: streaksKey,
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                NoSwipePageRoute(
-                                  builder: (context) {
-                                    return const StreaksScreen();
-                                  },
-                                ),
-                              );
-                            },
-                            icon: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Hero(
-                                  tag: "bolt",
-                                  child: HeroIcon(
-                                    HeroIcons.bolt,
-                                    color: PRIMARY_COLOR,
-                                    size: 30,
-                                    style: state.isStreakActive ? HeroIconStyle.solid : HeroIconStyle.outline,
+                          if (kDebugMode)
+                            IconButton(
+                              key: streaksKey,
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  NoSwipePageRoute(
+                                    builder: (context) {
+                                      return const StreaksScreen();
+                                    },
                                   ),
-                                ),
-                                const SizedBox(
-                                  width: BASE_MARGIN * 2,
-                                ),
-                                Text(
-                                  state.streaks.toString(),
-                                  style: TextStyle(
-                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                    fontWeight: FontWeight.w700,
+                                );
+                              },
+                              icon: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Hero(
+                                    tag: "bolt",
+                                    child: HeroIcon(
+                                      HeroIcons.bolt,
+                                      color: PRIMARY_COLOR,
+                                      size: 30,
+                                      style: state.isStreakActive ? HeroIconStyle.solid : HeroIconStyle.outline,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(
+                                    width: BASE_MARGIN * 2,
+                                  ),
+                                  Text(
+                                    state.streaks.toString(),
+                                    style: TextStyle(
+                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
                           IconButton(
                             key: emeraldsKey,
                             onPressed: () {

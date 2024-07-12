@@ -36,6 +36,9 @@ export const envSchema = z.object({
   R2_PUBLIC_BUCKET_URL: z.string(),
   ONESIGNAL_APP_ID: z.string(),
   ONESIGNAL_REST_API_KEY: z.string(),
+  EMAILTHING_TOKEN: z.string(),
+  RESET_PASSWORD_SECRET: z.string(),
+  HOST:z.string()
 });
 const safeParseResult = envSchema.safeParse(process.env);
 if (safeParseResult.success === false) {

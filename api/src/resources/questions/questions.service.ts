@@ -234,43 +234,45 @@ export class QuestionsService {
             id: true,
           },
         });
-        const olderCorrectionModule = await tx.lesson.findFirst({
-          where: {
-            name: 'Mistake Correction',
-            emeralds: 0,
-            xpPerQuestion: 0,
-            moduleId: lesson.moduleId,
-          },
-        });
-        const correctionModule =
-          olderCorrectionModule ??
-          (await tx.lesson.create({
-            data: {
-              id: `lesson_${createId()}`,
+        if (allIncorrectQuestions.length > 0) {
+          const olderCorrectionModule = await tx.lesson.findFirst({
+            where: {
               name: 'Mistake Correction',
-              completed: false,
-              questionsCount: allIncorrectQuestions.length,
-              questionsStatus: 'generated',
               emeralds: 0,
               xpPerQuestion: 0,
-              module: {
-                connect: {
-                  id: lesson.moduleId,
-                },
-              },
-            },
-          }));
-        for (const ques of allIncorrectQuestions) {
-          await tx.question.update({
-            where: { id: ques.id },
-            data: {
-              lessons: {
-                connect: {
-                  id: correctionModule.id,
-                },
-              },
+              moduleId: lesson.moduleId,
             },
           });
+          const correctionModule =
+            olderCorrectionModule ??
+            (await tx.lesson.create({
+              data: {
+                id: `lesson_${createId()}`,
+                name: 'Mistake Correction',
+                completed: false,
+                questionsCount: allIncorrectQuestions.length,
+                questionsStatus: 'generated',
+                emeralds: 0,
+                xpPerQuestion: 0,
+                module: {
+                  connect: {
+                    id: lesson.moduleId,
+                  },
+                },
+              },
+            }));
+          for (const ques of allIncorrectQuestions) {
+            await tx.question.update({
+              where: { id: ques.id },
+              data: {
+                lessons: {
+                  connect: {
+                    id: correctionModule.id,
+                  },
+                },
+              },
+            });
+          }
         }
       }
 

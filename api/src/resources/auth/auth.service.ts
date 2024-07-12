@@ -6,9 +6,11 @@ import { ConfigService } from '@nestjs/config';
 import { SignupDTO } from './dto/signup.dto';
 import { createId } from '@paralleldrive/cuid2';
 import { prisma } from 'src/db';
-import moment from 'moment';
 import { UpdatePasswordDTO } from './dto/update-password.dto';
 import { generateTimestamps, parseOffset } from 'src/lib/time';
+import { ResetPasswordDTO } from './dto/reset-password.dto';
+import { RESET_PASSWORD_EMAIL } from 'src/emails/auth/reset-password';
+import { ResetPasswordSubmitDTO } from './dto/reset-password-submit.dto';
 
 @Injectable()
 export class AuthService {
@@ -36,7 +38,6 @@ export class AuthService {
 
     delete user.password;
     const token = sign({ id: user.id }, this.service.get('JWT_SECRET'));
-    console.log(user);
     const { currentDateInGMT, nextDateInGMT } = generateTimestamps(
       (timeZoneOffset ? parseOffset(timeZoneOffset) : user.timeZoneOffSet) || 0,
     );
@@ -197,5 +198,78 @@ export class AuthService {
     return {
       id: updatedUser.id,
     };
+  }
+
+  async sendPasswordResetEmail(body: ResetPasswordDTO) {
+    const user = await prisma.user.findFirst({ where: { email: body.email } });
+    if (!user)
+      throw new HttpException(
+        'No account found with given email.',
+        HttpStatus.NOT_FOUND,
+      );
+    const token = sign(
+      {
+        id: user.id,
+      },
+      process.env.RESET_PASSWORD_SECRET,
+      {
+        expiresIn: '10mins',
+      },
+    );
+    const req = await fetch(`https://emailthing.xyz/api/v0/send`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.EMAILTHING_TOKEN}`,
+        'Content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'VoiceLearn Support <support@voicelearn.tech>',
+        to: [body.email],
+        subject: 'Oops! Did You Misplace Your Password?',
+        html: RESET_PASSWORD_EMAIL(
+          `${process.env.HOST}/reset-password/${token}`,
+        ),
+      }),
+    });
+    const res = await req.json();
+    if (!res.success)
+      throw new HttpException(
+        'Failed to send email',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    return {
+      message: 'Email sent',
+    };
+  }
+
+  async resetPassword(body: ResetPasswordSubmitDTO) {
+    const { password, token } = body;
+    try {
+      const decoded = verifyJWT(token, process.env.RESET_PASSWORD_SECRET) as {
+        id: string;
+      };
+
+      const user = await prisma.user.findUnique({ where: { id: decoded.id } });
+      if (!user) {
+        throw new HttpException('Invalid token.', HttpStatus.UNAUTHORIZED);
+      }
+      const hashedPassword = await hash(password);
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { password: hashedPassword },
+      });
+
+      return {
+        message: 'Password reset successful',
+      };
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        throw new HttpException(
+          'This password reset url has expired',
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+      throw new HttpException('Invalid token.', HttpStatus.UNAUTHORIZED);
+    }
   }
 }

@@ -205,7 +205,11 @@ class _CreateChatScreenState extends State<CreateChatScreen> {
                             child: Text(
                               voice == null ? "Select a voice" : voice!.name,
                               style: TextStyle(
-                                color: voice == null ? Theme.of(context).hintColor : Colors.black,
+                                color: voice == null
+                                    ? Theme.of(context).hintColor
+                                    : AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light
+                                        ? Colors.black
+                                        : Colors.white,
                                 fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                               ),
                             ),
@@ -264,7 +268,11 @@ class _CreateChatScreenState extends State<CreateChatScreen> {
                                 Text(
                                   language == null ? "Select a language" : language!.name,
                                   style: TextStyle(
-                                    color: language == null ? Theme.of(context).hintColor : Colors.black,
+                                    color: language == null
+                                        ? Theme.of(context).hintColor
+                                        : AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light
+                                            ? Colors.black
+                                            : Colors.white,
                                     fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                                   ),
                                 ),
@@ -303,7 +311,9 @@ class _CreateChatScreenState extends State<CreateChatScreen> {
                   onPressed: _createChat,
                   style: ButtonStyle(
                     alignment: Alignment.center,
-                    foregroundColor: WidgetStateProperty.all(Colors.black),
+                    foregroundColor: WidgetStateProperty.all(
+                      Colors.black,
+                    ),
                     padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
                       (Set<WidgetState> states) {
                         return const EdgeInsets.all(15);

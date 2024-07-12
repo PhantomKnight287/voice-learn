@@ -123,6 +123,7 @@ export class AppModule implements NestModule {
         },
         '/v(.*)/webhooks/(.*)',
         '/v(.*)/uploads/(.*)',
+        '/v(.*)/auth/forgot-password/(.*)'
       )
       .forRoutes('*');
 

@@ -22,6 +22,8 @@ import {
 import { Auth } from 'src/decorators/auth/auth.decorator';
 import { User } from '@prisma/client';
 import { UpdatePasswordDTO } from './dto/update-password.dto';
+import { ResetPasswordDTO } from './dto/reset-password.dto';
+import { ResetPasswordSubmitDTO } from './dto/reset-password-submit.dto';
 
 @Controller('auth')
 @ApiTags('Authentication')
@@ -133,5 +135,15 @@ export class AuthController {
   @Post('password/update')
   updatePassword(@Auth() auth: User, @Body() body: UpdatePasswordDTO) {
     return this.authService.updatePassword(body, auth.id);
+  }
+
+  @Post('forgot-password/email')
+  sendResetPasswordEmail(@Body() body: ResetPasswordDTO) {
+    return this.authService.sendPasswordResetEmail(body);
+  }
+
+  @Post('forgot-password/submit')
+  resetPassword(@Body() body: ResetPasswordSubmitDTO) {
+    return this.authService.resetPassword(body);
   }
 }

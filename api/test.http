@@ -6,7 +6,7 @@ POST {{url}}/auth/sign-in
 Content-Type: application/json
 
 {
-    "email":"gillgurpal699+2@gmail.com",
+    "email":"gillgurpal699@gmail.com",
     "password":"password",
     "timezone": "IST",
 	"timeZoneOffset": "5:30:00.000000"
@@ -60,3 +60,11 @@ Authorization: {{token}}
 ###
 GET {{url}}/profile/@me
 Authorization: {{token}}
+
+###
+POST {{url}}/auth/forgot-password/email
+Content-Type: application/json
+
+{
+    "email":"gillgurpal699@gmail.com"
+}
