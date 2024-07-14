@@ -29,7 +29,7 @@ export default function Header() {
         <Link href="/" className="flex items-center justify-center">
           <div className="flex flex-row items-end">
             <VoiceLearnLogo_Light width={40} height={40} />
-            <div className="font-semibold leading-3 ml-1">
+            <div className="font-semibold leading-3 ml-1 text-lg mb-2">
               Voice Learn
             </div>
           </div>

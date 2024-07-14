@@ -430,43 +430,42 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                             width: 30,
                             height: 30,
                           ),
-                          if (kDebugMode)
-                            IconButton(
-                              key: streaksKey,
-                              onPressed: () {
-                                Navigator.of(context).push(
-                                  NoSwipePageRoute(
-                                    builder: (context) {
-                                      return const StreaksScreen();
-                                    },
+                          IconButton(
+                            key: streaksKey,
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                NoSwipePageRoute(
+                                  builder: (context) {
+                                    return const StreaksScreen();
+                                  },
+                                ),
+                              );
+                            },
+                            icon: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Hero(
+                                  tag: "bolt",
+                                  child: HeroIcon(
+                                    HeroIcons.bolt,
+                                    color: PRIMARY_COLOR,
+                                    size: 30,
+                                    style: state.isStreakActive ? HeroIconStyle.solid : HeroIconStyle.outline,
                                   ),
-                                );
-                              },
-                              icon: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Hero(
-                                    tag: "bolt",
-                                    child: HeroIcon(
-                                      HeroIcons.bolt,
-                                      color: PRIMARY_COLOR,
-                                      size: 30,
-                                      style: state.isStreakActive ? HeroIconStyle.solid : HeroIconStyle.outline,
-                                    ),
+                                ),
+                                const SizedBox(
+                                  width: BASE_MARGIN * 2,
+                                ),
+                                Text(
+                                  state.streaks.toString(),
+                                  style: TextStyle(
+                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                    fontWeight: FontWeight.w700,
                                   ),
-                                  const SizedBox(
-                                    width: BASE_MARGIN * 2,
-                                  ),
-                                  Text(
-                                    state.streaks.toString(),
-                                    style: TextStyle(
-                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
+                          ),
                           IconButton(
                             key: emeraldsKey,
                             onPressed: () {

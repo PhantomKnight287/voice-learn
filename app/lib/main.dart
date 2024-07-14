@@ -218,12 +218,12 @@ class _VoiceLearnAppState extends State<VoiceLearnApp> {
                 navigatorObservers: [
                   routeObserver,
                 ],
-                localizationsDelegates: [
+                localizationsDelegates: const [
                   GlobalMaterialLocalizations.delegate,
                   GlobalWidgetsLocalizations.delegate,
                   GlobalCupertinoLocalizations.delegate,
                 ],
-                supportedLocales: [
+                supportedLocales: const [
                   Locale('en'),
                   Locale('en', 'IN'),
                 ],

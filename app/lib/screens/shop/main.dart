@@ -274,330 +274,326 @@ class _ShopScreenState extends State<ShopScreen> {
                   );
                 },
               ),
-              if (kDebugMode)
-                const SizedBox(
-                  height: BASE_MARGIN * 4,
+              const SizedBox(
+                height: BASE_MARGIN * 4,
+              ),
+              Text(
+                "Streak",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                  fontFamily: "CalSans",
                 ),
-              if (kDebugMode)
-                Text(
-                  "Streak",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-                    fontFamily: "CalSans",
-                  ),
-                ),
-              if (kDebugMode)
-                const SizedBox(
-                  height: BASE_MARGIN * 2,
-                ),
-              if (kDebugMode)
-                QueryBuilder(
-                  'shields',
-                  _fetchStreakShields,
-                  builder: (context, query) {
-                    if (query.hasError) {
-                      return Center(
-                        child: Text(query.error.toString()),
-                      );
-                    }
-                    final data = query.data;
-                    return GestureDetector(
-                      onTap: () {
-                        if (data == null) return;
-                        showModalBottomSheet(
-                          context: context,
-                          enableDrag: true,
-                          showDragHandle: true,
-                          builder: (context) {
-                            return StatefulBuilder(
-                              builder: (context, _setState) {
-                                final bloc = context.read<UserBloc>();
-                                final state = bloc.state;
-                                return Padding(
-                                  padding: const EdgeInsets.all(BASE_MARGIN * 2),
-                                  child: Column(
-                                    children: [
-                                      const SizedBox(
-                                        height: BASE_MARGIN * 2,
-                                      ),
-                                      const SizedBox(
-                                        height: BASE_MARGIN * 4,
-                                      ),
-                                      Text(
-                                        data >= 5 ? "You have full shields" : "You have ${data} ${data == 1 ? "shield" : "shields"}",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        height: BASE_MARGIN * 4,
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () async {
-                                          if (data >= 5) return;
-                                          _setState(() {
-                                            _refillShieldsLoading = true;
-                                          });
-                                          await _refillStreakShields();
-                                          await query.refresh();
-                                          _setState(() {
-                                            _refillShieldsLoading = false;
-                                          });
-                                          Navigator.pop(context);
-                                        },
-                                        style: ButtonStyle(
-                                          backgroundColor: data < 5
-                                              ? WidgetStateProperty.all(
-                                                  getSecondaryColor(context),
-                                                )
-                                              : WidgetStateProperty.all(
-                                                  Colors.grey.shade500,
-                                                ),
-                                          alignment: Alignment.center,
-                                          foregroundColor: WidgetStateProperty.all(Colors.black),
-                                          padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
-                                            (Set<WidgetState> states) {
-                                              return const EdgeInsets.all(15);
-                                            },
-                                          ),
-                                          shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                                            RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(10),
-                                            ),
-                                          ),
-                                        ),
-                                        child: _refillShieldsLoading
-                                            ? Container(
-                                                width: 24,
-                                                height: 24,
-                                                padding: const EdgeInsets.all(2.0),
-                                                child: const CupertinoActivityIndicator(
-                                                  animating: true,
-                                                  radius: 20,
-                                                ),
-                                              )
-                                            : Row(
-                                                children: [
-                                                  const HeroIcon(
-                                                    HeroIcons.shieldExclamation,
-                                                    size: 30,
-                                                  ),
-                                                  const SizedBox(
-                                                    width: BASE_MARGIN * 2,
-                                                  ),
-                                                  Expanded(
-                                                    child: Text(
-                                                      "Refill shields",
-                                                      style: TextStyle(
-                                                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
-                                                        fontWeight: FontWeight.w600,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  data > 5
-                                                      ? ColorFiltered(
-                                                          colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
-                                                          child: Image.asset(
-                                                            "assets/images/emerald.png",
-                                                            width: 25,
-                                                            height: 25,
-                                                          ),
-                                                        )
-                                                      : Image.asset(
-                                                          "assets/images/emerald.png",
-                                                          width: 25,
-                                                          height: 25,
-                                                        ),
-                                                  const SizedBox(
-                                                    width: BASE_MARGIN * 2,
-                                                  ),
-                                                  Text(
-                                                    data >= 5 ? "50" : ((5 - data!) * 10).toString(),
-                                                    style: TextStyle(
-                                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
-                                                      fontWeight: FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                      ),
-                                      const SizedBox(
-                                        height: BASE_MARGIN * 4,
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () async {
-                                          if (data >= 5) return;
-                                          _setState(() {
-                                            _buyOneShieldLoading = true;
-                                          });
-                                          await _buyOneStreakShield();
-                                          await query.refresh();
-                                          _setState(() {
-                                            _buyOneShieldLoading = false;
-                                          });
-                                          Navigator.pop(context);
-                                        },
-                                        style: ButtonStyle(
-                                          backgroundColor: data < 5
-                                              ? WidgetStateProperty.all(
-                                                  getSecondaryColor(context),
-                                                )
-                                              : WidgetStateProperty.all(
-                                                  Colors.grey.shade500,
-                                                ),
-                                          alignment: Alignment.center,
-                                          foregroundColor: WidgetStateProperty.all(Colors.black),
-                                          padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
-                                            (Set<WidgetState> states) {
-                                              return const EdgeInsets.all(15);
-                                            },
-                                          ),
-                                          shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                                            RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(10),
-                                            ),
-                                          ),
-                                        ),
-                                        child: _buyOneShieldLoading
-                                            ? Container(
-                                                width: 24,
-                                                height: 24,
-                                                padding: const EdgeInsets.all(2.0),
-                                                child: const CupertinoActivityIndicator(
-                                                  animating: true,
-                                                  radius: 20,
-                                                ),
-                                              )
-                                            : Row(
-                                                children: [
-                                                  const HeroIcon(
-                                                    HeroIcons.shieldExclamation,
-                                                    size: 30,
-                                                  ),
-                                                  const SizedBox(
-                                                    width: BASE_MARGIN * 2,
-                                                  ),
-                                                  Expanded(
-                                                    child: Text(
-                                                      "Refill 1 shield",
-                                                      style: TextStyle(
-                                                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
-                                                        fontWeight: FontWeight.w600,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  data > 5
-                                                      ? ColorFiltered(
-                                                          colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
-                                                          child: Image.asset(
-                                                            "assets/images/emerald.png",
-                                                            width: 25,
-                                                            height: 25,
-                                                          ),
-                                                        )
-                                                      : Image.asset(
-                                                          "assets/images/emerald.png",
-                                                          width: 25,
-                                                          height: 25,
-                                                        ),
-                                                  const SizedBox(
-                                                    width: BASE_MARGIN * 2,
-                                                  ),
-                                                  Text(
-                                                    "10",
-                                                    style: TextStyle(
-                                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
-                                                      fontWeight: FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        );
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: getSecondaryColor(context),
-                          borderRadius: BorderRadius.circular(
-                            10,
-                          ),
-                        ),
-                        padding: const EdgeInsets.all(
-                          BASE_MARGIN * 4,
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const HeroIcon(
-                              HeroIcons.shieldExclamation,
-                              size: 30,
-                            ),
-                            const SizedBox(
-                              width: BASE_MARGIN * 4,
-                            ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    "Streak Shields protect your streak by covering a missed day, so you can keep your progress intact. Use them wisely to stay on track!",
-                                  ),
-                                  const SizedBox(
-                                    height: BASE_MARGIN * 2,
-                                  ),
-                                  if (query.isLoading)
-                                    Shimmer.fromColors(
-                                      baseColor: Colors.grey.shade300,
-                                      highlightColor: Colors.grey.shade400,
-                                      child: Container(
-                                        height: 20,
-                                        width: 150,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(10),
-                                        ),
+              ),
+              const SizedBox(
+                height: BASE_MARGIN * 2,
+              ),
+              QueryBuilder(
+                'shields',
+                _fetchStreakShields,
+                builder: (context, query) {
+                  if (query.hasError) {
+                    return Center(
+                      child: Text(query.error.toString()),
+                    );
+                  }
+                  final data = query.data;
+                  return GestureDetector(
+                    onTap: () {
+                      if (data == null) return;
+                      showModalBottomSheet(
+                        context: context,
+                        enableDrag: true,
+                        showDragHandle: true,
+                        builder: (context) {
+                          return StatefulBuilder(
+                            builder: (context, _setState) {
+                              final bloc = context.read<UserBloc>();
+                              final state = bloc.state;
+                              return Padding(
+                                padding: const EdgeInsets.all(BASE_MARGIN * 2),
+                                child: Column(
+                                  children: [
+                                    const SizedBox(
+                                      height: BASE_MARGIN * 2,
+                                    ),
+                                    const SizedBox(
+                                      height: BASE_MARGIN * 4,
+                                    ),
+                                    Text(
+                                      data >= 5 ? "You have full shields" : "You have ${data} ${data == 1 ? "shield" : "shields"}",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                                       ),
                                     ),
-                                  if (data != null)
-                                    Container(
-                                      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                                      decoration: BoxDecoration(
-                                        color: data == 0 ? Colors.red.shade100 : Colors.green.shade100,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Text(
-                                        "$data/5 equipped",
-                                        style: TextStyle(
-                                          color: data == 0 ? Colors.red[800] : Colors.green[800],
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
+                                    const SizedBox(
+                                      height: BASE_MARGIN * 4,
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        if (data >= 5) return;
+                                        _setState(() {
+                                          _refillShieldsLoading = true;
+                                        });
+                                        await _refillStreakShields();
+                                        await query.refresh();
+                                        _setState(() {
+                                          _refillShieldsLoading = false;
+                                        });
+                                        Navigator.pop(context);
+                                      },
+                                      style: ButtonStyle(
+                                        backgroundColor: data < 5
+                                            ? WidgetStateProperty.all(
+                                                getSecondaryColor(context),
+                                              )
+                                            : WidgetStateProperty.all(
+                                                Colors.grey.shade500,
+                                              ),
+                                        alignment: Alignment.center,
+                                        foregroundColor: WidgetStateProperty.all(Colors.black),
+                                        padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
+                                          (Set<WidgetState> states) {
+                                            return const EdgeInsets.all(15);
+                                          },
+                                        ),
+                                        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
                                         ),
                                       ),
-                                    )
-                                ],
-                              ),
-                            ),
-                          ],
+                                      child: _refillShieldsLoading
+                                          ? Container(
+                                              width: 24,
+                                              height: 24,
+                                              padding: const EdgeInsets.all(2.0),
+                                              child: const CupertinoActivityIndicator(
+                                                animating: true,
+                                                radius: 20,
+                                              ),
+                                            )
+                                          : Row(
+                                              children: [
+                                                const HeroIcon(
+                                                  HeroIcons.shieldExclamation,
+                                                  size: 30,
+                                                ),
+                                                const SizedBox(
+                                                  width: BASE_MARGIN * 2,
+                                                ),
+                                                Expanded(
+                                                  child: Text(
+                                                    "Refill shields",
+                                                    style: TextStyle(
+                                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
+                                                      fontWeight: FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ),
+                                                data > 5
+                                                    ? ColorFiltered(
+                                                        colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+                                                        child: Image.asset(
+                                                          "assets/images/emerald.png",
+                                                          width: 25,
+                                                          height: 25,
+                                                        ),
+                                                      )
+                                                    : Image.asset(
+                                                        "assets/images/emerald.png",
+                                                        width: 25,
+                                                        height: 25,
+                                                      ),
+                                                const SizedBox(
+                                                  width: BASE_MARGIN * 2,
+                                                ),
+                                                Text(
+                                                  data >= 5 ? "50" : ((5 - data!) * 10).toString(),
+                                                  style: TextStyle(
+                                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                    ),
+                                    const SizedBox(
+                                      height: BASE_MARGIN * 4,
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        if (data >= 5) return;
+                                        _setState(() {
+                                          _buyOneShieldLoading = true;
+                                        });
+                                        await _buyOneStreakShield();
+                                        await query.refresh();
+                                        _setState(() {
+                                          _buyOneShieldLoading = false;
+                                        });
+                                        Navigator.pop(context);
+                                      },
+                                      style: ButtonStyle(
+                                        backgroundColor: data < 5
+                                            ? WidgetStateProperty.all(
+                                                getSecondaryColor(context),
+                                              )
+                                            : WidgetStateProperty.all(
+                                                Colors.grey.shade500,
+                                              ),
+                                        alignment: Alignment.center,
+                                        foregroundColor: WidgetStateProperty.all(Colors.black),
+                                        padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
+                                          (Set<WidgetState> states) {
+                                            return const EdgeInsets.all(15);
+                                          },
+                                        ),
+                                        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                        ),
+                                      ),
+                                      child: _buyOneShieldLoading
+                                          ? Container(
+                                              width: 24,
+                                              height: 24,
+                                              padding: const EdgeInsets.all(2.0),
+                                              child: const CupertinoActivityIndicator(
+                                                animating: true,
+                                                radius: 20,
+                                              ),
+                                            )
+                                          : Row(
+                                              children: [
+                                                const HeroIcon(
+                                                  HeroIcons.shieldExclamation,
+                                                  size: 30,
+                                                ),
+                                                const SizedBox(
+                                                  width: BASE_MARGIN * 2,
+                                                ),
+                                                Expanded(
+                                                  child: Text(
+                                                    "Refill 1 shield",
+                                                    style: TextStyle(
+                                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
+                                                      fontWeight: FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ),
+                                                data > 5
+                                                    ? ColorFiltered(
+                                                        colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+                                                        child: Image.asset(
+                                                          "assets/images/emerald.png",
+                                                          width: 25,
+                                                          height: 25,
+                                                        ),
+                                                      )
+                                                    : Image.asset(
+                                                        "assets/images/emerald.png",
+                                                        width: 25,
+                                                        height: 25,
+                                                      ),
+                                                const SizedBox(
+                                                  width: BASE_MARGIN * 2,
+                                                ),
+                                                Text(
+                                                  "10",
+                                                  style: TextStyle(
+                                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: getSecondaryColor(context),
+                        borderRadius: BorderRadius.circular(
+                          10,
                         ),
                       ),
-                    );
-                  },
-                  refreshConfig: RefreshConfig.withDefaults(
-                    context,
-                    staleDuration: Duration(
-                      seconds: 0,
+                      padding: const EdgeInsets.all(
+                        BASE_MARGIN * 4,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const HeroIcon(
+                            HeroIcons.shieldExclamation,
+                            size: 30,
+                          ),
+                          const SizedBox(
+                            width: BASE_MARGIN * 4,
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  "Streak Shields protect your streak by covering a missed day, so you can keep your progress intact. Use them wisely to stay on track!",
+                                ),
+                                const SizedBox(
+                                  height: BASE_MARGIN * 2,
+                                ),
+                                if (query.isLoading)
+                                  Shimmer.fromColors(
+                                    baseColor: Colors.grey.shade300,
+                                    highlightColor: Colors.grey.shade400,
+                                    child: Container(
+                                      height: 20,
+                                      width: 150,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                  ),
+                                if (data != null)
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                    decoration: BoxDecoration(
+                                      color: data == 0 ? Colors.red.shade100 : Colors.green.shade100,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      "$data/5 equipped",
+                                      style: TextStyle(
+                                        color: data == 0 ? Colors.red[800] : Colors.green[800],
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  )
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    refreshOnQueryFnChange: true,
+                  );
+                },
+                refreshConfig: RefreshConfig.withDefaults(
+                  context,
+                  staleDuration: Duration(
+                    seconds: 0,
                   ),
-                )
+                  refreshOnQueryFnChange: true,
+                ),
+              )
             ],
           ),
         ),
