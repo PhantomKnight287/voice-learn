@@ -1,3 +1,4 @@
+import './constants';
 import 'source-map-support/register';
 (BigInt as any).prototype.toJSON = function () {
   return this.toString();
@@ -7,7 +8,6 @@ import { AppModule } from './app.module';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
-import './constants';
 import { ELEVENLABS_API_URL, errorSubject$ } from './constants';
 
 import { prisma } from './db';
