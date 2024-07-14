@@ -39,7 +39,11 @@ export class AuthService {
     delete user.password;
     const token = sign({ id: user.id }, this.service.get('JWT_SECRET'));
     const { currentDateInGMT, nextDateInGMT } = generateTimestamps(
-      (timeZoneOffset ? parseOffset(timeZoneOffset) : user.timeZoneOffSet) || 0,
+      (timeZoneOffset
+        ? body.parsed
+          ? Number(timeZoneOffset)
+          : parseOffset(timeZoneOffset)
+        : user.timeZoneOffSet) || 0,
     );
     const path = await prisma.learningPath.findFirst({
       where: {
@@ -56,7 +60,9 @@ export class AuthService {
         data: {
           timezone,
           timeZoneOffSet: timeZoneOffset
-            ? parseOffset(timeZoneOffset)
+            ? body.parsed
+              ? Number(timeZoneOffset)
+              : parseOffset(timeZoneOffset)
             : undefined,
         },
       });
@@ -98,7 +104,9 @@ export class AuthService {
         password: hashedPassword,
         email,
         timeZoneOffSet: timeZoneOffset
-          ? parseOffset(timeZoneOffset)
+          ? body.parsed
+            ? Number(timeZoneOffset)
+            : parseOffset(timeZoneOffset)
           : undefined,
         timezone,
       },
@@ -126,7 +134,12 @@ export class AuthService {
     }
   }
 
-  async hydrate(token: string, timezone: string, timeZoneOffSet: string) {
+  async hydrate(
+    token: string,
+    timezone: string,
+    timeZoneOffSet: string,
+    parsedTimezone?: string,
+  ) {
     try {
       const payload = verifyJWT(
         token.replace('Bearer ', ''),
@@ -149,14 +162,19 @@ export class AuthService {
           data: {
             timezone,
             timeZoneOffSet: timeZoneOffSet
-              ? parseOffset(timeZoneOffSet)
+              ? parsedTimezone == 'true'
+                ? Number(timeZoneOffSet)
+                : parseOffset(timeZoneOffSet)
               : undefined,
           },
         });
       }
       const { currentDateInGMT, nextDateInGMT } = generateTimestamps(
-        (timeZoneOffSet ? parseOffset(timeZoneOffSet) : user.timeZoneOffSet) ||
-          0,
+        (timeZoneOffSet
+          ? parsedTimezone == 'true'
+            ? Number(timeZoneOffSet)
+            : parseOffset(timeZoneOffSet)
+          : user.timeZoneOffSet) || 0,
       );
 
       const streak = await prisma.streak.findFirst({

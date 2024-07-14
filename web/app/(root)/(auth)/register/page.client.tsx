@@ -26,10 +26,12 @@ import { RegisterBody, RegisterResponse } from "./types";
 import { ApiError } from "@/types/error";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { PasswordInput } from "@/components/password-input";
 
 const registerFormSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   email: z.string().email({ message: "Please enter a valid email" }),
+  password: z.string().min(1, { message: "Please enter your password" }),
 });
 
 function RegisterForm() {
@@ -40,6 +42,7 @@ function RegisterForm() {
     defaultValues: {
       email: "",
       name: "",
+      password: "",
     },
   });
   async function onSubmit(values: z.infer<typeof registerFormSchema>) {
@@ -61,20 +64,13 @@ function RegisterForm() {
   return (
     <Card className="min-w-56">
       <CardHeader>
-        <CardTitle className="text-xl">
-          {emailSent ? "Email Sent" : "Sign Up"}
-        </CardTitle>
+        <CardTitle className="text-xl">Lets get your started</CardTitle>
         <CardDescription>
-          {emailSent
-            ? "We've sent a magic link on your email."
-            : "Enter your information to create an account"}
+          Welcome! Let&apos;s get started on your journey. Please fill in
+          details below to create your account.
         </CardDescription>
       </CardHeader>
-      <CardContent
-        className={cn({
-          hidden: emailSent,
-        })}
-      >
+      <CardContent>
         <Form {...form}>
           <form className="grid gap-4" onSubmit={form.handleSubmit(onSubmit)}>
             <FormField
@@ -97,7 +93,20 @@ function RegisterForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="john@company.com" {...field} />
+                    <Input placeholder="john@sillyclub.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <PasswordInput placeholder="********" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

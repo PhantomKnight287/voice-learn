@@ -1,10 +1,26 @@
 import { create } from "zustand";
 
+export enum Tiers {
+  free = "free",
+  premium = "premium",
+  epic = "epic",
+}
 export interface UserState {
   user?: {
     id: string;
+    email?: string;
     name: string;
-    tokens: string;
+    paths: number;
+    updatedAt: string;
+    createdAt: string;
+    token: string;
+    lives: number;
+    emeralds: number;
+    xp: number;
+    activeStreaks: number;
+    isStreakActive: boolean;
+    tiers: Tiers;
+    avatarHash: string;
   };
   setUser: (user: UserState["user"]) => void;
   logOut: () => void;

@@ -128,8 +128,14 @@ export class AuthController {
     @Headers('Authorization') token: string,
     @Query('timezone') timezone: string,
     @Query('timeZoneOffset') timeZoneOffset: string,
+    @Query('parsed') parsedTimezone?: string,
   ) {
-    return this.authService.hydrate(token, timezone, timeZoneOffset);
+    return this.authService.hydrate(
+      token,
+      timezone,
+      timeZoneOffset,
+      parsedTimezone,
+    );
   }
 
   @Post('password/update')
