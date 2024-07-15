@@ -78,17 +78,20 @@ class _LogsScreenState extends State<LogsScreen> {
           ? const Center(
               child: Text("No Logs"),
             )
-          : ListView.builder(
-              itemCount: _logEntries.length,
-              itemBuilder: (context, index) {
-                final entry = _logEntries[index];
-                return Text(
-                  entry,
-                  style: TextStyle(
-                    color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
-                  ),
-                );
-              },
+          : Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ListView.builder(
+                itemCount: _logEntries.length,
+                itemBuilder: (context, index) {
+                  final entry = _logEntries[index];
+                  return Text(
+                    entry,
+                    style: TextStyle(
+                      color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+                    ),
+                  );
+                },
+              ),
             ),
     );
   }

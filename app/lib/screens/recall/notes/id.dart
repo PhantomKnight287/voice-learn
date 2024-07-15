@@ -25,6 +25,7 @@ class NoteScreen extends StatefulWidget {
 class _NoteScreenState extends State<NoteScreen> {
   FlutterTts flutterTts = FlutterTts();
   bool ttsSetup = false;
+  bool answerRevealed = false;
   Future<dynamic> _fetchNote() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -63,69 +64,69 @@ class _NoteScreenState extends State<NoteScreen> {
     return Scaffold(
       appBar: AppBar(),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(
-              BASE_MARGIN * 3,
-            ),
-            child: QueryBuilder<dynamic, dynamic>(
-              'note_${widget.id}',
-              _fetchNote,
-              builder: (context, query) {
-                if (query.isLoading) {
-                  return _buildLoader();
-                }
-                if (query.hasError) {
-                  return Center(
-                    child: Text(
-                      query.error.toString(),
-                    ),
-                  );
-                }
-                final data = query.data;
-                if (data == null) return _buildLoader();
-                if (data['locale'] != null) {
-                  _setupTTS(data['locale']);
-                }
+        child: Padding(
+          padding: const EdgeInsets.all(
+            BASE_MARGIN * 3,
+          ),
+          child: QueryBuilder<dynamic, dynamic>(
+            'note_${widget.id}',
+            _fetchNote,
+            builder: (context, query) {
+              if (query.isLoading) {
+                return _buildLoader();
+              }
+              if (query.hasError) {
+                return Center(
+                  child: Text(
+                    query.error.toString(),
+                  ),
+                );
+              }
+              final data = query.data;
+              if (data == null) return _buildLoader();
+              if (data['locale'] != null) {
+                _setupTTS(data['locale']);
+              }
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Wrap(
-                      alignment: WrapAlignment.start,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        if (data['locale'] != null)
-                          IconButton(
-                            onPressed: () async {
-                              if (ttsSetup) {
-                                await flutterTts.speak(
-                                  data['title'],
-                                );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Please install ${data['language']['name']} in your TTS settings.'),
-                                    duration: const Duration(
-                                      seconds: 3,
-                                    ),
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      if (data['locale'] != null)
+                        IconButton(
+                          onPressed: () async {
+                            if (ttsSetup) {
+                              await flutterTts.speak(
+                                data['title'],
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Please install ${data['language']['name']} in your TTS settings.'),
+                                  duration: const Duration(
+                                    seconds: 3,
                                   ),
-                                );
-                              }
-                            },
-                            icon: HeroIcon(HeroIcons.speakerWave),
-                          ),
-                        Text(
-                          data['title'],
-                          style: TextStyle(
-                            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                          ),
+                                ),
+                              );
+                            }
+                          },
+                          icon: HeroIcon(HeroIcons.speakerWave),
                         ),
-                      ],
-                    ),
-                    const Divider(),
+                      Text(
+                        data['title'],
+                        style: TextStyle(
+                          fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (answerRevealed)
                     Wrap(
-                      alignment: WrapAlignment.start,
+                      alignment: WrapAlignment.center,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         if (data['locale'] != null)
@@ -146,7 +147,9 @@ class _NoteScreenState extends State<NoteScreen> {
                                 );
                               }
                             },
-                            icon: HeroIcon(HeroIcons.speakerWave),
+                            icon: const HeroIcon(
+                              HeroIcons.speakerWave,
+                            ),
                           ),
                         Text(
                           data['description'],
@@ -156,15 +159,42 @@ class _NoteScreenState extends State<NoteScreen> {
                         ),
                       ],
                     ),
-                  ],
-                );
-              },
-              refreshConfig: RefreshConfig.withDefaults(
-                context,
-                refreshOnMount: true,
-                staleDuration: Duration(
-                  seconds: 0,
-                ),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        answerRevealed = !answerRevealed;
+                      });
+                    },
+                    style: ButtonStyle(
+                      alignment: Alignment.center,
+                      foregroundColor: WidgetStateProperty.all(Colors.black),
+                      padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
+                        (Set<WidgetState> states) {
+                          return const EdgeInsets.all(15);
+                        },
+                      ),
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      answerRevealed ? "Hide Answer" : "Reveal Answer",
+                      style: TextStyle(
+                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+            refreshConfig: RefreshConfig.withDefaults(
+              context,
+              refreshOnMount: true,
+              staleDuration: Duration(
+                seconds: 0,
               ),
             ),
           ),

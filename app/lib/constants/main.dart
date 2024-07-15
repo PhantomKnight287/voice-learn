@@ -19,7 +19,11 @@ Color getSecondaryColor(BuildContext context) {
 
 const BASE_MARGIN = 4;
 
-const API_URL = kDebugMode ? "https://c641f6de3e0a-10502837830859101550.ngrok-free.app/v1" : "https://api.voicelearn.tech/v1";
+final API_URL = kDebugMode
+    ? Platform.isIOS
+        ? "http://localhost:5000/v1"
+        : "https://c641f6de3e0a-10502837830859101550.ngrok-free.app/v1"
+    : "https://api.voicelearn.tech/v1";
 final LESSON_COMPLETION_AD_ID = Platform.isAndroid
     ? kDebugMode
         ? 'ca-app-pub-3940256099942544/1033173712'

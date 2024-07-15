@@ -20,11 +20,13 @@ class CreateNoteScreen extends StatefulWidget {
   final String? title;
   final String? description;
   final String? stackId;
+  final Language? language;
   const CreateNoteScreen({
     super.key,
     this.description,
     this.title,
     this.stackId,
+    this.language,
   });
 
   @override
@@ -147,6 +149,9 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> with RouteAware {
     }
     if (widget.stackId != null) {
       _stackId = widget.stackId!;
+    }
+    if (widget.language != null) {
+      language = widget.language!;
     }
   }
 

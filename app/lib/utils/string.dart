@@ -69,19 +69,19 @@ String secInTime(int sec) {
 }
 
 String getResetTime() {
-  // Get current phone time
-  DateTime currentPhoneTime = DateTime.now();
+  // Get current UTC time
+  DateTime currentUtcTime = DateTime.now().toUtc();
 
-  // Get today's date at 12 PM in the device's local time
-  DateTime localNoon = DateTime(currentPhoneTime.year, currentPhoneTime.month, currentPhoneTime.day, 12);
+  // Get today's date at 12 PM UTC
+  DateTime utcNoon = DateTime(currentUtcTime.year, currentUtcTime.month, currentUtcTime.day, 12);
 
-  // If the current local time is already past 12 PM, get tomorrow's 12 PM
-  if (currentPhoneTime.isAfter(localNoon)) {
-    localNoon = localNoon.add(Duration(days: 1));
+  // If the current UTC time is already past 12 PM, get tomorrow's 12 PM
+  if (currentUtcTime.isAfter(utcNoon)) {
+    utcNoon = utcNoon.add(Duration(days: 1));
   }
 
   // Calculate the difference
-  Duration difference = localNoon.difference(currentPhoneTime);
+  Duration difference = utcNoon.difference(currentUtcTime);
 
   // Format the difference
   int hours = difference.inHours;

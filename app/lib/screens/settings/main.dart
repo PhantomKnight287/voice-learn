@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/bloc/user/user_bloc.dart';
@@ -14,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gravatar/flutter_gravatar.dart';
 import 'package:flutter_gravatar/utils.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -39,6 +41,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _notificationsAllowed = false;
   bool _devModeEnabled = false;
   String _appVersion = "";
+  Set<String> voices = {};
+  final tts = FlutterTts();
 
   Future<void> _updateProfile() async {
     setState(() {
@@ -129,6 +133,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     _setVersion();
+    _fetchTTSVoices();
+  }
+
+  Future<void> _fetchTTSVoices() async {
+    final voices = await tts.getVoices;
+    final Set<String> uniqueVoiceNames = (voices as List).map<String>((voice) => voice['name'] as String).toSet();
+
+    setState(() {
+      this.voices = uniqueVoiceNames;
+    });
+    if (Platform.isIOS) {
+      await tts.setSharedInstance(true);
+      await tts.setIosAudioCategory(
+        IosTextToSpeechAudioCategory.ambient,
+        [IosTextToSpeechAudioCategoryOptions.allowBluetooth, IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP, IosTextToSpeechAudioCategoryOptions.mixWithOthers],
+        IosTextToSpeechAudioMode.voicePrompt,
+      );
+    }
+    await tts.awaitSpeakCompletion(true);
   }
 
   @override
@@ -442,6 +465,121 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
+                            "Notifications",
+                            style: TextStyle(
+                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: BASE_MARGIN * 2,
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: getSecondaryColor(context),
+                              borderRadius: BorderRadius.circular(
+                                10,
+                              ),
+                            ),
+                            child: ListTile(
+                              title: Padding(
+                                padding: const EdgeInsets.only(
+                                  bottom: BASE_MARGIN * 1,
+                                ),
+                                child: Text(
+                                  "Streak Notifications",
+                                  style: TextStyle(
+                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              subtitle: const Text(
+                                "Notify me 2 hours before my streak resets.",
+                                style: TextStyle(
+                                  color: SECONDARY_TEXT_COLOR,
+                                ),
+                                softWrap: true,
+                              ),
+                              trailing: Switch.adaptive(
+                                value: _notificationsAllowed,
+                                onChanged: (value) async {
+                                  final prefs = await SharedPreferences.getInstance();
+                                  final token = prefs.getString("token");
+                                  if (value == true) {
+                                    final res = await OneSignal.Notifications.requestPermission(
+                                      false,
+                                    );
+                                    if (res == false) {
+                                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                        content: Text(
+                                          "Notifications Permission Denied. Please allow the permission.",
+                                        ),
+                                      ));
+                                      Future.delayed(
+                                        const Duration(seconds: 1),
+                                        () async {
+                                          await openAppSettings();
+                                        },
+                                      );
+                                      return;
+                                    }
+
+                                    await OneSignal.User.pushSubscription.optIn();
+                                    if (OneSignal.User.pushSubscription.id != null) {
+                                      setState(() {
+                                        _notificationsAllowed = true;
+                                      });
+                                      try {
+                                        await http.post(
+                                          Uri.parse(
+                                            "$API_URL/notifications",
+                                          ),
+                                          headers: {
+                                            "Authorization": "Bearer $token",
+                                            "Content-Type": 'application/json',
+                                          },
+                                          body: jsonEncode(
+                                            {
+                                              "id": OneSignal.User.pushSubscription.id!,
+                                            },
+                                          ),
+                                        );
+                                      } catch (e) {}
+                                    }
+                                  } else {
+                                    await OneSignal.User.pushSubscription.optOut();
+                                    setState(() {
+                                      _notificationsAllowed = false;
+                                    });
+                                    try {
+                                      await http.delete(
+                                        Uri.parse(
+                                          "$API_URL/notifications",
+                                        ),
+                                        headers: {
+                                          "Authorization": "Bearer $token",
+                                          "Content-Type": 'application/json',
+                                        },
+                                      );
+                                    } catch (e) {}
+                                  }
+                                },
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: BASE_MARGIN * 4,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: BASE_MARGIN * 2,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
                             "Appearance",
                             style: TextStyle(
                               fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
@@ -510,6 +648,81 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ],
                       ),
+                      if (!Platform.isIOS)
+                        const SizedBox(
+                          height: BASE_MARGIN * 2,
+                        ),
+                      if (!Platform.isIOS)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Text To Speech",
+                              style: TextStyle(
+                                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(
+                              height: BASE_MARGIN * 2,
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: getSecondaryColor(context),
+                                borderRadius: BorderRadius.circular(
+                                  10,
+                                ),
+                              ),
+                              child: ListTile(
+                                title: Padding(
+                                  padding: const EdgeInsets.only(
+                                    bottom: BASE_MARGIN * 1,
+                                  ),
+                                  child: Text(
+                                    "Voice",
+                                    style: TextStyle(
+                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                subtitle: const Text(
+                                  "Choose the voice for your lessons.",
+                                  style: TextStyle(
+                                    color: SECONDARY_TEXT_COLOR,
+                                  ),
+                                  softWrap: true,
+                                ),
+                                trailing: DropdownButton(
+                                  onChanged: (value) async {
+                                    print(value);
+                                    if (value != null) {
+                                      final res = await tts.setVoice(
+                                        {
+                                          "name": value,
+                                          "locale": "en-US",
+                                        },
+                                      );
+                                      print(res);
+                                      await tts.speak("Hello, My name is $value");
+                                    }
+                                  },
+                                  items: voices
+                                      .map(
+                                        (voice) => DropdownMenuItem(
+                                          child: Text(voice),
+                                          value: voice,
+                                        ),
+                                      )
+                                      .toList(),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: BASE_MARGIN * 4,
+                            ),
+                          ],
+                        ),
                       const SizedBox(
                         height: BASE_MARGIN * 2,
                       ),
@@ -569,9 +782,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             height: BASE_MARGIN * 4,
                           ),
                         ],
-                      ),
-                      SizedBox(
-                        height: BASE_MARGIN * 2,
                       ),
                       Text(
                         "App Version: $_appVersion",

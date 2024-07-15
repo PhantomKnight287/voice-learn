@@ -4,6 +4,7 @@ import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/main.dart';
+import 'package:app/models/language.dart';
 import 'package:app/models/question.dart';
 import 'package:app/models/user.dart';
 import 'package:app/screens/questions/complete.dart';
@@ -46,11 +47,11 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
   bool? correct;
   bool _valueEntered = false;
   final startDate = DateTime.now().toIso8601String();
-  String language = '';
   bool _disabled = false;
   double _speed = 0.5;
   String testSentence = "";
   InterstitialAd? _interstitialAd;
+  Language? lessonLanguage;
 
   @override
   void dispose() {
@@ -131,8 +132,8 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     _getLanguages(
       body['locale'],
     );
-    language = body['language'];
     testSentence = body['sentence'];
+    lessonLanguage = Language.fromJSON(body['language']);
     return (body['questions'] as List).map((q) => Question.toJSON(q)).toList();
   }
 
@@ -719,7 +720,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                       } else {
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           SnackBar(
-                                            content: Text('Please install $language in your TTS settings.'),
+                                            content: Text('Please install ${lessonLanguage?.name} in your TTS settings.'),
                                             duration: const Duration(
                                               seconds: 3,
                                             ),
@@ -739,6 +740,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                             return CreateNoteScreen(
                                               title: word.word,
                                               description: word.translation,
+                                              language: lessonLanguage,
                                             );
                                           },
                                         ));

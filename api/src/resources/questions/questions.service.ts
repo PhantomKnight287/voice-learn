@@ -25,6 +25,8 @@ export class QuestionsService {
                 language: {
                   select: {
                     name: true,
+                    id:true,
+                    flagUrl:true,
                   },
                 },
               },
@@ -44,7 +46,7 @@ export class QuestionsService {
     return {
       questions: lesson.questions,
       locale: locales[lesson.module.learningPath.language.name],
-      language: lesson.module.learningPath.language.name,
+      language: lesson.module.learningPath.language,
       sentence: testSentences[lesson.module.learningPath.language.name],
     };
   }
