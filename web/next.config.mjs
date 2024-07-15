@@ -1,5 +1,6 @@
-import createMDX from 'fumadocs-mdx/config';
- 
+import createMDX from "fumadocs-mdx/config";
+import { REDIRECTS, COOKIE_NAME } from "./redirects.mjs";
+
 const withMDX = createMDX();
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -14,13 +15,22 @@ const nextConfig = {
     ],
   },
   typescript: { ignoreBuildErrors: true },
-  pageExtensions:[
-    "js",
-    "jsx",
-    "ts",
-    "tsx",
-    "mdx"
-  ],
+  pageExtensions: ["js", "jsx", "ts", "tsx", "mdx"],
+  async redirects() {
+    return [
+      {
+        source: "/",
+        destination: REDIRECTS.DASHBOARD,
+        has: [
+          {
+            type: "cookie",
+            key: COOKIE_NAME,
+          },
+        ],
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default withMDX(nextConfig);

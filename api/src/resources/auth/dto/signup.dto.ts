@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class SignupDTO {
   @ApiProperty()
@@ -17,10 +17,14 @@ export class SignupDTO {
   @ApiProperty()
   @IsOptional()
   @IsString()
-  timezone:string
+  timezone: string;
 
   @ApiProperty()
   @IsOptional()
   @IsString()
-  timeZoneOffset: string
+  timeZoneOffset: string;
+
+  @IsBoolean()
+  @IsOptional()
+  parsed?: boolean;
 }

@@ -1,4 +1,3 @@
-import { BentoCard, BentoGrid } from "@/components/magicui/bento-grid";
 import { AudioLinesIcon, Scroll, Smartphone } from "lucide-react";
 
 const features = [
@@ -71,13 +70,13 @@ export function Features() {
             <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
               {features.map((feature) => (
                 <div key={feature.name} className="relative pl-16">
-                  <dt className="text-xl font-semibold leading-7 text-white">
-                    <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600">
+                  <dt className="text-xl font-semibold leading-7 ">
+                    <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-black">
                       {feature.icon}
                     </div>
                     {feature.name}
                   </dt>
-                  <dd className="mt-2 text-base leading-7 text-white/70">
+                  <dd className="mt-2 text-base leading-7 ">
                     {feature.description}
                   </dd>
                 </div>

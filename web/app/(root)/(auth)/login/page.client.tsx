@@ -24,51 +24,58 @@ import { useState } from "react";
 import { makeRequest } from "@/lib/req";
 import { LoginBody, LoginResponse } from "./types";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import { PasswordInput } from "@/components/password-input";
+import { useUser } from "@/state/user";
+import { createCookie } from "@/utils/cookie";
+import { COOKIE_NAME, REDIRECTS } from "@/constants";
+import { useRouter } from "next/navigation";
 
 const loginFormSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email" }),
+  password: z.string().min(1, { message: "Please enter your password" }),
 });
 
 function LoginForm() {
   const [loading, setLoading] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
+  const { user, setUser } = useUser();
+  const { replace } = useRouter();
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
       email: "",
+      password: "",
     },
   });
   async function onSubmit(values: z.infer<typeof loginFormSchema>) {
     setLoading(true);
-    const req = await makeRequest<LoginBody, LoginResponse>("/auth/login", {
-      body: values,
+    const req = await makeRequest<LoginBody, LoginResponse>("/auth/sign-in", {
+      body: {
+        ...values,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        timeZoneOffset: (-new Date().getTimezoneOffset()).toString(),
+      },
       method: "POST",
     });
     if (req.failed) {
       toast.error(req.error.message, {});
     } else {
-      setEmailSent(true);
+      setUser(req.data.user);
+      createCookie(COOKIE_NAME, req.data?.token, 365);
+      toast.success(`Welcome back ${req.data.user.name}`);
+      replace(REDIRECTS.DASHBOARD);
     }
     setLoading(false);
   }
   return (
     <Card className="min-w-56">
       <CardHeader>
-        <CardTitle className="text-xl">
-          {emailSent ? "Email Sent" : "Sign In"}
-        </CardTitle>
+        <CardTitle className="text-xl">Lets sign you in</CardTitle>
         <CardDescription>
-          {emailSent
-            ? "We've sent a magic link on your email."
-            : "Enter your email to receive a login link"}
+          Welcome back! We&apos;re glad to see you again. Please enter your
+          details to sign in.
         </CardDescription>
       </CardHeader>
-      <CardContent
-        className={cn({
-          hidden: emailSent,
-        })}
-      >
+      <CardContent>
         <Form {...form}>
           <form className="grid gap-4" onSubmit={form.handleSubmit(onSubmit)}>
             <FormField
@@ -78,8 +85,29 @@ function LoginForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="john@company.com" {...field} />
+                    <Input placeholder="john@sillyclub.com" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <PasswordInput placeholder="********" {...field} />
+                  </FormControl>
+                  <div className="flex">
+                    <Link
+                      href="/reset-password"
+                      className="underline text-sm ml-auto"
+                    >
+                      Forgot Password?
+                    </Link>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
