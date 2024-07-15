@@ -4,7 +4,7 @@ export type QueueItemType =
   | 'modules'
   | 'lessons';
 
-export type QueueItemObject =
+export type QueueItemObject = { retries?: number } & (
   | {
       id: string;
       type: QueueItemType;
@@ -13,4 +13,5 @@ export type QueueItemObject =
       id: string;
       type: 'chat';
       messageId: string;
-    };
+    }
+);

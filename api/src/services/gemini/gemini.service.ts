@@ -36,6 +36,7 @@ export class GeminiService {
             },
           ],
         }),
+      maxRetries: 0,
     });
   }
 
@@ -68,6 +69,7 @@ export class GeminiService {
             },
           ],
         }),
+      maxRetries: 0,
     });
   }
 
@@ -100,6 +102,7 @@ export class GeminiService {
             },
           ],
         }),
+      maxRetries: 0,
     });
   }
 
@@ -132,6 +135,7 @@ export class GeminiService {
             },
           ],
         }),
+      maxRetries: 0,
     });
   }
 }

@@ -700,7 +700,11 @@ Constraints:
       console.log('generated ' + body.type);
     } catch (error) {
       console.log(error);
-      await queue.addToQueueWithPriority(body);
+      if (body.retries >= 5) return;
+      await queue.addToQueueWithPriority({
+        ...body,
+        retries: (body.retries || 0) + 1,
+      });
     }
   }
 }
