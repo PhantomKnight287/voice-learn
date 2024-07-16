@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/no_swipe_page_route.dart';
@@ -719,7 +718,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   )
                   .toList(),
               isCurved: true,
-              dotData: FlDotData(
+              dotData: const FlDotData(
                 show: true,
               ),
               belowBarData: BarAreaData(
@@ -740,12 +739,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
               ),
             ),
-            topTitles: AxisTitles(
+            topTitles: const AxisTitles(
               sideTitles: SideTitles(
                 showTitles: false,
               ),
             ),
-            rightTitles: AxisTitles(
+            rightTitles: const AxisTitles(
               sideTitles: SideTitles(
                 showTitles: false,
               ),
