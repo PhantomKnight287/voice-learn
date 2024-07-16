@@ -401,6 +401,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SizedBox(
                             height: BASE_MARGIN * 3,
                           ),
+                          Text(
+                            "XP History",
+                            style: TextStyle(
+                              fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: BASE_MARGIN * 3,
+                          ),
                           _buildGraph(data),
                         ],
                       );
