@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/no_swipe_page_route.dart';
@@ -732,7 +733,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 show: true,
               ),
               belowBarData: BarAreaData(
-                color: Colors.blue.withOpacity(0.3),
+                color: Colors.blue.withOpacity(
+                  0.2,
+                ),
                 show: true,
               ),
             )
@@ -745,7 +748,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 reservedSize: 30,
                 interval: 1,
                 getTitlesWidget: (value, meta) {
-                  return Text('${value.toInt()} ${MONTHS[DateTime.now().month - 1]}');
+                  return Transform.rotate(
+                    angle: -math.pi / 2.5,
+                    child: Text('${value.toInt()} ${MONTHS[DateTime.now().month - 1]}'),
+                  );
                 },
               ),
             ),

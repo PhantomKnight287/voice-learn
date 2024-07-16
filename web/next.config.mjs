@@ -12,25 +12,16 @@ const nextConfig = {
         pathname: "/8.x/initials/**",
         port: "",
       },
+      {
+        protocol: "https",
+        hostname: "cdn.voicelearn.tech",
+        pathname: "/**",
+        port: "",
+      },
     ],
   },
   typescript: { ignoreBuildErrors: true },
   pageExtensions: ["js", "jsx", "ts", "tsx", "mdx"],
-  async redirects() {
-    return [
-      {
-        source: "/",
-        destination: REDIRECTS.DASHBOARD,
-        has: [
-          {
-            type: "cookie",
-            key: COOKIE_NAME,
-          },
-        ],
-        permanent: true,
-      },
-    ];
-  },
 };
 
 export default withMDX(nextConfig);

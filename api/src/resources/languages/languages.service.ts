@@ -9,6 +9,12 @@ export class LanguagesService {
         id: true,
         flagUrl: true,
         name: true,
+        _count: {
+          select: {
+            chats: true,
+            learningPaths: true,
+          },
+        },
       },
       where: {
         name: { not: 'English' },

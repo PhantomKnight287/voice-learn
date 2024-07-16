@@ -21,16 +21,20 @@ class NoSwipePageRoute<T> extends CupertinoPageRoute<T> {
 
   @override
   bool get hasScopedWillPopCallback {
-    if (isPopGestureEnabled == null) {
-      if (Platform.isIOS || Platform.isMacOS) {
-        return super.hasScopedWillPopCallback;
-      } else {
-        return true;
-      }
-    } else if (isPopGestureEnabled == true) {
+    if (Platform.isIOS || Platform.isMacOS) {
       return super.hasScopedWillPopCallback;
     } else {
       return true;
     }
+  }
+
+  @override
+  bool get popGestureEnabled {
+    if (Platform.isIOS || Platform.isMacOS) {
+      return true;
+    } else if (Platform.isAndroid) {
+      return false;
+    }
+    return isPopGestureEnabled ?? false;
   }
 }

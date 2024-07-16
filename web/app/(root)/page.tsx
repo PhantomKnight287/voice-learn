@@ -38,9 +38,9 @@ export default function Home() {
                 skills to new heights.
               </p>
             </div>
-            <div className="flex flex-col gap-2 min-[400px]:flex-row">
+            <div className="flex flex-col gap-2 min-[400px]:flex-row z-10">
               <a className={buttonVariants()} href="#waitlist">
-                Join Waitlist
+                Get Started
               </a>
             </div>
           </div>

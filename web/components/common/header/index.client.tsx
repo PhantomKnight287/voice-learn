@@ -40,15 +40,14 @@ export default function InteractiveHeaderComponents() {
   if (!user)
     return (
       <>
-        <Link
-          title="Sign In"
-          href="/login"
+        <a
+          href="#download"
           className={buttonVariants({
             variant: "default",
           })}
         >
           Get Started
-        </Link>
+        </a>
       </>
     );
   return (
