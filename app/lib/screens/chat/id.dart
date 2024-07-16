@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/input.dart';
 import 'package:app/components/no_swipe_page_route.dart';
@@ -1117,6 +1118,11 @@ class _ChatBubbleState extends State<ChatBubble> {
                             playing == true ? HeroIcons.pauseCircle : HeroIcons.playCircle,
                             style: HeroIconStyle.solid,
                             size: 30,
+                            color: widget.isSentByMe
+                                ? Colors.black
+                                : AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light
+                                    ? Colors.black
+                                    : Colors.white,
                           ),
                           onPressed: () async {
                             if (playing) {
@@ -1166,7 +1172,16 @@ class _ChatBubbleState extends State<ChatBubble> {
                         const SizedBox(
                           width: BASE_MARGIN * 2,
                         ),
-                        Text("${secInTime(duration)}/${secInTime(widget.audioDuration ?? 0)}")
+                        Text(
+                          "${secInTime(duration)}/${secInTime(widget.audioDuration ?? 0)}",
+                          style: TextStyle(
+                            color: widget.isSentByMe
+                                ? Colors.black
+                                : AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light
+                                    ? Colors.black
+                                    : Colors.white,
+                          ),
+                        )
                       ],
                     )
                   }

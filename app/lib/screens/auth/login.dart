@@ -213,7 +213,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   InputField(
                     hintText: "*******",
-                    keyboardType: TextInputType.name,
+                    keyboardType: TextInputType.visiblePassword,
                     controller: _passwordController,
                     obscureText: !_passwordVisible,
                     suffixIcon: IconButton(

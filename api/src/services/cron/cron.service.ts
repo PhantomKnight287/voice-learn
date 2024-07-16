@@ -200,7 +200,7 @@ export class CronService {
   //     contents: {
   //       en: 'Try not to skip more lessons.',
   //     },
-  //     include_subscription_ids: users.map((u) => u.notificationToken),
+  //     include_subscription_ids:['a0bb338e-6cdd-46bf-83f7-f52bffc72cc6'],
   //   });
   //   console.log(res);
   // }

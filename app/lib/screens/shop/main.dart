@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/classes/sku.dart';
 import 'package:app/components/no_swipe_page_route.dart';
@@ -11,7 +12,6 @@ import 'package:app/screens/shop/transaction.dart';
 import 'package:app/utils/error.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:heroicons/heroicons.dart';
@@ -376,9 +376,10 @@ class _ShopScreenState extends State<ShopScreen> {
                                             )
                                           : Row(
                                               children: [
-                                                const HeroIcon(
+                                                HeroIcon(
                                                   HeroIcons.shieldExclamation,
                                                   size: 30,
+                                                  color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                                                 ),
                                                 const SizedBox(
                                                   width: BASE_MARGIN * 2,
@@ -389,12 +390,16 @@ class _ShopScreenState extends State<ShopScreen> {
                                                     style: TextStyle(
                                                       fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
                                                       fontWeight: FontWeight.w600,
+                                                      color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                                                     ),
                                                   ),
                                                 ),
                                                 data > 5
                                                     ? ColorFiltered(
-                                                        colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+                                                        colorFilter: const ColorFilter.mode(
+                                                          Colors.grey,
+                                                          BlendMode.saturation,
+                                                        ),
                                                         child: Image.asset(
                                                           "assets/images/emerald.png",
                                                           width: 25,
@@ -414,6 +419,7 @@ class _ShopScreenState extends State<ShopScreen> {
                                                   style: TextStyle(
                                                     fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
                                                     fontWeight: FontWeight.w600,
+                                                    color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                                                   ),
                                                 ),
                                               ],
@@ -468,9 +474,10 @@ class _ShopScreenState extends State<ShopScreen> {
                                             )
                                           : Row(
                                               children: [
-                                                const HeroIcon(
+                                                HeroIcon(
                                                   HeroIcons.shieldExclamation,
                                                   size: 30,
+                                                  color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                                                 ),
                                                 const SizedBox(
                                                   width: BASE_MARGIN * 2,
@@ -481,6 +488,7 @@ class _ShopScreenState extends State<ShopScreen> {
                                                     style: TextStyle(
                                                       fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
                                                       fontWeight: FontWeight.w600,
+                                                      color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                                                     ),
                                                   ),
                                                 ),
@@ -506,6 +514,7 @@ class _ShopScreenState extends State<ShopScreen> {
                                                   style: TextStyle(
                                                     fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
                                                     fontWeight: FontWeight.w600,
+                                                    color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                                                   ),
                                                 ),
                                               ],
