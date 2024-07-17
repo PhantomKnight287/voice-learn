@@ -10,6 +10,7 @@ import 'package:app/models/user.dart';
 import 'package:app/screens/onboarding/main.dart';
 import 'package:app/screens/settings/change_password.dart';
 import 'package:app/utils/error.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,6 +37,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
+  File? _selectedFile;
+
   String? avatar;
   bool _loading = false;
   bool _notificationsAllowed = false;
@@ -282,30 +285,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                       ),
                       ChangeAvatarButton(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                "Opening Gravatar...",
-                              ),
-                            ),
+                        onPressed: () async {
+                          FilePickerResult? result = await FilePicker.platform.pickFiles(
+                            type: FileType.image,
                           );
-                          Future.delayed(
-                            const Duration(
-                              seconds: 2,
-                            ),
-                            () async {
-                              const url = 'https://gravatar.com/';
-                              if (await canLaunchUrl(Uri.parse(url))) {
-                                await launchUrl(
-                                  Uri.parse(url),
-                                  mode: LaunchMode.externalApplication,
-                                );
-                              } else {
-                                throw 'Could not launch $url';
-                              }
-                            },
-                          );
+                          if (result != null) {
+                            setState(() {
+                              _selectedFile = File(result.files.single.path!);
+                            });
+                            _showImagePreview();
+                          } else {
+                            // User canceled the picker
+                          }
+                          // ScaffoldMessenger.of(context).showSnackBar(
+                          //   const SnackBar(
+                          //     content: Text(
+                          //       "Opening Gravatar...",
+                          //     ),
+                          //   ),
+                          // );
+                          // Future.delayed(
+                          //   const Duration(
+                          //     seconds: 2,
+                          //   ),
+                          //   () async {
+                          //     const url = 'https://gravatar.com/';
+                          //     if (await canLaunchUrl(Uri.parse(url))) {
+                          //       await launchUrl(
+                          //         Uri.parse(url),
+                          //         mode: LaunchMode.externalApplication,
+                          //       );
+                          //     } else {
+                          //       throw 'Could not launch $url';
+                          //     }
+                          //   },
+                          // );
                         },
                       ),
                       const SizedBox(
@@ -720,6 +734,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showImagePreview() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(
+              10,
+            ),
+          ),
+          content: _selectedFile != null ? Image.file(_selectedFile!) : Container(),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                setState(() {
+                  _selectedFile = null;
+                });
+              },
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Implement the upload logic here
+                Navigator.of(context).pop();
+              },
+              child: Text('Upload'),
+            ),
+          ],
+        );
+      },
     );
   }
 

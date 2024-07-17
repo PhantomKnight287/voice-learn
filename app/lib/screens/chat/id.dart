@@ -591,7 +591,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                     itemCount: messages.length),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.only(
+                  left: 8.0,
+                  right: 8.0,
+                  bottom: BASE_MARGIN * 4,
+                  top: 8,
+                ),
                 child: Row(
                   children: [
                     if (!_isRecording && !_isPreview)

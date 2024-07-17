@@ -465,7 +465,7 @@ Constraints:
           messages: [
             {
               role: 'system',
-              content: `${chat.initialPrompt ? `${chat.initialPrompt}. ` : ''}${
+              content: `Your name is ${chat.voice.name} ${chat.initialPrompt ? `${chat.initialPrompt}. ` : ''}${
                 chat.language.name.toLowerCase() === 'multiple'
                   ? 'Reply in the language the question is asked.'
                   : `Reply in ${chat.language.name}.`

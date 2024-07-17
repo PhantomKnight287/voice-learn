@@ -23,7 +23,9 @@ class _BottomNavigationBarState extends State<BottomBar> {
       currentIndex: widget.currentIndex,
       onTap: (value) {
         widget.onPress(value);
-        logger.i("Navigating to screen with index: $value");
+        logger.i(
+          "Navigating to screen with index: $value",
+        );
       },
       selectedItemColor: PRIMARY_COLOR,
       type: BottomNavigationBarType.fixed,

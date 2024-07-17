@@ -1,17 +1,9 @@
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
 
-// Extend dayjs with the plugins
-dayjs.extend(utc);
-dayjs.extend(timezone);
+import moment from 'moment';
 
-export function generateTimestamps(timezoneOffset = 0) {
-  const currentDateInGMT = dayjs()
-    .utcOffset(timezoneOffset)
-    .subtract(1, 'day')
-    .toDate(); // Yesterday adjusted by timezoneOffset
-  const nextDateInGMT = dayjs().utcOffset(timezoneOffset).toDate(); // Today adjusted by timezoneOffset
+export function generateTimestamps(timezoneOffset=0) {
+  const currentDateInGMT = moment().utc().subtract(1, 'day').toDate(); // Yesterday at 12:00 UTC
+  const nextDateInGMT = moment().utc().toDate(); // today at 12:00 UTC
   return {
     currentDateInGMT,
     nextDateInGMT,
