@@ -7,6 +7,7 @@ import 'package:app/screens/recall/notes/create.dart';
 import 'package:app/utils/error.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:http/http.dart' as http;
@@ -187,17 +188,20 @@ class _LessonStatsScreenState extends State<LessonStatsScreen> {
                                             children: [
                                               for (var word in question['question']) ...{
                                                 GestureDetector(
-                                                  onLongPress: () {
-                                                    Navigator.of(context).push(
-                                                      NoSwipePageRoute(
-                                                        builder: (context) {
-                                                          return CreateNoteScreen(
-                                                            title: word['word'],
-                                                            description: word['translation'],
-                                                          );
-                                                        },
-                                                      ),
-                                                    );
+                                                  onLongPress: () async {
+                                                    await HapticFeedback.lightImpact();
+                                                    if (context.mounted) {
+                                                      Navigator.of(context).push(
+                                                        NoSwipePageRoute(
+                                                          builder: (context) {
+                                                            return CreateNoteScreen(
+                                                              title: word['word'],
+                                                              description: word['translation'],
+                                                            );
+                                                          },
+                                                        ),
+                                                      );
+                                                    }
                                                   },
                                                   child: Tooltip(
                                                     message: word['translation'],

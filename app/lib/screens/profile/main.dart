@@ -161,7 +161,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         return const SizedBox();
                       }
                       final gravatar = Gravatar(data['email']);
-                      final url = gravatar.imageUrl();
+                      final url = data['avatar'] ?? gravatar.imageUrl();
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -413,6 +413,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             height: BASE_MARGIN * 3,
                           ),
                           _buildGraph(data),
+                          const SizedBox(
+                            height: BASE_MARGIN * 3,
+                          ),
+                          Text(
+                            "Answers History",
+                            style: TextStyle(
+                              fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: BASE_MARGIN * 3,
+                          ),
+                          _buildAnswersGraph(data),
                         ],
                       );
                     },
@@ -445,7 +459,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ],
                         );
                       }
-                      final avatar = data['avatarHash'] != null ? "$BASE_GRAVATAR_URL/${data['avatarHash']}?d=404" : "https://api.dicebear.com/8.x/initials/png?seed=${data['name']}";
+                      final avatar =
+                          data['avatar'] ?? (data['avatarHash'] != null ? "$BASE_GRAVATAR_URL/${data['avatarHash']}?d=404" : "https://api.dicebear.com/8.x/initials/png?seed=${data['name']}");
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -703,10 +718,104 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             height: BASE_MARGIN * 3,
                           ),
                           _buildGraph(data),
+                          const SizedBox(
+                            height: BASE_MARGIN * 3,
+                          ),
+                          Text(
+                            "Answers History",
+                            style: TextStyle(
+                              fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: BASE_MARGIN * 3,
+                          ),
+                          _buildAnswersGraph(data),
                         ],
                       );
                     },
                   ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  AspectRatio _buildAnswersGraph(data) {
+    return AspectRatio(
+      aspectRatio: 1,
+      child: LineChart(
+        LineChartData(
+          lineBarsData: [
+            LineChartBarData(
+              color: Colors.green,
+              spots: ((data?['answerHistory']['correctAnswers'] as List) ?? [])
+                  .map(
+                    (history) => FlSpot(
+                      DateTime.parse(history['date']).day.toDouble(),
+                      double.parse(history['count']),
+                    ),
+                  )
+                  .toList(),
+              isCurved: true,
+              dotData: const FlDotData(
+                show: true,
+              ),
+              belowBarData: BarAreaData(
+                color: Colors.green.withOpacity(
+                  0.5,
+                ),
+                show: true,
+              ),
+            ),
+            LineChartBarData(
+              color: Colors.red,
+              spots: ((data?['answerHistory']['incorrectAnswers'] as List) ?? [])
+                  .map(
+                    (history) => FlSpot(
+                      DateTime.parse(history['date']).day.toDouble(),
+                      double.parse(history['count']),
+                    ),
+                  )
+                  .toList(),
+              isCurved: true,
+              dotData: const FlDotData(
+                show: true,
+              ),
+              belowBarData: BarAreaData(
+                color: Colors.red.withOpacity(
+                  0.5,
+                ),
+                show: true,
+              ),
+            )
+          ],
+          minY: 0,
+          titlesData: FlTitlesData(
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 30,
+                interval: 1,
+                getTitlesWidget: (value, meta) {
+                  return Transform.rotate(
+                    angle: -math.pi / 2.5,
+                    child: Text('${value.toInt()} ${MONTHS[DateTime.now().month - 1]}'),
+                  );
+                },
+              ),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: false,
+              ),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: false,
+              ),
+            ),
           ),
         ),
       ),

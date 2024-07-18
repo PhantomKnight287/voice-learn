@@ -6,6 +6,7 @@ import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/input.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
+import 'package:app/main.dart';
 import 'package:app/models/user.dart';
 import 'package:app/screens/onboarding/main.dart';
 import 'package:app/screens/settings/change_password.dart';
@@ -17,6 +18,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gravatar/flutter_gravatar.dart';
 import 'package:flutter_gravatar/utils.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -24,7 +26,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:shimmer/shimmer.dart';
 import 'package:toastification/toastification.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:mime/mime.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -46,6 +48,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _appVersion = "";
   Set<String> voices = {};
   final tts = FlutterTts();
+  bool _imageUpload = false;
 
   Future<void> _updateProfile() async {
     setState(() {
@@ -150,7 +153,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await tts.setSharedInstance(true);
       await tts.setIosAudioCategory(
         IosTextToSpeechAudioCategory.ambient,
-        [IosTextToSpeechAudioCategoryOptions.allowBluetooth, IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP, IosTextToSpeechAudioCategoryOptions.mixWithOthers],
+        [
+          IosTextToSpeechAudioCategoryOptions.allowBluetooth,
+          IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
+          IosTextToSpeechAudioCategoryOptions.mixWithOthers,
+        ],
         IosTextToSpeechAudioMode.voicePrompt,
       );
     }
@@ -267,9 +274,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 final data = query.data;
                 if (data == null) return _buildLoader();
 
-                final userAvatar = Gravatar(
-                  _emailController.text.isNotEmpty && _emailController.text.isValidEmail() ? _emailController.text : context.read<UserBloc>().state.email!,
-                ).imageUrl();
+                final userAvatar = data['avatar'] ??
+                    Gravatar(
+                      _emailController.text.isNotEmpty && _emailController.text.isValidEmail() ? _emailController.text : context.read<UserBloc>().state.email!,
+                    ).imageUrl();
                 return Form(
                   key: formKey,
                   child: Column(
@@ -288,38 +296,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         onPressed: () async {
                           FilePickerResult? result = await FilePicker.platform.pickFiles(
                             type: FileType.image,
+                            compressionQuality: 0,
                           );
                           if (result != null) {
                             setState(() {
                               _selectedFile = File(result.files.single.path!);
                             });
-                            _showImagePreview();
+                            _showImagePreview(query);
                           } else {
                             // User canceled the picker
                           }
-                          // ScaffoldMessenger.of(context).showSnackBar(
-                          //   const SnackBar(
-                          //     content: Text(
-                          //       "Opening Gravatar...",
-                          //     ),
-                          //   ),
-                          // );
-                          // Future.delayed(
-                          //   const Duration(
-                          //     seconds: 2,
-                          //   ),
-                          //   () async {
-                          //     const url = 'https://gravatar.com/';
-                          //     if (await canLaunchUrl(Uri.parse(url))) {
-                          //       await launchUrl(
-                          //         Uri.parse(url),
-                          //         mode: LaunchMode.externalApplication,
-                          //       );
-                          //     } else {
-                          //       throw 'Could not launch $url';
-                          //     }
-                          //   },
-                          // );
                         },
                       ),
                       const SizedBox(
@@ -413,7 +399,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
-                                color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Color(0xffe7e0e8) : Color(0xff36343a),
+                                color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? const Color(0xffe7e0e8) : const Color(0xff36343a),
                               ),
                               child: Align(
                                 alignment: Alignment.centerLeft,
@@ -699,7 +685,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                               ),
                               subtitle: const Text(
-                                "Enable a logs screen",
+                                "Enable Developer Only Options(can cause weird behaviour)",
                                 style: TextStyle(
                                   color: SECONDARY_TEXT_COLOR,
                                 ),
@@ -737,36 +723,147 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showImagePreview() {
+  void _showImagePreview(Query<dynamic, dynamic> query) {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(
-              10,
+        return StatefulBuilder(builder: (context, setState) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(
+                10,
+              ),
             ),
-          ),
-          content: _selectedFile != null ? Image.file(_selectedFile!) : Container(),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {
-                  _selectedFile = null;
-                });
-              },
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Implement the upload logic here
-                Navigator.of(context).pop();
-              },
-              child: Text('Upload'),
-            ),
-          ],
-        );
+            content: _selectedFile != null
+                ? Image.file(
+                    _selectedFile!,
+                  )
+                : Container(),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  setState(() {
+                    _selectedFile = null;
+                  });
+                },
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () async {
+                  final prefs = await SharedPreferences.getInstance();
+                  final token = prefs.getString("token");
+                  setState(() {
+                    _imageUpload = true;
+                  });
+                  final url = Uri.parse("$API_URL/uploads/public");
+                  logger.t("Uploading image: ${url.toString()}");
+                  var request = http.MultipartRequest("POST", url);
+                  request.files.add(
+                    await http.MultipartFile.fromPath(
+                      'file',
+                      _selectedFile!.path,
+                      contentType: MediaType.parse(lookupMimeType(_selectedFile!.path) ?? "image/png"),
+                    ),
+                  );
+                  request.headers['Authorization'] = "Bearer $token";
+                  final res = await http.Response.fromStream(await request.send());
+                  final body = jsonDecode(res.body);
+                  if (res.statusCode != 201) {
+                    final message = ApiResponseHelper.getErrorMessage(body);
+                    logger.e(message);
+                    toastification.show(
+                      type: ToastificationType.error,
+                      style: ToastificationStyle.minimal,
+                      autoCloseDuration: const Duration(seconds: 5),
+                      title: const Text("An Error Occurred"),
+                      description: Text(message),
+                      alignment: Alignment.topCenter,
+                      showProgressBar: false,
+                    );
+                    setState(() {
+                      _imageUpload = false;
+                    });
+                    if (context.mounted) {
+                      Navigator.pop(context);
+                    }
+                    return;
+                  }
+
+                  final uploadProfileUrl = Uri.parse("$API_URL/profile");
+                  logger.t("Updating Profile: ${uploadProfileUrl.toString()}");
+                  final updateProfileReq = await http.patch(
+                    uploadProfileUrl,
+                    headers: {
+                      "Authorization": "Bearer $token",
+                      "Content-type": "application/json",
+                    },
+                    body: jsonEncode(
+                      {
+                        "avatar": body['url'],
+                      },
+                    ),
+                  );
+                  final updateProfileBody = jsonDecode(updateProfileReq.body);
+                  if (updateProfileReq.statusCode != 200) {
+                    final message = ApiResponseHelper.getErrorMessage(updateProfileBody);
+                    logger.e(message);
+                    toastification.show(
+                      type: ToastificationType.error,
+                      style: ToastificationStyle.minimal,
+                      autoCloseDuration: const Duration(seconds: 5),
+                      title: const Text("An Error Occurred"),
+                      description: Text(message),
+                      alignment: Alignment.topCenter,
+                      showProgressBar: false,
+                    );
+                    setState(() {
+                      _imageUpload = false;
+                    });
+                    if (context.mounted) {
+                      Navigator.pop(context);
+                    }
+                    return;
+                  }
+
+                  toastification.show(
+                    type: ToastificationType.success,
+                    style: ToastificationStyle.minimal,
+                    autoCloseDuration: const Duration(seconds: 5),
+                    title: const Text("Profile Updated"),
+                    alignment: Alignment.topCenter,
+                    showProgressBar: false,
+                  );
+                  setState(() {
+                    _imageUpload = false;
+                  });
+                  await query.refresh();
+                  if (context.mounted) {
+                    await QueryClient.of(context).refreshQuery('profile_stats');
+                  }
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                  }
+                  return;
+                },
+                child: _imageUpload
+                    ? const CircularProgressIndicator.adaptive()
+                    : const Text(
+                        'Upload',
+                        style: TextStyle(
+                          color: PRIMARY_COLOR,
+                        ),
+                      ),
+              ),
+            ],
+          );
+        });
       },
     );
   }

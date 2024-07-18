@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/no_swipe_page_route.dart';
@@ -10,10 +11,12 @@ import 'package:app/models/user.dart';
 import 'package:app/screens/questions/complete.dart';
 import 'package:app/screens/recall/notes/create.dart';
 import 'package:app/utils/error.dart';
+import 'package:app/utils/print.dart';
 import 'package:app/utils/string.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -22,6 +25,7 @@ import 'package:heroicons/heroicons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:shimmer/shimmer.dart';
+import 'package:vibration/vibration.dart';
 
 class QuestionsScreen extends StatefulWidget {
   final String lessonId;
@@ -52,11 +56,29 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
   String testSentence = "";
   InterstitialAd? _interstitialAd;
   Language? lessonLanguage;
+  bool _devModeEnabled = false;
+  List<dynamic> voices = [];
+  List<dynamic> engines = [];
+  String defaultEngine = '';
 
   @override
   void dispose() {
     super.dispose();
     _interstitialAd?.dispose();
+  }
+
+  void _getTTSConfig(
+    String locale,
+  ) async {
+    final voices = await flutterTts.getVoices;
+    final engines = Platform.isAndroid ? await flutterTts.getEngines : [];
+    final defaultEngine = Platform.isAndroid ? await flutterTts.getDefaultEngine : '';
+    final filteredVoices = (voices).where((_voice) => (_voice?['locale']).toLowerCase() == locale.toLowerCase()).toList();
+    setState(() {
+      this.voices = filteredVoices;
+      this.engines = engines;
+      this.defaultEngine = defaultEngine;
+    });
   }
 
   void loadAd() {
@@ -105,6 +127,14 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     await flutterTts.setSpeechRate(speed ?? 0.5);
   }
 
+  void _getDevMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final dev = prefs.getBool("dev_enabled");
+    setState(() {
+      _devModeEnabled = dev ?? false;
+    });
+  }
+
   void _getLanguages(
     String locale,
   ) async {
@@ -132,6 +162,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     _getLanguages(
       body['locale'],
     );
+    _getTTSConfig(body['locale']);
     testSentence = body['sentence'];
     lessonLanguage = Language.fromJSON(body['language']);
     return (body['questions'] as List).map((q) => Question.toJSON(q)).toList();
@@ -409,6 +440,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     _fetchQuestions = _fetchQuestionsFuture();
     _setSpeed();
     loadAd();
+    _getDevMode();
   }
 
   @override
@@ -653,6 +685,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                         onPressed: () {},
                         icon: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             SvgPicture.asset(
                               "assets/svgs/heart.svg",
@@ -681,6 +714,72 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                       );
                     },
                   ),
+                  if (_devModeEnabled)
+                    IconButton(
+                      onPressed: () {
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  DropdownButton<String>(
+                                    onChanged: (String? newValue) async {
+                                      if (newValue != null) {
+                                        final val = jsonDecode(newValue);
+                                        logger.t("TTS voice changed to $newValue");
+                                        await flutterTts.setVoice({
+                                          "name": val['name'],
+                                          "locale": val['locale'],
+                                        });
+                                        final prefs = await SharedPreferences.getInstance();
+                                        prefs.setString("TTS_VOICE_${val['locale'].toLowerCase()}", newValue);
+                                        await flutterTts.speak("This is a test sentence");
+                                      }
+                                    },
+                                    items: voices.map<DropdownMenuItem<String>>((dynamic value) {
+                                      return DropdownMenuItem<String>(
+                                        value: jsonEncode(value),
+                                        child: Text(
+                                          value['name'],
+                                        ),
+                                      );
+                                    }).toList(),
+                                    isExpanded: true,
+                                    hint: Text('Select Voice'),
+                                  ),
+                                  SizedBox(height: 16.0),
+                                  if (Platform.isAndroid)
+                                    DropdownButton<String>(
+                                      onChanged: (String? newValue) async {
+                                        if (newValue != null) {
+                                          await flutterTts.setEngine(newValue);
+                                          final prefs = await SharedPreferences.getInstance();
+                                          prefs.setString("TTS_ENGINE", newValue);
+                                        }
+                                      },
+                                      items: engines.map<DropdownMenuItem<String>>((dynamic value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value as String,
+                                          child: Text(value),
+                                        );
+                                      }).toList(),
+                                      isExpanded: true,
+                                      hint: Text('Select Engine'),
+                                    ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      icon: Icon(
+                        Icons.settings_rounded,
+                        size: 25,
+                      ),
+                    )
                 ],
               ),
               body: SizedBox(
@@ -734,16 +833,19 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                   ),
                                   for (var word in question.question) ...{
                                     GestureDetector(
-                                      onLongPress: () {
-                                        Navigator.of(context).push(NoSwipePageRoute(
-                                          builder: (context) {
-                                            return CreateNoteScreen(
-                                              title: word.word,
-                                              description: word.translation,
-                                              language: lessonLanguage,
-                                            );
-                                          },
-                                        ));
+                                      onLongPress: () async {
+                                        await HapticFeedback.lightImpact();
+                                        if (context.mounted) {
+                                          Navigator.of(context).push(NoSwipePageRoute(
+                                            builder: (context) {
+                                              return CreateNoteScreen(
+                                                title: word.word,
+                                                description: word.translation,
+                                                language: lessonLanguage,
+                                              );
+                                            },
+                                          ));
+                                        }
                                       },
                                       child: Tooltip(
                                         message: word.translation,
@@ -838,6 +940,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                       enableFeedback: true,
                                       enabled: true,
                                       onTap: () async {
+                                        await HapticFeedback.lightImpact();
                                         setState(() {
                                           _selectedStep = option;
                                         });
@@ -987,14 +1090,39 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                           _disabled = true;
                                         });
                                         if (question.type == QuestionType.sentence) {
-                                          if (_answerController.text.isEmpty) return;
+                                          if (_answerController.text.isEmpty) {
+                                            setState(() {
+                                              _disabled = false;
+                                            });
+                                            return;
+                                          }
                                           if (removePunctuation(_answerController.text.trim()).toLowerCase() == removePunctuation(question.correctAnswer.trim()).toLowerCase()) {
+                                            final hasVibrator = await Vibration.hasVibrator();
+                                            printError(hasVibrator.toString());
+                                            if (await Vibration.hasVibrator() ?? false) {
+                                              final patterns = [0, 500];
+                                              final intensities = [1, 255];
+                                              if (await Vibration.hasAmplitudeControl() ?? false) {
+                                                await Vibration.vibrate(pattern: patterns, intensities: intensities);
+                                              } else {
+                                                await Vibration.vibrate(pattern: patterns);
+                                              }
+                                            }
                                             setState(() {
                                               correct = true;
                                             });
                                             await player.play(AssetSource("audios/correct.mp3"));
                                             await _onCorrectAnswer(question.id == value.last.id, question.id, _answerController.text);
                                           } else {
+                                            final List<int> pattern = [0, 200, 100, 200, 100, 200]; // Durations in milliseconds
+                                            final List<int> intensities = [0, 255, 0, 255, 0, 255]; // Maximum intensity (0-255)
+                                            if (await Vibration.hasVibrator() ?? false) {
+                                              if (await Vibration.hasAmplitudeControl() ?? false) {
+                                                await Vibration.vibrate(pattern: pattern, intensities: intensities);
+                                              } else {
+                                                await Vibration.vibrate(pattern: pattern);
+                                              }
+                                            }
                                             setState(() {
                                               correct = false;
                                             });
@@ -1007,7 +1135,14 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                             );
                                           }
                                         } else {
-                                          if (_selectedStep.isEmpty) return;
+                                          if (_selectedStep.isEmpty) {
+                                            {
+                                              setState(() {
+                                                _disabled = false;
+                                              });
+                                              return;
+                                            }
+                                          }
 
                                           if (_selectedStep == question.correctAnswer) {
                                             setState(() {

@@ -16,7 +16,7 @@ export class UploadsService {
     protected readonly s3: S3Service,
     protected readonly configService: ConfigService,
   ) {}
-  async uploadImage(userId: string, file: Express.Multer.File) {
+  async uploadToPrivate(userId: string, file: Express.Multer.File) {
     const fileKey = `${randomUUID()}____${userId}___${file.originalname}`;
     const payload = await this.s3.putObject({
       Bucket: this.configService.getOrThrow('R2_BUCKET_NAME'),
@@ -100,5 +100,29 @@ export class UploadsService {
       },
     });
     res.redirect(upload.url);
+  }
+
+  async uploadToPublicBucket(userId: string, file: Express.Multer.File) {
+    const fileKey = `${randomUUID()}____${userId}___${file.originalname}`;
+    const payload = await this.s3.putObject({
+      Bucket: this.configService.getOrThrow('R2_PUBLIC_BUCKET_NAME'),
+      Key: fileKey,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    });
+
+    const upload = await prisma.upload.create({
+      data: {
+        id: `upload_${createId()}`,
+        key: fileKey,
+        url: `${process.env.R2_PUBLIC_BUCKET_URL}/${fileKey}`,
+        expiresAt: new Date(moment.utc().unix() + 24 * 60 * 60 * 1000),
+        userId,
+      },
+    });
+    return {
+      id: upload.id,
+      url: upload.url,
+    };
   }
 }

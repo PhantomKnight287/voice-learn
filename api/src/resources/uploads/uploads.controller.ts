@@ -44,7 +44,7 @@ export class UploadsController {
     }),
   )
   uploadFile(@UploadedFile() file: Express.Multer.File, @Auth() auth: User) {
-    return this.uploadsService.uploadImage(auth.id, file);
+    return this.uploadsService.uploadToPrivate(auth.id, file);
   }
 
   @Get(':id')
@@ -55,5 +55,35 @@ export class UploadsController {
     @Response() res: R,
   ) {
     return this.uploadsService.redirectToPublicUrl(token, chatId, id, res);
+  }
+
+  @Post('public')
+  @ApiOperation({})
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'File to upload',
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      limits: {
+        fileSize: 50 * 1024 * 1024,
+      },
+    }),
+  )
+  uploadToPublicUrl(
+    @UploadedFile() file: Express.Multer.File,
+    @Auth() auth: User,
+  ) {
+    return this.uploadsService.uploadToPublicBucket(auth.id, file);
   }
 }

@@ -15,6 +15,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -1076,17 +1077,20 @@ class _ChatBubbleState extends State<ChatBubble> {
                           if (word != null)
                             word['translation'] != null
                                 ? GestureDetector(
-                                    onLongPress: () {
-                                      Navigator.of(context).push(
-                                        NoSwipePageRoute(
-                                          builder: (context) {
-                                            return CreateNoteScreen(
-                                              title: word['word'],
-                                              description: word['translation'],
-                                            );
-                                          },
-                                        ),
-                                      );
+                                    onLongPress: () async {
+                                      await HapticFeedback.lightImpact();
+                                      if (context.mounted) {
+                                        Navigator.of(context).push(
+                                          NoSwipePageRoute(
+                                            builder: (context) {
+                                              return CreateNoteScreen(
+                                                title: word['word'],
+                                                description: word['translation'],
+                                              );
+                                            },
+                                          ),
+                                        );
+                                      }
                                     },
                                     child: Tooltip(
                                       message: word['translation'],

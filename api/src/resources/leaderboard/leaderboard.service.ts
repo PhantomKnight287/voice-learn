@@ -10,6 +10,7 @@ export class LeaderboardService {
         name: true,
         id: true,
         avatarHash: true,
+        avatar: true,
       },
       where: {
         xp: {

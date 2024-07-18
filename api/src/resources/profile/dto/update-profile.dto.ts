@@ -8,4 +8,8 @@ export class UpdateProfileDTO {
   @IsOptional()
   @IsEmail(undefined, { message: 'Please enter a valid email.' })
   email?: string;
+
+  @IsOptional()
+  @IsString()
+  avatar?: string;
 }

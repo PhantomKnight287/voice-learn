@@ -19,6 +19,7 @@ model User {
   lives             Int      @default(5)
   streakShields     Int      @default(2)
   xp                Int      @default(0)
+  avatar            String?
   avatarHash        String?
   notificationToken String?
   /// the current active streaks, will increase or reset based on completing a lesson

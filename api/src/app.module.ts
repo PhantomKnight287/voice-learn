@@ -122,8 +122,8 @@ export class AppModule implements NestModule {
           path: '/v(.*)/voices',
         },
         '/v(.*)/webhooks/(.*)',
-        '/v(.*)/uploads/(.*)',
-        '/v(.*)/auth/forgot-password/(.*)'
+        { method: RequestMethod.GET, path: '/v(.*)/uploads/(.*)' },
+        '/v(.*)/auth/forgot-password/(.*)',
       )
       .forRoutes('*');
 

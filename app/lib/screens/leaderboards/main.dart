@@ -97,7 +97,7 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
                     itemBuilder: (context, index) {
                       final item = board[index];
                       final defaultImage = Uri.parse("https://api.dicebear.com/8.x/initials/png?seed=${item.name}");
-                      final avatar = item.avatarHash != null ? "$BASE_GRAVATAR_URL/${item.avatarHash}?d=404" : defaultImage;
+                      final avatar = item.avatar ?? (item.avatarHash != null ? "$BASE_GRAVATAR_URL/${item.avatarHash}?d=404" : defaultImage);
                       return Column(
                         children: [
                           GestureDetector(
