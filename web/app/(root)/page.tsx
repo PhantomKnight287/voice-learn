@@ -3,6 +3,7 @@ import { Features } from "./_components/features";
 import HowItWorks from "./_components/how-it-works";
 import FlagAnimation from "./flag.animation";
 import { buttonVariants } from "@/components/ui/button";
+import { ApplicationStats } from "@/components/component/application-stats";
 
 function Gradient({
   conic,
@@ -48,6 +49,7 @@ export default function Home() {
       </div>
       {/* <FlagAnimation /> */}
       <Features />
+      <ApplicationStats />
       <HowItWorks />
       <div className="mx-8 flex flex-col items-center justify-center">
         <div className="container px-5 py-24 mx-auto">

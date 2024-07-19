@@ -1,9 +1,7 @@
 "use client";
-import Link from "next/link";
 import { UserState, useUser } from "@/state/user";
 import { buttonVariants } from "@/components/ui/button";
 import { readCookie } from "@/utils/cookie";
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { makeRequest } from "@/lib/req";
 import { PUBLIC_CDN_URL } from "@/constants";
@@ -12,8 +10,7 @@ import { BoltIcon as BoltOutline } from "@heroicons/react/24/outline";
 import { BoltIcon as BoltSolid } from "@heroicons/react/24/solid";
 
 export default function InteractiveHeaderComponents() {
-  const { user, logOut, setUser } = useUser();
-  const { replace } = useRouter();
+  const { user, setUser } = useUser();
   async function fetchUser(token: string) {
     const req = await makeRequest<undefined, UserState["user"]>(
       "/auth/hydrate",
@@ -41,7 +38,7 @@ export default function InteractiveHeaderComponents() {
     return (
       <>
         <a
-          href="#download"
+          href="#waitlist"
           className={buttonVariants({
             variant: "default",
           })}

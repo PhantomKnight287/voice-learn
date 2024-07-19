@@ -361,6 +361,7 @@ enum AnswerType {
 enum QuestionType {
   sentence
   select_one
+  fill_in_the_blank
 }
 
 enum PathType {

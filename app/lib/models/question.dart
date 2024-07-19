@@ -1,6 +1,12 @@
+// ignore_for_file: constant_identifier_names
+
 import 'package:app/models/answer.dart';
 
-enum QuestionType { select_one, sentence }
+enum QuestionType {
+  select_one,
+  sentence,
+  fill_in_the_blank,
+}
 
 class QuestionQuestion {
   final String word;
@@ -51,7 +57,11 @@ class Question {
       question: questionArray,
       createdAt: json['createdAt'],
       lessonId: json['lessonId'],
-      type: json['type'] == "select_one" ? QuestionType.select_one : QuestionType.sentence,
+      type: json['type'] == "select_one"
+          ? QuestionType.select_one
+          : json['type'] == 'sentence'
+              ? QuestionType.sentence
+              : QuestionType.fill_in_the_blank,
       options: (json['options'] as List).map((item) => item as String).toList(),
       answer: answer,
     );

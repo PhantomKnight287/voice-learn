@@ -68,14 +68,14 @@ export class EventsController {
 Every question will be an object with these 4 values:
 
 instruction: The instruction to student on how to solve the question (for example: "Translate this sentence to English", "Choose the correct word.")
-type: Type of question (it must be either 'sentence' or 'select_one')
+type: Type of question (it must be one from 'sentence', 'select_one' or 'fill_in_the_blank')
 options: It should contain options for the questions if the type is 'select_one', otherwise it must be empty if type is 'sentence'. Ensure the options are unique to the question and do not repeat.
 correctAnswer: The correct answer to the question. This can include special characters. This must never be empty and should be one from "options" if type is "select_one" or the answer if type is "sentence".
 questions: It will be an array of objects where each object contains 'word' and its translation as 'translation' field. (It must be a single word only)
 Here is how your response should look like (note that it's an example response and the questions and question count should be equal to the given question count):
                [
   {
-    "instruction": "What is the meaning of given word in English.",
+    "instruction": "Choose correct word.",
     "type": "select_one",
     "options": ["Good Morning", "Good Evening", "Good Bye"],
     "correctAnswer": "Good Morning",
@@ -91,7 +91,7 @@ Here is how your response should look like (note that it's an example response a
     ]
   },
   {
-    "instruction": "Translate the given word in German.",
+    "instruction": "Translate the given word.",
     "type": "select_one",
     "options": ["zwei", "eins", "drei"],
     "correctAnswer": "drei",
@@ -115,7 +115,7 @@ Here is how your response should look like (note that it's an example response a
     ]
   },
   {
-    "instruction": "Choose the correct word in German for:",
+    "instruction": "Choose the correct word",
     "type": "select_one",
     "options": ["Name", "heißt", "Wo"],
     "correctAnswer": "heißt",
@@ -127,7 +127,7 @@ Here is how your response should look like (note that it's an example response a
     ]
   },
   {
-    "instruction": "Translate the following sentence into German.",
+    "instruction": "Translate the given sentence",
     "type": "sentence",
     "questions": [
       {
@@ -147,6 +147,30 @@ Here is how your response should look like (note that it's an example response a
         "translation": "Laden"
       }
     ]
+  },
+  {
+    "instruction":"Enter correct word",
+    "type":"fill_in_the_blank",
+    "questions": [
+      {
+        "word": "I",
+        "translation": "Ich"
+      },
+      {
+        "word": "am going",
+        "translation": "gehe"
+      },
+      {
+        "word": "to the",
+        "translation": "zum"
+      },
+      {
+        "word": "<empty>",
+        "translation": "<empty>"
+      }
+    ],
+    "options": ["Laden", "Morgen", "Tag"],
+    "correctAnswer": "Laden",
   }
 ]
 
@@ -155,6 +179,7 @@ Here is how your response should look like (note that it's an example response a
 
 - Do not generate any escape characters.
 - The instructions must not include the question.
+- The questions should be of all types and not just of one type.
 - The "questions" array must never be empty and should always contain meaningful content.
 - Do not put the answer of the question in the "questions" array.
 - Please do not use any type of placeholders like [Enter your name here].

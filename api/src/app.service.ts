@@ -86,12 +86,31 @@ export class AppService {
   async getPlatformStats() {
     const users = await prisma.user.count({});
     const chats = await prisma.chat.count();
-    const totalLanguages = await prisma.language.count();
+    const totalLanguages = await prisma.language.count({
+      where: { name: { not: 'English' } },
+    });
+    const modules = await prisma.module.count({});
+    const lessons = await prisma.lesson.count();
+    const questions = await prisma.question.count();
     const totalMessages = await prisma.message.count();
-    const mostLearnedLanguage = await prisma.language.findFirst({
+    const mostPracticedLanguage = await prisma.language.findFirst({
       orderBy: [
         {
           chats: {
+            _count: 'desc',
+          },
+        },
+      ],
+      omit: {
+        createdAt: true,
+        updatedAt: true,
+        key: true,
+      },
+    });
+    const mostLearnedLanguage = await prisma.language.findFirst({
+      orderBy: [
+        {
+          XP: {
             _count: 'desc',
           },
         },
@@ -107,7 +126,11 @@ export class AppService {
       chats,
       totalLanguages,
       totalMessages,
+      mostPracticedLanguage,
       mostLearnedLanguage,
+      modules,
+      lessons,
+      questions,
     };
   }
 }

@@ -60,4 +60,8 @@ export class RecallsController {
   getNote(@Auth() auth: User, @Param('id') id: string) {
     return this.recallsService.getNoteInfo(id, auth.id);
   }
+  @Delete('notes/:id')
+  deleteNote(@Auth() auth: User, @Param('id') id: string) {
+    return this.recallsService.deleteNote(id, auth.id);
+  }
 }

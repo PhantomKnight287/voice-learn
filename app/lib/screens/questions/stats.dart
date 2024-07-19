@@ -189,6 +189,7 @@ class _LessonStatsScreenState extends State<LessonStatsScreen> {
                                               for (var word in question['question']) ...{
                                                 GestureDetector(
                                                   onLongPress: () async {
+                                                    if (word['word'] == "<empty>") return;
                                                     await HapticFeedback.lightImpact();
                                                     if (context.mounted) {
                                                       Navigator.of(context).push(
@@ -203,24 +204,29 @@ class _LessonStatsScreenState extends State<LessonStatsScreen> {
                                                       );
                                                     }
                                                   },
-                                                  child: Tooltip(
-                                                    message: word['translation'],
-                                                    triggerMode: TooltipTriggerMode.tap,
-                                                    onTriggered: () async {
-                                                      if (ttsSetup == false) return;
-                                                      await flutterTts.speak(
-                                                        word['translation'],
-                                                      );
-                                                    },
-                                                    child: Text(
-                                                      word['word'],
-                                                      style: TextStyle(
-                                                        decoration: TextDecoration.underline,
-                                                        decorationStyle: TextDecorationStyle.dashed,
-                                                        fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-                                                      ),
-                                                    ),
-                                                  ),
+                                                  child: word['word'] == "<empty>"
+                                                      ? Text(
+                                                          " ___ ",
+                                                          style: TextStyle(
+                                                            fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                                                          ),
+                                                        )
+                                                      : Tooltip(
+                                                          message: word['translation'],
+                                                          triggerMode: TooltipTriggerMode.tap,
+                                                          onTriggered: () async {
+                                                            if (ttsSetup == false) return;
+                                                            await flutterTts.speak(word.translation);
+                                                          },
+                                                          child: Text(
+                                                            word['word'],
+                                                            style: TextStyle(
+                                                              decoration: TextDecoration.underline,
+                                                              decorationStyle: TextDecorationStyle.dashed,
+                                                              fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                                                            ),
+                                                          ),
+                                                        ),
                                                 ),
                                                 SizedBox(
                                                   width: BASE_MARGIN.toDouble(),
@@ -366,7 +372,7 @@ class _LessonStatsScreenState extends State<LessonStatsScreen> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     subtitle: Text(
-                      question['question'].map((ques) => ques['word']).join(" "),
+                      question['question'].map((ques) => ques['word']).map((translation) => translation == "<empty>" ? " ___ " : translation).join(" "),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

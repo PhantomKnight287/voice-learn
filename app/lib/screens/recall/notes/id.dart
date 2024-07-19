@@ -114,7 +114,9 @@ class _NoteScreenState extends State<NoteScreen> {
                               );
                             }
                           },
-                          icon: HeroIcon(HeroIcons.speakerWave),
+                          icon: HeroIcon(
+                            HeroIcons.speakerWave,
+                          ),
                         ),
                       Text(
                         data['title'],

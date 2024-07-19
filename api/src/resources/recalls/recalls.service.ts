@@ -125,4 +125,16 @@ export class RecallsService {
       locale: note.languageId ? locales[note.language.name] : null,
     };
   }
+
+  async deleteNote(noteId: string, userId: string) {
+    const note = await prisma.note.findFirst({
+      where: { id: noteId, stack: { userId } },
+    });
+    if (!note)
+      throw new HttpException('No note found to delete.', HttpStatus.NOT_FOUND);
+    await prisma.note.delete({ where: { id: note.id } });
+    return {
+      id: noteId,
+    };
+  }
 }

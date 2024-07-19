@@ -1078,6 +1078,7 @@ class _ChatBubbleState extends State<ChatBubble> {
                             word['translation'] != null
                                 ? GestureDetector(
                                     onLongPress: () async {
+                                      if (word['word'] == "<empty>") return;
                                       await HapticFeedback.lightImpact();
                                       if (context.mounted) {
                                         Navigator.of(context).push(

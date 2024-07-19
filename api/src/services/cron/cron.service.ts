@@ -49,7 +49,6 @@ export class CronService {
     const ids = [];
     try {
       for (const user of users) {
-        // Check if a streak record exists between the timeframe
         const streakExists = await prisma.streak.findFirst({
           where: {
             userId: user.id,

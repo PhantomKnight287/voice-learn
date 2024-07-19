@@ -73,7 +73,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     final voices = await flutterTts.getVoices;
     final engines = Platform.isAndroid ? await flutterTts.getEngines : [];
     final defaultEngine = Platform.isAndroid ? await flutterTts.getDefaultEngine : '';
-    final filteredVoices = (voices).where((_voice) => (_voice?['locale']).toLowerCase() == locale.toLowerCase()).toList();
+    final filteredVoices = ((voices == null || voices.isEmpty) ? [] : voices).where((_voice) => (_voice?['locale']).toLowerCase() == locale.toLowerCase()).toList();
     setState(() {
       this.voices = filteredVoices;
       this.engines = engines;
@@ -815,7 +815,10 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                   IconButton(
                                     onPressed: () async {
                                       if (ttsSetup) {
-                                        await flutterTts.speak(question.question.map((q) => q.translation).join(" "));
+                                        await flutterTts.speak(question.question
+                                            .map((q) => q.translation)
+                                            .map((translation) => translation == "<empty>" ? "." : translation) // Replace "<empty>" with a period for a pause
+                                            .join(" "));
                                       } else {
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           SnackBar(
@@ -834,6 +837,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                   for (var word in question.question) ...{
                                     GestureDetector(
                                       onLongPress: () async {
+                                        if (word.word == "<empty>") return;
                                         await HapticFeedback.lightImpact();
                                         if (context.mounted) {
                                           Navigator.of(context).push(NoSwipePageRoute(
@@ -847,22 +851,29 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                           ));
                                         }
                                       },
-                                      child: Tooltip(
-                                        message: word.translation,
-                                        triggerMode: TooltipTriggerMode.tap,
-                                        onTriggered: () async {
-                                          if (ttsSetup == false) return;
-                                          await flutterTts.speak(word.translation);
-                                        },
-                                        child: Text(
-                                          word.word,
-                                          style: TextStyle(
-                                            decoration: TextDecoration.underline,
-                                            decorationStyle: TextDecorationStyle.dashed,
-                                            fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-                                          ),
-                                        ),
-                                      ),
+                                      child: word.word == "<empty>"
+                                          ? Text(
+                                              " ___ ",
+                                              style: TextStyle(
+                                                fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                                              ),
+                                            )
+                                          : Tooltip(
+                                              message: word.translation,
+                                              triggerMode: TooltipTriggerMode.tap,
+                                              onTriggered: () async {
+                                                if (ttsSetup == false) return;
+                                                await flutterTts.speak(word.translation);
+                                              },
+                                              child: Text(
+                                                word.word,
+                                                style: TextStyle(
+                                                  decoration: TextDecoration.underline,
+                                                  decorationStyle: TextDecorationStyle.dashed,
+                                                  fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                                                ),
+                                              ),
+                                            ),
                                     ),
                                     SizedBox(
                                       width: BASE_MARGIN.toDouble(),
@@ -1089,7 +1100,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                         setState(() {
                                           _disabled = true;
                                         });
-                                        if (question.type == QuestionType.sentence) {
+                                        if (question.type == QuestionType.sentence || (question.type == QuestionType.fill_in_the_blank && question.options.isEmpty)) {
                                           if (_answerController.text.isEmpty) {
                                             setState(() {
                                               _disabled = false;
