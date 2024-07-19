@@ -123,23 +123,26 @@ class _LoginScreenState extends State<LoginScreen> {
     logger.d("Logged into OneSignal");
 
     if (body['path']?['type'] == 'created') {
-      Navigator.of(context).pushReplacement(
+      Navigator.of(context).pushAndRemoveUntil(
         NoSwipePageRoute(
           builder: (context) => LearningPathLoadingScreen(pathId: body['path']['id']),
         ),
+        (Route<dynamic> route) => false,
       );
       return;
     } else if (body['path'] == null) {
-      Navigator.of(context).pushReplacement(
+      Navigator.of(context).pushAndRemoveUntil(
         NoSwipePageRoute(
           builder: (context) => const OnboardingQuestionsScreen(),
         ),
+        (Route<dynamic> route) => false,
       );
     } else {
-      Navigator.of(context).pushReplacement(
+      Navigator.of(context).pushAndRemoveUntil(
         NoSwipePageRoute(
           builder: (context) => const HomeScreen(),
         ),
+        (Route<dynamic> route) => false,
       );
     }
   }

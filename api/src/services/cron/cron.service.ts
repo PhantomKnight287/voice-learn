@@ -39,7 +39,8 @@ export class CronService {
 
   @Cron(CronExpression.EVERY_DAY_AT_10AM, { timeZone: 'UTC' })
   async notifyUsers() {
-    const { currentDateInGMT, nextDateInGMT } = generateTimestamps();
+    const { currentDateInGMT, nextDateInGMT, previousDateInGMT } =
+      generateTimestamps();
 
     const users = await prisma.user.findMany({
       where: {
@@ -59,7 +60,18 @@ export class CronService {
           },
         });
         if (!streakExists) {
-          ids.push(user.notificationToken);
+          const streakExistsForPrevDay = await prisma.streak.findFirst({
+            where: {
+              userId: user.id,
+              createdAt: {
+                lt: currentDateInGMT,
+                gte: previousDateInGMT,
+              },
+            },
+          });
+          if (!streakExistsForPrevDay) {
+            ids.push(user.notificationToken);
+          }
         }
       }
 
@@ -84,7 +96,8 @@ export class CronService {
     timeZone: 'UTC',
   })
   async bonkLazyUsers() {
-    const { currentDateInGMT, nextDateInGMT } = generateTimestamps();
+    const { currentDateInGMT, nextDateInGMT, previousDateInGMT } =
+      generateTimestamps();
 
     const users = await prisma.user.findMany();
     try {
@@ -100,7 +113,6 @@ export class CronService {
           },
         });
 
-        // If no streak record exists for today, reset activeStreaks to 0
         if (!streakExists) {
           if (user.streakShields > 0) {
             await prisma.user.update({
@@ -127,7 +139,6 @@ export class CronService {
                 },
                 include_subscription_ids: [user.notificationToken],
               });
-              console.log(res);
             }
           } else {
             await prisma.user.update({
@@ -135,20 +146,30 @@ export class CronService {
               data: { activeStreaks: 0 },
             });
             console.log(`Active streaks reset for user: ${user.id}`);
-            if (user.notificationToken) {
-              const res = await onesignal.createNotification({
-                app_id: process.env.ONESIGNAL_APP_ID,
-                name: 'Streak Reset Notification',
-                headings: {
-                  en: 'Your streak was reset 💀',
+            const streakExistsForPrevDay = await prisma.streak.findFirst({
+              where: {
+                userId: user.id,
+                createdAt: {
+                  lt: currentDateInGMT,
+                  gte: previousDateInGMT,
                 },
-                contents: {
-                  en: 'Try not to skip more lessons.',
-                },
-                include_subscription_ids: [user.notificationToken],
-              });
-              console.log(res);
-            }
+              },
+            });
+            if (streakExistsForPrevDay)
+              if (user.notificationToken) {
+                const res = await onesignal.createNotification({
+                  app_id: process.env.ONESIGNAL_APP_ID,
+                  name: 'Streak Reset Notification',
+                  headings: {
+                    en: 'Your streak was reset 💀',
+                  },
+                  contents: {
+                    en: 'Try not to skip more lessons.',
+                  },
+                  include_subscription_ids: [user.notificationToken],
+                });
+                console.log(res);
+              }
           }
         }
       }

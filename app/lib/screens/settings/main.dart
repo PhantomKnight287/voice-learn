@@ -216,18 +216,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   tier: Tiers.free,
                                 ),
                               );
-                          // Perform log out action here
-                          Navigator.of(context).pop(); // Close the dialog
-                          final prefs = await SharedPreferences.getInstance();
-                          prefs.clear();
-                          await AdaptiveTheme.of(context).persist();
-                          Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                              builder: (context) => const OnboardingScreen(),
-                            ),
-                            (Route<dynamic> route) => false,
-                          );
-                          // Add your log out logic here
+                          if (context.mounted) {
+                            Navigator.of(context).pop(); // Close the dialog
+                            final prefs = await SharedPreferences.getInstance();
+                            prefs.clear();
+                            if (context.mounted) {
+                              await AdaptiveTheme.of(context).persist();
+                            }
+                            logger.t("Logged out");
+                            if (context.mounted) {
+                              Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                  builder: (context) => const OnboardingScreen(),
+                                ),
+                                (Route<dynamic> route) => false,
+                              );
+                            }
+                          }
                         },
                         child: const Text(
                           "Log Out",

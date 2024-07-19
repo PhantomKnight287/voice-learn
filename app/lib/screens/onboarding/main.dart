@@ -128,7 +128,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 const Spacer(),
                 GestureDetector(
                   onTap: () {
-                    Navigator.of(context).pushReplacement(
+                    Navigator.of(context).push(
                       NoSwipePageRoute(
                         builder: (context) => const RegisterScreen(),
                       ),
@@ -169,7 +169,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.of(context).pushReplacement(
+                    Navigator.of(context).push(
                       NoSwipePageRoute(
                         builder: (context) => const LoginScreen(),
                       ),
@@ -182,7 +182,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: Colors.grey,
+                        color: PRIMARY_COLOR,
                         width: 2,
                       ),
                     ),
@@ -192,7 +192,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         Text(
                           "I already have an account".toUpperCase(),
                           style: TextStyle(
-                            color: PRIMARY_COLOR,
+                            color: Colors.black,
                             fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                             fontWeight: FontWeight.w600,
                           ),

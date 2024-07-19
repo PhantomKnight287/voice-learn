@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/language.dart';
@@ -7,8 +8,6 @@ import 'package:app/models/knowledge.dart';
 import 'package:app/models/reason.dart';
 import 'package:app/screens/loading/learning.dart';
 import 'package:app/utils/error.dart';
-import 'package:app/utils/print.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
@@ -322,8 +321,8 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                               ),
                               title: Text(
                                 language.name,
-                                style: const TextStyle(
-                                  color: Colors.black,
+                                style: TextStyle(
+                                  color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                                   fontSize: 20,
                                 ),
                               ),
@@ -384,8 +383,8 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                         ListTile(
                           title: Text(
                             item.message,
-                            style: const TextStyle(
-                              color: Colors.black,
+                            style: TextStyle(
+                              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                               fontSize: 20,
                             ),
                           ),
@@ -431,8 +430,8 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                         ListTile(
                           title: Text(
                             item.reason,
-                            style: const TextStyle(
-                              color: Colors.black,
+                            style: TextStyle(
+                              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                               fontSize: 20,
                             ),
                           ),
@@ -483,8 +482,8 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                         ListTile(
                           title: Text(
                             item.reason,
-                            style: const TextStyle(
-                              color: Colors.black,
+                            style: TextStyle(
+                              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                               fontSize: 20,
                             ),
                           ),
@@ -523,8 +522,8 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
             ),
           ),
           Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
+            decoration: BoxDecoration(
+              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.white : Theme.of(context).scaffoldBackgroundColor,
               boxShadow: [
                 BoxShadow(
                   color: SECONDARY_TEXT_COLOR,

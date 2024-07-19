@@ -724,8 +724,7 @@ Constraints:
 
       console.log('generated ' + body.type);
     } catch (error) {
-      console.log(error);
-      if (body.retries >= 5) return;
+      if (body.retries >= 5 && body.type !== 'learning_path') return;
       await queue.addToQueueWithPriority({
         ...body,
         retries: (body.retries || 0) + 1,

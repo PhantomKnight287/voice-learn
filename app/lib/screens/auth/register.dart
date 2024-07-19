@@ -67,7 +67,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() {
       _loading = true;
     });
-
     final req = await http.post(
       Uri.parse(
         "$API_URL/auth/sign-up",
@@ -78,7 +77,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           "password": _passwordController.text,
           "name": _nameController.text,
           "timezone": DateTime.now().timeZoneName,
-          "timeZoneOffset": DateTime.now().timeZoneOffset,
+          "timeZoneOffset": DateTime.now().timeZoneOffset.toString(),
         },
       ),
       headers: {
@@ -133,10 +132,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
     await OneSignal.login(response.user.id);
 
-    Navigator.of(context).pushReplacement(
+    Navigator.of(context).pushAndRemoveUntil(
       NoSwipePageRoute(
         builder: (context) => const OnboardingQuestionsScreen(),
       ),
+      (Route<dynamic> route) => false,
     );
   }
 

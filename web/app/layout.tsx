@@ -55,9 +55,10 @@ export default function Layout({ children }: { children: ReactNode }) {
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
+          forcedTheme="dark"
         >
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster />
