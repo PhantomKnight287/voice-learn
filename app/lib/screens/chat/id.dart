@@ -363,6 +363,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           await openAppSettings();
         },
       );
+
       return;
     }
     if (granted) {
@@ -374,7 +375,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         await appFolder.create(recursive: true);
       }
 
-      final filepath = '$recording/${DateTime.now().millisecondsSinceEpoch}.mp3';
+      final filepath = '$recording/${DateTime.now().millisecondsSinceEpoch}.${Platform.isIOS ? "m4a" : "mp3"}';
 
       await record.record(
         path: filepath,
