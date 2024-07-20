@@ -11,8 +11,8 @@ import 'package:app/models/user.dart';
 import 'package:app/screens/questions/complete.dart';
 import 'package:app/screens/recall/notes/create.dart';
 import 'package:app/utils/error.dart';
-import 'package:app/utils/print.dart';
 import 'package:app/utils/string.dart';
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
@@ -81,7 +81,10 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     });
   }
 
-  void loadAd() {
+  void loadAd() async {
+    if (Platform.isIOS) {
+      await AppTrackingTransparency.requestTrackingAuthorization();
+    }
     InterstitialAd.load(
         adUnitId: LESSON_COMPLETION_AD_ID,
         request: const AdRequest(),
@@ -973,268 +976,286 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                               const SizedBox(
                                 height: BASE_MARGIN * 5,
                               ),
-                              Row(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      right: 8.0,
-                                    ),
-                                    child: Center(
-                                      child: CircleAvatar(
-                                        radius: 22,
-                                        backgroundColor: getSecondaryColor(context),
-                                        child: IconButton(
-                                          onPressed: () {
-                                            FocusManager.instance.primaryFocus?.unfocus();
-                                            showModalBottomSheet(
-                                              context: context,
-                                              builder: (context) {
-                                                return StatefulBuilder(builder: (context, setStateBuilder) {
-                                                  return Container(
-                                                    padding: const EdgeInsets.all(16.0),
-                                                    height: 200,
-                                                    child: Column(
-                                                      mainAxisAlignment: MainAxisAlignment.center,
-                                                      children: [
-                                                        const Text(
-                                                          'Select Speed of AI Audio',
-                                                          style: TextStyle(
-                                                            fontSize: 18,
-                                                            fontWeight: FontWeight.bold,
+                              SafeArea(
+                                child: Row(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        right: 8.0,
+                                      ),
+                                      child: Center(
+                                        child: CircleAvatar(
+                                          radius: 22,
+                                          backgroundColor: getSecondaryColor(context),
+                                          child: IconButton(
+                                            onPressed: () {
+                                              FocusManager.instance.primaryFocus?.unfocus();
+                                              showModalBottomSheet(
+                                                context: context,
+                                                builder: (context) {
+                                                  return StatefulBuilder(builder: (context, setStateBuilder) {
+                                                    return Container(
+                                                      padding: const EdgeInsets.all(16.0),
+                                                      height: 200,
+                                                      child: Column(
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        children: [
+                                                          const Text(
+                                                            'Select Speed of AI Audio',
+                                                            style: TextStyle(
+                                                              fontSize: 18,
+                                                              fontWeight: FontWeight.bold,
+                                                            ),
                                                           ),
-                                                        ),
-                                                        const SizedBox(
-                                                          height: BASE_MARGIN * 4,
-                                                        ),
-                                                        Text('Speed: ${(_speed).toStringAsFixed(1)}x'),
-                                                        Slider(
-                                                          min: 0.1,
-                                                          max: 1.0,
-                                                          divisions: 9,
-                                                          value: _speed,
-                                                          onChanged: (value) {
-                                                            setStateBuilder(() {
-                                                              _speed = double.parse(value.toStringAsFixed(1));
-                                                            });
-                                                            setState(() {
-                                                              _speed = double.parse(value.toStringAsFixed(1));
-                                                            });
-                                                          },
-                                                        ),
-                                                        Row(
-                                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                          children: [
-                                                            ElevatedButton(
-                                                              onPressed: () async {
-                                                                flutterTts.setSpeechRate(_speed);
-                                                                await flutterTts.speak(testSentence);
-                                                              },
-                                                              style: ButtonStyle(
-                                                                shape: WidgetStateProperty.all(
-                                                                  RoundedRectangleBorder(
-                                                                    borderRadius: BorderRadius.circular(
-                                                                      10,
+                                                          const SizedBox(
+                                                            height: BASE_MARGIN * 4,
+                                                          ),
+                                                          Text('Speed: ${(_speed).toStringAsFixed(1)}x'),
+                                                          Slider(
+                                                            min: 0.1,
+                                                            max: 1.0,
+                                                            divisions: 9,
+                                                            value: _speed,
+                                                            onChanged: (value) {
+                                                              setStateBuilder(() {
+                                                                _speed = double.parse(value.toStringAsFixed(1));
+                                                              });
+                                                              setState(() {
+                                                                _speed = double.parse(value.toStringAsFixed(1));
+                                                              });
+                                                            },
+                                                          ),
+                                                          Row(
+                                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                            children: [
+                                                              ElevatedButton(
+                                                                onPressed: () async {
+                                                                  flutterTts.setSpeechRate(_speed);
+                                                                  await flutterTts.speak(testSentence);
+                                                                },
+                                                                style: ButtonStyle(
+                                                                  shape: WidgetStateProperty.all(
+                                                                    RoundedRectangleBorder(
+                                                                      borderRadius: BorderRadius.circular(
+                                                                        10,
+                                                                      ),
                                                                     ),
                                                                   ),
+                                                                  backgroundColor: WidgetStateProperty.all(
+                                                                    SECONDARY_BG_COLOR,
+                                                                  ),
                                                                 ),
-                                                                backgroundColor: WidgetStateProperty.all(
-                                                                  SECONDARY_BG_COLOR,
-                                                                ),
-                                                              ),
-                                                              child: const Text(
-                                                                'Preview',
-                                                                style: TextStyle(
-                                                                  color: Colors.black,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            ElevatedButton(
-                                                              onPressed: () async {
-                                                                final prefs = await SharedPreferences.getInstance();
-                                                                prefs.setDouble("tts_speed", _speed);
-                                                                Navigator.of(context).pop();
-                                                                await flutterTts.setSpeechRate(_speed);
-                                                                setState(() {});
-                                                              },
-                                                              style: ButtonStyle(
-                                                                shape: WidgetStateProperty.all(
-                                                                  RoundedRectangleBorder(
-                                                                    borderRadius: BorderRadius.circular(
-                                                                      10,
-                                                                    ),
+                                                                child: const Text(
+                                                                  'Preview',
+                                                                  style: TextStyle(
+                                                                    color: Colors.black,
                                                                   ),
                                                                 ),
                                                               ),
-                                                              child: const Text(
-                                                                'Save',
-                                                                style: TextStyle(
-                                                                  color: Colors.black,
+                                                              ElevatedButton(
+                                                                onPressed: () async {
+                                                                  final prefs = await SharedPreferences.getInstance();
+                                                                  prefs.setDouble("tts_speed", _speed);
+                                                                  Navigator.of(context).pop();
+                                                                  await flutterTts.setSpeechRate(_speed);
+                                                                  setState(() {});
+                                                                },
+                                                                style: ButtonStyle(
+                                                                  shape: WidgetStateProperty.all(
+                                                                    RoundedRectangleBorder(
+                                                                      borderRadius: BorderRadius.circular(
+                                                                        10,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                child: const Text(
+                                                                  'Save',
+                                                                  style: TextStyle(
+                                                                    color: Colors.black,
+                                                                  ),
                                                                 ),
                                                               ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  );
-                                                });
-                                              },
-                                            );
-                                          },
-                                          icon: Center(
-                                            child: Text(
-                                              _speed.toString(),
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.w600,
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  });
+                                                },
+                                              );
+                                            },
+                                            icon: Center(
+                                              child: Text(
+                                                _speed.toString(),
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                ),
                                               ),
                                             ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      onPressed: () async {
-                                        if (_disabled) return;
-                                        setState(() {
-                                          _disabled = true;
-                                        });
-                                        if (question.type == QuestionType.sentence || (question.type == QuestionType.fill_in_the_blank && question.options.isEmpty)) {
-                                          if (_answerController.text.isEmpty) {
-                                            setState(() {
-                                              _disabled = false;
-                                            });
-                                            return;
-                                          }
-                                          if (removePunctuation(_answerController.text.trim()).toLowerCase() == removePunctuation(question.correctAnswer.trim()).toLowerCase()) {
-                                            final hasVibrator = await Vibration.hasVibrator();
-                                            printError(hasVibrator.toString());
-                                            if (await Vibration.hasVibrator() ?? false) {
-                                              final patterns = [0, 500];
-                                              final intensities = [1, 255];
-                                              if (await Vibration.hasAmplitudeControl() ?? false) {
-                                                await Vibration.vibrate(pattern: patterns, intensities: intensities);
-                                              } else {
-                                                await Vibration.vibrate(pattern: patterns);
-                                              }
-                                            }
-                                            setState(() {
-                                              correct = true;
-                                            });
-                                            await player.play(AssetSource("audios/correct.mp3"));
-                                            await _onCorrectAnswer(question.id == value.last.id, question.id, _answerController.text);
-                                          } else {
-                                            final List<int> pattern = [0, 200, 100, 200, 100, 200]; // Durations in milliseconds
-                                            final List<int> intensities = [0, 255, 0, 255, 0, 255]; // Maximum intensity (0-255)
-                                            if (await Vibration.hasVibrator() ?? false) {
-                                              if (await Vibration.hasAmplitudeControl() ?? false) {
-                                                await Vibration.vibrate(pattern: pattern, intensities: intensities);
-                                              } else {
-                                                await Vibration.vibrate(pattern: pattern);
-                                              }
-                                            }
-                                            setState(() {
-                                              correct = false;
-                                            });
-                                            await player.play(AssetSource("audios/incorrect.wav"));
-                                            await _onIncorrectAnswer(
-                                              removePunctuation(question.correctAnswer.trim()),
-                                              _answerController.text.trim(),
-                                              question.id,
-                                              question.id == value.last.id,
-                                            );
-                                          }
-                                        } else {
-                                          if (_selectedStep.isEmpty) {
-                                            {
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: () async {
+                                          if (_disabled) return;
+                                          setState(() {
+                                            _disabled = true;
+                                          });
+                                          final hasVibrator = await Vibration.hasVibrator() ?? false;
+                                          final hasAmplitude = await Vibration.hasAmplitudeControl() ?? false;
+                                          final correctAnswerPatterns = [0, 500];
+                                          final correctVibrationIntensities = [1, 255];
+                                          final List<int> incorrectVibrationPatterns = [0, 200, 100, 200, 100, 200];
+                                          final List<int> incorrectVibrationIntensities = [0, 255, 0, 255, 0, 255];
+                                          if (question.type == QuestionType.sentence) {
+                                            if (_answerController.text.isEmpty) {
                                               setState(() {
                                                 _disabled = false;
                                               });
                                               return;
                                             }
-                                          }
-
-                                          if (_selectedStep == question.correctAnswer) {
-                                            setState(() {
-                                              correct = true;
-                                            });
-                                            await player.play(AssetSource("audios/correct.mp3"));
-                                            await _onCorrectAnswer(
-                                              question.id == value.last.id,
-                                              question.id,
-                                              _selectedStep,
-                                            );
+                                            if (removePunctuation(_answerController.text.trim()).toLowerCase() == removePunctuation(question.correctAnswer.trim()).toLowerCase()) {
+                                              if (hasVibrator) {
+                                                Vibration.vibrate();
+                                              }
+                                              setState(() {
+                                                correct = true;
+                                              });
+                                              await player.play(AssetSource("audios/correct.mp3"));
+                                              await _onCorrectAnswer(question.id == value.last.id, question.id, _answerController.text);
+                                            } else {
+                                              if (hasVibrator) {
+                                                if (hasAmplitude) {
+                                                  Vibration.vibrate(
+                                                    pattern: incorrectVibrationPatterns,
+                                                    intensities: incorrectVibrationIntensities,
+                                                  );
+                                                } else {
+                                                  Vibration.vibrate(
+                                                    pattern: incorrectVibrationPatterns,
+                                                  );
+                                                }
+                                              }
+                                              setState(() {
+                                                correct = false;
+                                              });
+                                              await player.play(AssetSource("audios/incorrect.wav"));
+                                              await _onIncorrectAnswer(
+                                                removePunctuation(question.correctAnswer.trim()),
+                                                _answerController.text.trim(),
+                                                question.id,
+                                                question.id == value.last.id,
+                                              );
+                                            }
                                           } else {
-                                            setState(() {
-                                              correct = false;
-                                            });
-                                            await player.play(AssetSource("audios/incorrect.wav"));
-                                            await _onIncorrectAnswer(
-                                              question.correctAnswer,
-                                              _selectedStep,
-                                              question.id,
-                                              question.id == value.last.id,
-                                            );
+                                            if (_selectedStep.isEmpty) {
+                                              {
+                                                setState(() {
+                                                  _disabled = false;
+                                                });
+                                                return;
+                                              }
+                                            }
+
+                                            if (_selectedStep == question.correctAnswer) {
+                                              setState(() {
+                                                correct = true;
+                                              });
+
+                                              Vibration.vibrate();
+
+                                              await player.play(AssetSource("audios/correct.mp3"));
+                                              await _onCorrectAnswer(
+                                                question.id == value.last.id,
+                                                question.id,
+                                                _selectedStep,
+                                              );
+                                            } else {
+                                              setState(() {
+                                                correct = false;
+                                              });
+                                              if (hasVibrator) {
+                                                if (hasAmplitude) {
+                                                  Vibration.vibrate(
+                                                    pattern: incorrectVibrationPatterns,
+                                                    intensities: incorrectVibrationIntensities,
+                                                  );
+                                                } else {
+                                                  Vibration.vibrate(
+                                                    pattern: incorrectVibrationPatterns,
+                                                  );
+                                                }
+                                              }
+                                              await player.play(AssetSource("audios/incorrect.wav"));
+                                              await _onIncorrectAnswer(
+                                                question.correctAnswer,
+                                                _selectedStep,
+                                                question.id,
+                                                question.id == value.last.id,
+                                              );
+                                            }
                                           }
-                                        }
-                                        setState(() {
-                                          _disabled = false;
-                                        });
-                                      },
-                                      style: ButtonStyle(
-                                        alignment: Alignment.center,
-                                        foregroundColor: WidgetStateProperty.all(Colors.black),
-                                        backgroundColor: WidgetStateProperty.all(
-                                          question.type == QuestionType.select_one
-                                              ? _selectedStep.isEmpty
-                                                  ? Colors.grey.shade500
-                                                  : PRIMARY_COLOR
-                                              : _valueEntered == false
-                                                  ? Colors.grey.shade500
-                                                  : PRIMARY_COLOR,
-                                        ),
-                                        padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
-                                          (Set<WidgetState> states) {
-                                            return const EdgeInsets.all(15);
-                                          },
-                                        ),
-                                        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                                          RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(20),
+                                          setState(() {
+                                            _disabled = false;
+                                          });
+                                        },
+                                        style: ButtonStyle(
+                                          alignment: Alignment.center,
+                                          foregroundColor: WidgetStateProperty.all(Colors.black),
+                                          backgroundColor: WidgetStateProperty.all(
+                                            question.type == QuestionType.select_one
+                                                ? _selectedStep.isEmpty
+                                                    ? Colors.grey.shade500
+                                                    : PRIMARY_COLOR
+                                                : _valueEntered == false
+                                                    ? Colors.grey.shade500
+                                                    : PRIMARY_COLOR,
+                                          ),
+                                          padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
+                                            (Set<WidgetState> states) {
+                                              return const EdgeInsets.all(15);
+                                            },
+                                          ),
+                                          shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                                            RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(20),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      child: AnimatedSwitcher(
-                                        duration: const Duration(
-                                          milliseconds: 200,
-                                        ),
-                                        transitionBuilder: (child, animation) {
-                                          return ScaleTransition(scale: animation, child: child);
-                                        },
-                                        child: correct == true
-                                            ? const Icon(
-                                                Icons.check_rounded,
-                                                color: Colors.green,
-                                                size: 21,
-                                              )
-                                            : correct == false
-                                                ? const Icon(
-                                                    Icons.close,
-                                                    color: Colors.red,
-                                                    size: 21,
-                                                  )
-                                                : Text(
-                                                    "Check",
-                                                    style: TextStyle(
-                                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                                      fontWeight: FontWeight.w600,
+                                        child: AnimatedSwitcher(
+                                          duration: const Duration(
+                                            milliseconds: 200,
+                                          ),
+                                          transitionBuilder: (child, animation) {
+                                            return ScaleTransition(scale: animation, child: child);
+                                          },
+                                          child: correct == true
+                                              ? const Icon(
+                                                  Icons.check_rounded,
+                                                  color: Colors.green,
+                                                  size: 21,
+                                                )
+                                              : correct == false
+                                                  ? const Icon(
+                                                      Icons.close,
+                                                      color: Colors.red,
+                                                      size: 21,
+                                                    )
+                                                  : Text(
+                                                      "Check",
+                                                      style: TextStyle(
+                                                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                                        fontWeight: FontWeight.w600,
+                                                      ),
                                                     ),
-                                                  ),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ],
                           )

@@ -4,6 +4,8 @@ import HowItWorks from "./_components/how-it-works";
 import FlagAnimation from "./flag.animation";
 import { buttonVariants } from "@/components/ui/button";
 import { ApplicationStats } from "@/components/component/application-stats";
+import { cn } from "@/lib/utils";
+import { CalSans } from "@/fonts";
 
 function Gradient({
   conic,
@@ -31,7 +33,7 @@ export default function Home() {
           <div className="container flex flex-col items-center gap-4 px-4 md:px-6">
             <div className="flex flex-col items-center space-y-2 text-center ">
               <Gradient className="top-[-500px] opacity-[0.15] w-[1000px] h-[1000px] bg-gradient-to-t from-blue-500 z-0" />
-              <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl z-10">
+              <h1 className={cn("text-3xl font-bold tracking-wide sm:text-5xl z-10",CalSans.className)}>
                 Unlock Your Language Potential
               </h1>
               <p className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400 z-10">

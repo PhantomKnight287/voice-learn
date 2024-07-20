@@ -10,6 +10,7 @@ import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/chat.dart';
 import 'package:app/models/message.dart';
+import 'package:app/models/user.dart';
 import 'package:app/screens/recall/notes/create.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:fl_query/fl_query.dart';
@@ -346,6 +347,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   void _startRecording() async {
+    final userState = context.read<UserBloc>().state;
+
     Map<Permission, PermissionStatus> permissions = await [
       Permission.microphone,
     ].request();
@@ -386,15 +389,17 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         filePath = filepath;
         _recordingDuration = 0;
       });
-
-      _recordingTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-        setState(() {
-          _recordingDuration += 1;
-        });
-        if (_recordingDuration >= 10) {
-          _stopRecording();
-        }
-      });
+      _recordingTimer = Timer.periodic(
+        const Duration(seconds: 1),
+        (timer) {
+          setState(() {
+            _recordingDuration += 1;
+          });
+          if (_recordingDuration >= (userState.tier == Tiers.free ? 10 : 30)) {
+            _stopRecording();
+          }
+        },
+      );
     } else {
       toastification.show(
         type: ToastificationType.error,
@@ -569,28 +574,29 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             children: [
               Expanded(
                 child: ListView.separated(
-                    controller: _scrollController,
-                    itemBuilder: (context, index) {
-                      final message = messages[index];
-                      final bubble = ChatBubble(
-                        text: message.content,
-                        isSentByMe: message.author == MessageAuthor.User,
-                        sent: message.id == lastMessageId ? false : true,
-                        audioUrl: message.audioUrl,
-                        audioDuration: message.audioDuration,
-                        audioId: message.audioId,
-                        chatId: widget.id,
-                        speed: message.author == MessageAuthor.Bot ? _speed : null,
-                      );
+                  controller: _scrollController,
+                  itemBuilder: (context, index) {
+                    final message = messages[index];
+                    final bubble = ChatBubble(
+                      text: message.content,
+                      isSentByMe: message.author == MessageAuthor.User,
+                      sent: message.id == lastMessageId ? false : true,
+                      audioUrl: message.audioUrl,
+                      audioDuration: message.audioDuration,
+                      audioId: message.audioId,
+                      chatId: widget.id,
+                      speed: message.author == MessageAuthor.Bot ? _speed : null,
+                    );
 
-                      return bubble;
-                    },
-                    separatorBuilder: (context, index) {
-                      return const SizedBox(
-                        height: BASE_MARGIN * 0,
-                      );
-                    },
-                    itemCount: messages.length),
+                    return bubble;
+                  },
+                  separatorBuilder: (context, index) {
+                    return const SizedBox(
+                      height: BASE_MARGIN * 0,
+                    );
+                  },
+                  itemCount: messages.length,
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.only(

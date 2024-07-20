@@ -22,31 +22,22 @@ export type Root = {
 
 export async function getAppStats(): Promise<Root | null> {
   try {
-    return await cache(
-      async () => {
-        const response = await fetch(`${API_URL}/`, {
-          headers: {
-            Accept: "application/json",
-          },
-          next: {
-            revalidate: 60,
-          },
-        });
-
-        if (!response.ok) {
-          return null;
-        }
-
-        const data = (await response.json()) as Root;
-
-        return data;
+    const response = await fetch(`${API_URL}/`, {
+      headers: {
+        Accept: "application/json",
       },
-      ["app-stats"],
-      {
-        revalidate: 900,
-        tags: ["app-stats"],
-      }
-    )();
+      next: {
+        revalidate: 60,
+      },
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = (await response.json()) as Root;
+
+    return data;
   } catch (err) {
     console.error(err);
     return null;

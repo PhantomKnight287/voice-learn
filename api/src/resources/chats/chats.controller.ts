@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ChatsService } from './chats.service';
 import {
   ApiHeader,
@@ -75,5 +83,10 @@ export class ChatsController {
     if (lastMessageId)
       return this.chatsService.fetchOlderMessages(auth.id, id, lastMessageId);
     else return this.chatsService.getLatestMessages(auth.id, id);
+  }
+
+  @Delete(':id')
+  deleteChat(@Auth() auth: User, @Param('id') id: string) {
+    return this.chatsService.deleteChat(auth.id, id);
   }
 }

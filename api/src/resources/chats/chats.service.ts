@@ -197,4 +197,18 @@ export class ChatsService {
     });
     return messages;
   }
+
+  async deleteChat(userId: string, chatId: string) {
+    const chat = await prisma.chat.findFirst({
+      where: {
+        id: chatId,
+        userId,
+      },
+    });
+    if (!chat) throw new HttpException('No chat found', HttpStatus.NOT_FOUND);
+    await prisma.chat.delete({ where: { id: chatId } });
+    return {
+      id: chatId,
+    };
+  }
 }

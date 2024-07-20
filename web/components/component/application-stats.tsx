@@ -1,15 +1,17 @@
 import { getAppStats } from "@/cache/stats";
+import { CalSans } from "@/fonts";
+import { cn } from "@/lib/utils";
 import { ComponentProps } from "react";
 
 export async function ApplicationStats() {
   const stats = await getAppStats();
-  const numberFormatter = new Intl.NumberFormat("en-US", {});
+  
   return (
-    <section className="container flex flex-col gap-6 py-8 md:max-w-[64rem] md:py-12 min-h-screen ">
+    <section className="container flex flex-col gap-6 py-8 md:max-w-[64rem] md:py-12">
       <div className="px-5 py-2 mx-auto container">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl lg:text-center">
-            <h2 className="text-3xl font-semibold leading-7 ">Stats</h2>
+            <h2 className={cn("text-3xl font-semibold leading-7",CalSans.className)}>Stats</h2>
           </div>
         </div>
       </div>

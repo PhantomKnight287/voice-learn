@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/no_swipe_page_route.dart';
@@ -14,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 
 class SubscriptionScreen extends StatefulWidget {
@@ -829,7 +826,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                           cells: [
                             DataCell(
                               Text(
-                                'Advanced AI for Chats',
+                                'Advanced AI',
                               ),
                             ),
                             DataCell(
@@ -868,6 +865,28 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                                   HeroIcons.check,
                                 ),
                               ),
+                            ),
+                          ],
+                        ),
+                        const DataRow(
+                          cells: [
+                            DataCell(
+                              Text(
+                                'Voice Messages Duration',
+                              ),
+                            ),
+                            DataCell(
+                              Center(
+                                child: Text(
+                                  "00:10",
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              Center(
+                                  child: Text(
+                                "00:30",
+                              )),
                             ),
                           ],
                         ),
