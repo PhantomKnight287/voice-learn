@@ -38,7 +38,8 @@ export const envSchema = z.object({
   ONESIGNAL_REST_API_KEY: z.string(),
   EMAILTHING_TOKEN: z.string(),
   RESET_PASSWORD_SECRET: z.string(),
-  HOST:z.string()
+  HOST:z.string(),
+  ADMIN_USER_ID:z.string(),
 });
 const safeParseResult = envSchema.safeParse(process.env);
 if (safeParseResult.success === false) {

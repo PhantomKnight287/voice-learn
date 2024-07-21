@@ -38,12 +38,8 @@ export class AuthService {
 
     delete user.password;
     const token = sign({ id: user.id }, this.service.get('JWT_SECRET'));
-    const { currentDateInGMT, nextDateInGMT } = generateTimestamps(
-      (timeZoneOffset
-        ? body.parsed
-          ? Number(timeZoneOffset)
-          : parseOffset(timeZoneOffset)
-        : user.timeZoneOffSet) || 0,
+    const { currentDate, currentDateStart } = generateTimestamps(
+      (timezone ?? user.timezone)!,
     );
     const path = await prisma.learningPath.findFirst({
       where: {
@@ -70,8 +66,8 @@ export class AuthService {
     const streak = await prisma.streak.findFirst({
       where: {
         createdAt: {
-          gte: currentDateInGMT,
-          lt: nextDateInGMT,
+          gte: currentDateStart,
+          lte: currentDate,
         },
         userId: user.id,
       },
@@ -169,19 +165,15 @@ export class AuthService {
           },
         });
       }
-      const { currentDateInGMT, nextDateInGMT } = generateTimestamps(
-        (timeZoneOffSet
-          ? parsedTimezone == 'true'
-            ? Number(timeZoneOffSet)
-            : parseOffset(timeZoneOffSet)
-          : user.timeZoneOffSet) || 0,
+      const { currentDate,currentDateStart } = generateTimestamps(
+        (timezone || user.timezone)!,
       );
 
       const streak = await prisma.streak.findFirst({
         where: {
           createdAt: {
-            gte: currentDateInGMT,
-            lt: nextDateInGMT,
+            gte: currentDateStart,
+            lte: currentDate,
           },
           userId: user.id,
         },

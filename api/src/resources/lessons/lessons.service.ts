@@ -104,8 +104,8 @@ export class LessonsService {
     if (!lesson)
       throw new HttpException('No lesson found', HttpStatus.NOT_FOUND);
 
-    const { currentDateInGMT, nextDateInGMT } = generateTimestamps(
-      user.timeZoneOffSet,
+    const { currentDate, currentDateStart } = generateTimestamps(
+      user.timezone,
     );
 
     const questionIds = lesson.questions.map((q) => q.id);
@@ -124,8 +124,8 @@ export class LessonsService {
     const streak = await prisma.streak.findFirst({
       where: {
         createdAt: {
-          gte: currentDateInGMT,
-          lt: nextDateInGMT,
+          gte: currentDateStart,
+          lte: currentDate,
         },
         userId: userId,
       },

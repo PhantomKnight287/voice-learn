@@ -39,6 +39,9 @@ import { TutorialsModule } from './resources/tutorials/tutorials.module';
 import { NotificationsModule } from './resources/notifications/notifications.module';
 import { ReportsModule } from './resources/reports/reports.module';
 import { RecallsModule } from './resources/recalls/recalls.module';
+import { AdminModule } from './resources/admin/admin.module';
+import { AdminAuthMiddleware } from './middlewares/admin/admin.middleware';
+import { AdminAuthService } from './resources/admin/auth/auth.service';
 
 @Module({
   imports: [
@@ -81,6 +84,7 @@ import { RecallsModule } from './resources/recalls/recalls.module';
     NotificationsModule,
     ReportsModule,
     RecallsModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [
@@ -89,6 +93,7 @@ import { RecallsModule } from './resources/recalls/recalls.module';
     GeminiService,
     OnboardingQueueConsumer,
     CronService,
+    AdminAuthService,
     {
       provide: APP_FILTER,
       useClass: AllExceptionsFilter,
@@ -124,9 +129,11 @@ export class AppModule implements NestModule {
         '/v(.*)/webhooks/(.*)',
         { method: RequestMethod.GET, path: '/v(.*)/uploads/(.*)' },
         '/v(.*)/auth/forgot-password/(.*)',
+        '/v(.*)/admin/(.*)',
       )
       .forRoutes('*');
 
     consumer.apply(LoggingMiddleware).forRoutes('*');
+    consumer.apply(AdminAuthMiddleware).forRoutes('/v(.*)/admin/(.*)');
   }
 }

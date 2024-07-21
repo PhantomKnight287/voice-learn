@@ -279,16 +279,16 @@ export class QuestionsService {
       }
 
       const user = await tx.user.findFirst({ where: { id: userId } });
-      const { currentDateInGMT, nextDateInGMT } = generateTimestamps(
-        user.timeZoneOffSet,
+      const { currentDate,currentDateStart } = generateTimestamps(
+        user.timezone,
       );
 
       const existingStreak = await tx.streak.findFirst({
         where: {
           userId,
           createdAt: {
-            gte: currentDateInGMT,
-            lt: nextDateInGMT,
+            gte: currentDateStart,
+            lte: currentDate,
           },
         },
       });
@@ -331,15 +331,15 @@ export class QuestionsService {
         },
       });
     });
-    const { currentDateInGMT, nextDateInGMT } = generateTimestamps(
-      user.timeZoneOffSet,
+    const { currentDate,currentDateStart } = generateTimestamps(
+      user.timezone,
     );
 
     const streak = await prisma.streak.findFirst({
       where: {
         createdAt: {
-          gte: currentDateInGMT,
-          lt: nextDateInGMT,
+          gte: currentDateStart,
+          lte: currentDate,
         },
         userId: user.id,
       },
