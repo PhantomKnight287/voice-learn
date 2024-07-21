@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:app/bloc/application/application_bloc.dart';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
@@ -1104,8 +1105,9 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                           setState(() {
                                             _disabled = true;
                                           });
-                                          final hasVibrator = await Vibration.hasVibrator() ?? false;
-                                          final hasAmplitude = await Vibration.hasAmplitudeControl() ?? false;
+                                          final applicationState = context.read<ApplicationBloc>().state;
+                                          final hasVibrator = applicationState.hasVibrator;
+                                          final hasAmplitude = applicationState.hasAmplitudeControl;
                                           final correctAnswerPatterns = [0, 500];
                                           final correctVibrationIntensities = [1, 255];
                                           final List<int> incorrectVibrationPatterns = [0, 200, 100, 200, 100, 200];

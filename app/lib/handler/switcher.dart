@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:app/bloc/application/application_bloc.dart';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
@@ -16,6 +17,7 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:rive/rive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:vibration/vibration.dart';
 
 class ViewHandler extends StatefulWidget {
   const ViewHandler({super.key});
@@ -28,6 +30,21 @@ class _ViewHandlerState extends State<ViewHandler> {
   bool _showOnBoarding = true;
   String pathId = '';
   bool _showLoading = true;
+
+  Future<void> _setApplicationState() async {
+    final hasVibrator = await Vibration.hasVibrator() ?? false;
+    final hasAmplituteControl = await Vibration.hasAmplitudeControl() ?? false;
+
+    if (context.mounted) {
+      context.read<ApplicationBloc>().add(
+            SetApplicationVibrationOption(
+              hasAmplituteControl: hasAmplituteControl,
+              hasVibrator: hasVibrator,
+            ),
+          );
+    }
+  }
+
   void _checkOnBoardingStatus() async {
     final time = DateTime.now();
     logger.t("User is residing in ${time.timeZoneName} timezone with offset ${time.timeZoneOffset.toString()}");
@@ -108,6 +125,7 @@ class _ViewHandlerState extends State<ViewHandler> {
   void initState() {
     _checkOnBoardingStatus();
     super.initState();
+    _setApplicationState();
   }
 
   @override

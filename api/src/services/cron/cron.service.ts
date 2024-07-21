@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import moment from 'moment';
 import { prisma } from 'src/db';
 import { S3Service } from '../s3/s3.service';
 import { ConfigService } from '@nestjs/config';
 import { generateTimestamps } from 'src/lib/time';
 import { onesignal } from 'src/constants';
 import { createId } from '@paralleldrive/cuid2';
+import moment from 'moment-timezone';
+import { IANATimezones } from 'src/constants/iana';
 
 @Injectable()
 export class CronService {
@@ -35,147 +36,6 @@ export class CronService {
         },
       },
     });
-  }
-
-  @Cron(CronExpression.EVERY_DAY_AT_10AM, { timeZone: 'UTC' })
-  async notifyUsers() {
-    const { currentDateInGMT, nextDateInGMT, previousDateInGMT } =
-      generateTimestamps();
-
-    const users = await prisma.user.findMany({
-      where: {
-        notificationToken: { not: null },
-      },
-    });
-    const ids = [];
-    try {
-      for (const user of users) {
-        const streakExists = await prisma.streak.findFirst({
-          where: {
-            userId: user.id,
-            createdAt: {
-              gte: currentDateInGMT,
-              lt: nextDateInGMT,
-            },
-          },
-        });
-        if (!streakExists) {
-          const streakExistsForPrevDay = await prisma.streak.findFirst({
-            where: {
-              userId: user.id,
-              createdAt: {
-                lt: currentDateInGMT,
-                gte: previousDateInGMT,
-              },
-            },
-          });
-          if (!streakExistsForPrevDay) {
-            ids.push(user.notificationToken);
-          }
-        }
-      }
-
-      if (ids.length == 0) return;
-      const res = await onesignal.createNotification({
-        app_id: process.env.ONESIGNAL_APP_ID,
-        name: 'Streak Notification',
-        contents: {
-          en: 'Your streak will reset in 2 hours. Complete a lesson now to extend it.',
-        },
-        headings: {
-          en: 'Your streak is about to reset 😱😱',
-        },
-        include_subscription_ids: ids,
-      });
-    } catch (error) {
-      console.error('Error resetting streaks:', error);
-    }
-  }
-
-  @Cron(CronExpression.EVERY_DAY_AT_NOON, {
-    timeZone: 'UTC',
-  })
-  async bonkLazyUsers() {
-    const { currentDateInGMT, nextDateInGMT, previousDateInGMT } =
-      generateTimestamps();
-
-    const users = await prisma.user.findMany();
-    try {
-      for (const user of users) {
-        // Check if a streak record exists between the timeframe
-        const streakExists = await prisma.streak.findFirst({
-          where: {
-            userId: user.id,
-            createdAt: {
-              gte: currentDateInGMT,
-              lt: nextDateInGMT,
-            },
-          },
-        });
-
-        if (!streakExists) {
-          if (user.streakShields > 0) {
-            await prisma.user.update({
-              where: { id: user.id },
-              data: {
-                streakShields: { decrement: 1 },
-                streaks: {
-                  create: {
-                    id: `streak_${createId()}`,
-                    type: 'shielded',
-                  },
-                },
-              },
-            });
-            if (user.notificationToken) {
-              const res = await onesignal.createNotification({
-                app_id: process.env.ONESIGNAL_APP_ID,
-                name: 'Streak Shield Used Notification',
-                contents: {
-                  en: 'Your streak is safe thanks to the Streak Shield! Keep up the great work by completing a lesson today.',
-                },
-                headings: {
-                  en: 'Your streak was saved by Streak Shield! 😊',
-                },
-                include_subscription_ids: [user.notificationToken],
-              });
-            }
-          } else {
-            await prisma.user.update({
-              where: { id: user.id },
-              data: { activeStreaks: 0 },
-            });
-            console.log(`Active streaks reset for user: ${user.id}`);
-            const streakExistsForPrevDay = await prisma.streak.findFirst({
-              where: {
-                userId: user.id,
-                createdAt: {
-                  lt: currentDateInGMT,
-                  gte: previousDateInGMT,
-                },
-              },
-            });
-            if (streakExistsForPrevDay)
-              if (user.notificationToken) {
-                const res = await onesignal.createNotification({
-                  app_id: process.env.ONESIGNAL_APP_ID,
-                  name: 'Streak Reset Notification',
-                  headings: {
-                    en: 'Your streak was reset 💀',
-                  },
-                  contents: {
-                    en: 'Try not to skip more lessons.',
-                  },
-                  include_subscription_ids: [user.notificationToken],
-                });
-                console.log(res);
-              }
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error resetting streaks:', error);
-    }
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_NOON, { timeZone: 'UTC' })
@@ -224,4 +84,86 @@ export class CronService {
   //   });
   //   console.log(res);
   // }
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  async streakCronJob() {
+    const users = await prisma.user.findMany();
+    for (const user of users) {
+      if (!user.timezone || !IANATimezones[user.timezone]) return;
+      const userLocalTime = moment().tz(IANATimezones[user.timezone]);
+      if (userLocalTime.hour() === 0 && [0].includes(userLocalTime.minute())) {
+        const lastStreakRecord = (
+          await prisma.streak.findMany({
+            where: { userId: user.id },
+            orderBy: [{ createdAt: 'desc' }],
+            take: 1,
+          })
+        )[0];
+        if (!lastStreakRecord) return;
+        console.log(lastStreakRecord);
+        const createdAt = moment(lastStreakRecord.createdAt).tz(
+          IANATimezones[user.timezone],
+        );
+        const yesterdayStart = userLocalTime
+          .clone()
+          .subtract(1, 'day')
+          .startOf('day');
+        const yesterdayEnd = userLocalTime
+          .clone()
+          .subtract(1, 'day')
+          .endOf('day');
+        if (createdAt.isBetween(yesterdayStart, yesterdayEnd, null, '[]')) {
+          // user has a streak record, nice
+        } else {
+          if (user.streakShields > 0) {
+            await prisma.$transaction([
+              prisma.user.update({
+                where: { id: user.id },
+                data: { streakShields: { decrement: 1 } },
+              }),
+              prisma.streak.create({
+                data: {
+                  id: `streak_${createId()}`,
+                  type: 'shielded',
+                  userId: user.id,
+                  createdAt: yesterdayEnd.toDate(),
+                },
+              }),
+            ]);
+            if (user.notificationToken) {
+              const res = await onesignal.createNotification({
+                app_id: process.env.ONESIGNAL_APP_ID,
+                name: 'Streak Shield Used Notification',
+                contents: {
+                  en: 'Your streak is safe thanks to the Streak Shield! Keep up the great work by completing a lesson today.',
+                },
+                headings: {
+                  en: 'Your streak was saved by Streak Shield! 😊',
+                },
+                include_subscription_ids: [user.notificationToken],
+              });
+            }
+          } else {
+            if (user.notificationToken) {
+              await prisma.user.update({
+                where: { id: user.id },
+                data: { activeStreaks: 0 },
+              });
+              const res = await onesignal.createNotification({
+                app_id: process.env.ONESIGNAL_APP_ID,
+                name: 'Streak Reset Notification',
+                headings: {
+                  en: 'Your streak was reset 💀',
+                },
+                contents: {
+                  en: 'Try not to skip more lessons.',
+                },
+                include_subscription_ids: [user.notificationToken],
+              });
+            }
+          }
+        }
+      }
+    }
+  }
 }

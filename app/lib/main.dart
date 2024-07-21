@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:app/bloc/application/application_bloc.dart';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/handler/switcher.dart';
@@ -127,6 +128,7 @@ class _VoiceLearnAppState extends State<VoiceLearnApp> {
       child: MultiBlocProvider(
         providers: [
           BlocProvider(create: (context) => UserBloc()),
+          BlocProvider(create: (context) => ApplicationBloc()),
         ],
         child: AdaptiveTheme(
             light: ThemeData(

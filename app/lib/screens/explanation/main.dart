@@ -113,6 +113,7 @@ class _ExplanationScreenState extends State<ExplanationScreen> {
     return Scaffold(
       appBar: AppBar(
         bottom: BOTTOM(context),
+        centerTitle: false,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -123,7 +124,7 @@ class _ExplanationScreenState extends State<ExplanationScreen> {
               Text(
                 message,
                 style: Theme.of(context).textTheme.titleSmall,
-                textAlign: TextAlign.center,
+                textAlign: TextAlign.start,
               ),
           ],
         ),
