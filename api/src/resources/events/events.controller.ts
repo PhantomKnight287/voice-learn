@@ -12,7 +12,7 @@ import {
 import { z } from 'zod';
 import { createId } from '@paralleldrive/cuid2';
 import { queue } from 'src/services/queue/queue.service';
-import { QueueItemObject } from 'src/types/queue';
+import { failureNotifications, QueueItemObject } from 'src/types/queue';
 import {
   elevenLabs,
   messageSubject,
@@ -28,6 +28,7 @@ import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { randomUUID } from 'crypto';
 import { parseBuffer } from 'music-metadata';
 import { openai as aiSdkOpenAI } from '@ai-sdk/openai';
+import { NotificationsService } from '../notifications/notifications.service';
 @Controller('events')
 export class EventsController {
   private readonly logger = new Logger(EventsController.name);
@@ -36,6 +37,7 @@ export class EventsController {
     private readonly geminiService: GeminiService,
     private readonly s3Service: S3Service,
     private readonly configService: ConfigService,
+    private readonly notificationService: NotificationsService,
   ) {}
 
   @OnEvent('queue.handle')
@@ -724,7 +726,13 @@ Constraints:
 
       console.log('generated ' + body.type);
     } catch (error) {
-      if (body.retries >= 5 && body.type !== 'learning_path') return;
+      if (body.retries >= 5 && body.type !== 'learning_path') {
+        await this.notificationService.createNotification(
+          body.userId,
+          failureNotifications[body.type],
+        );
+        return;
+      }
       await queue.addToQueueWithPriority({
         ...body,
         retries: (body.retries || 0) + 1,

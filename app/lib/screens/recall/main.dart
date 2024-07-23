@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/components/input.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
@@ -131,10 +132,10 @@ class _RecallScreenState extends State<RecallScreen> {
                 ),
                 actions: <Widget>[
                   TextButton(
-                    child: const Text(
+                    child: Text(
                       'Cancel',
                       style: TextStyle(
-                        color: Colors.black,
+                        color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                       ),
                     ),
                     onPressed: () {
@@ -148,10 +149,10 @@ class _RecallScreenState extends State<RecallScreen> {
                           ? const CupertinoActivityIndicator(
                               animating: true,
                             )
-                          : const Text(
+                          : Text(
                               'Create',
                               style: TextStyle(
-                                color: Colors.black,
+                                color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                               ),
                             ),
                       onPressed: () async {

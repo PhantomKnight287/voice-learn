@@ -24,6 +24,7 @@ export class LessonsService {
       await queue.addToQueue({
         id: lesson.id,
         type: 'question',
+        userId,
       });
       await prisma.lesson.update({
         where: { id: lessonId },
@@ -58,6 +59,7 @@ export class LessonsService {
       const inQueue = await queue.getPositionInQueue({
         id: lessonId,
         type: 'question',
+        userId,
       });
       return {
         position: inQueue == -1 ? null : inQueue,
@@ -104,9 +106,7 @@ export class LessonsService {
     if (!lesson)
       throw new HttpException('No lesson found', HttpStatus.NOT_FOUND);
 
-    const { currentDate, currentDateStart } = generateTimestamps(
-      user.timezone,
-    );
+    const { currentDate, currentDateStart } = generateTimestamps(user.timezone);
 
     const questionIds = lesson.questions.map((q) => q.id);
     const answers = await prisma.answer.groupBy({

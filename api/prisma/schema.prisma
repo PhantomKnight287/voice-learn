@@ -9,22 +9,21 @@ datasource db {
 }
 
 model User {
-  id                String   @id @unique
-  name              String
-  password          String
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  email             String   @unique
-  emeralds          Int      @default(100)
-  lives             Int      @default(5)
-  streakShields     Int      @default(2)
-  xp                Int      @default(0)
+  id       String @id @unique
+  name     String
+  password String
+
+  email             String  @unique
+  emeralds          Int     @default(100)
+  lives             Int     @default(5)
+  streakShields     Int     @default(2)
+  xp                Int     @default(0)
   avatar            String?
   avatarHash        String?
   notificationToken String?
   /// the current active streaks, will increase or reset based on completing a lesson
-  activeStreaks     Int      @default(0)
-  longestStreak     Int      @default(0)
+  activeStreaks     Int     @default(0)
+  longestStreak     Int     @default(0)
 
   tier           Tiers   @default(free)
   timezone       String?
@@ -43,6 +42,31 @@ model User {
   xpHistory          XP[]
   reports            Report[]
   stacks             Stack[]
+  notifications      Notification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id          String           @id @unique @default(cuid())
+  title       String
+  description String
+  read        Boolean          @default(false)
+  type        NotificationType
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum NotificationType {
+  ALERT
+  WARNING
+  INFO
+  SUCCESS
 }
 
 model Note {

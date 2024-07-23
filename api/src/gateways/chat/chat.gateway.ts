@@ -106,18 +106,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     let addToQueue = true;
     let response = payload.message;
+    const rawToken = client.handshake.auth.token;
+    const token = rawToken.replace('Bearer ', '');
+    const user = await prisma.user.findFirst({
+      where: {
+        id: (verify(token, process.env.JWT_SECRET) as any).id,
+      },
+    });
     if (payload.attachmentId) {
       const attachment = await prisma.upload.findFirst({
         where: { id: payload.attachmentId },
       });
       if (!attachment) return client.emit('error', 'Invalid attachment');
-      const rawToken = client.handshake.auth.token;
-      const token = rawToken.replace('Bearer ', '');
-      const user = await prisma.user.findFirst({
-        where: {
-          id: (verify(token, process.env.JWT_SECRET) as any).id,
-        },
-      });
+
       if (user.emeralds <= 0) {
         client.emit(
           'error',
@@ -128,7 +129,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           Bucket: process.env.R2_BUCKET_NAME,
           Key: attachment.key,
         });
-
       }
       if (user.tier === 'free') {
         const chat = await prisma.chat.findFirst({
@@ -190,6 +190,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         id: message.chatId,
         type: 'chat',
         messageId: message.id,
+        userId: user.id,
       });
 
       client.nsp
@@ -202,10 +203,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleQueueStatus(client: Socket, payload: { messageId: string }) {
     if (!payload.messageId)
       return client.emit('error', 'Please provide message id.');
+    const rawToken = client.handshake.auth.token;
+    const token = rawToken.replace('Bearer ', '');
+    const user = await prisma.user.findFirst({
+      where: {
+        id: (verify(token, process.env.JWT_SECRET) as any).id,
+      },
+    });
     const position = await queue.getPositionInQueue({
       id: client.handshake.query.chatId as string,
       type: 'chat',
       messageId: payload.messageId,
+      userId: user.id,
     });
 
     client.nsp

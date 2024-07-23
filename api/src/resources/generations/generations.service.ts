@@ -52,6 +52,7 @@ export class GenerationsService {
     await queue.addToQueue({
       id: newRequest.id,
       type: body.type,
+      userId,
     });
     return {
       id: newRequest.id,

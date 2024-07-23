@@ -4,10 +4,13 @@ import 'dart:math' as math;
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
+import 'package:app/main.dart';
 import 'package:app/models/user.dart';
 import 'package:app/screens/developer/logs.dart';
+import 'package:app/screens/notifications/main.dart';
 import 'package:app/screens/settings/main.dart';
 import 'package:app/utils/error.dart';
+import 'package:async_builder/async_builder.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -47,6 +50,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
       throw ApiResponseHelper.getErrorMessage(body);
     }
     return body;
+  }
+
+  Future<int?> _getUnreadNotificationsCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString("token");
+    final url = Uri.parse("$API_URL/notifications/unread-count");
+    logger.t("Fetching unread notifications count: ${url.toString()}");
+    final req = await http.get(
+      url,
+      headers: {
+        "Authorization": "Bearer $token",
+      },
+    );
+    final body = jsonDecode(req.body);
+    if (req.statusCode != 200) {
+      final message = ApiResponseHelper.getErrorMessage(body);
+      logger.e("Failed to fetch unread notifications count: $message");
+      return null;
+    }
+    return body['count'];
   }
 
   @override
@@ -109,6 +132,73 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   icon: const Icon(
                     Icons.settings_rounded,
                   ),
+                ),
+                AsyncBuilder(
+                  future: _getUnreadNotificationsCount(),
+                  builder: (context, value) {
+                    return Stack(
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              NoSwipePageRoute(
+                                builder: (context) {
+                                  return NotificationsScreen();
+                                },
+                              ),
+                            ).then(
+                              (value) {
+                                setState(() {});
+                              },
+                            );
+                          },
+                          icon: const Icon(Icons.notifications_rounded),
+                        ),
+                        if (value != null && value != 0)
+                          Positioned(
+                            right: 10,
+                            top: 10,
+                            child: Container(
+                              padding: const EdgeInsets.all(1),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 12,
+                                minHeight: 12,
+                              ),
+                              child: Text(
+                                (value) > 99 ? "99+" : value.toString(),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 8,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                  waiting: (context) {
+                    return IconButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          NoSwipePageRoute(
+                            builder: (context) {
+                              return NotificationsScreen();
+                            },
+                          ),
+                        ).then(
+                          (value) {
+                            setState(() {});
+                          },
+                        );
+                      },
+                      icon: const Icon(Icons.notifications_rounded),
+                    );
+                  },
                 ),
               ],
         scrolledUnderElevation: 0.0,

@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { SetupNotificationsDTO } from './dto/setup-notification.dto';
 import { prisma } from 'src/db';
@@ -32,5 +41,23 @@ export class NotificationsController {
     return {
       id: user.id,
     };
+  }
+
+  @Get()
+  getNotifications(
+    @Auth() user: User,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+  ) {
+    return this.notificationsService.getNotifications(user.id, page, limit);
+  }
+  @Get('unread-count')
+  async getUnreadNotificationsCount(@Auth() user: User) {
+    return this.notificationsService.getUnreadNotificationsCount(user.id);
+  }
+
+  @Patch('read')
+  async markAllAsRead(@Auth() auth: User) {
+    return this.notificationsService.markAllAsRead(auth.id);
   }
 }

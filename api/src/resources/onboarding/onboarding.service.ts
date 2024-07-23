@@ -33,7 +33,11 @@ export class OnboardingService {
         },
       });
     }
-    await queue.addToQueue({ id: learningPath.id, type: 'learning_path' });
+    await queue.addToQueue({
+      id: learningPath.id,
+      type: 'learning_path',
+      userId,
+    });
 
     return learningPath;
   }
@@ -53,6 +57,7 @@ export class OnboardingService {
       const inQueue = await queue.getPositionInQueue({
         id: onboardingRecord.id,
         type: 'learning_path',
+        userId,
       });
       return {
         position: inQueue == -1 ? null : inQueue,

@@ -20,17 +20,6 @@ export class AppService {
     this.generateAvatarHash();
   }
   async getHello() {
-    for (let i = 0; i < 20; i++) {
-      await queue.addToQueue({
-        id: String(i),
-        type: 'learning_path',
-      });
-      if (i == 10)
-        await queue.addToQueueWithPriority({
-          id: 'priority',
-          type: 'learning_path',
-        });
-    }
     return 'Hello World!';
   }
 
