@@ -192,7 +192,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         Text(
                           "I already have an account".toUpperCase(),
                           style: TextStyle(
-                            color: Colors.black,
+                            color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                             fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                             fontWeight: FontWeight.w600,
                           ),
