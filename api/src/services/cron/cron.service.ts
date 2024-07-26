@@ -85,22 +85,22 @@ export class CronService {
   //   console.log(res);
   // }
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_SECOND)
   async streakCronJob() {
     const users = await prisma.user.findMany();
     for (const user of users) {
       if (!user.timezone || !IANATimezones[user.timezone]) return;
       const userLocalTime = moment().tz(IANATimezones[user.timezone]);
-      if (userLocalTime.hour() === 0 && [0].includes(userLocalTime.minute())) {
-        const lastStreakRecord = (
-          await prisma.streak.findMany({
-            where: { userId: user.id },
-            orderBy: [{ createdAt: 'desc' }],
-            take: 1,
-          })
-        )[0];
+      if (
+        userLocalTime.hour() === 0 &&
+        [0, 1].includes(userLocalTime.minute())
+      ) {
+        const lastStreakRecord = await prisma.streak.findFirst({
+          where: { userId: user.id },
+          orderBy: [{ createdAt: 'desc' }],
+        });
         if (!lastStreakRecord) return;
-        console.log(lastStreakRecord);
+
         const createdAt = moment(lastStreakRecord.createdAt).tz(
           IANATimezones[user.timezone],
         );
@@ -113,7 +113,19 @@ export class CronService {
           .subtract(1, 'day')
           .endOf('day');
         if (createdAt.isBetween(yesterdayStart, yesterdayEnd, null, '[]')) {
-          // user has a streak record, nice
+          if (user.notificationToken) {
+            const res = await onesignal.createNotification({
+              app_id: process.env.ONESIGNAL_APP_ID,
+              name: 'Streak Safe Notification',
+              contents: {
+                en: 'Your streak is safe! Keep up the great work.',
+              },
+              headings: {
+                en: 'Your streak is safe 😊',
+              },
+              include_subscription_ids: [user.notificationToken],
+            });
+          }
         } else {
           if (user.streakShields > 0) {
             await prisma.$transaction([
