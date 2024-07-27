@@ -89,7 +89,7 @@ export class CronService {
   async streakCronJob() {
     const users = await prisma.user.findMany();
     for (const user of users) {
-      if (!user.timezone || !IANATimezones[user.timezone]) return;
+      if (!user.timezone || !IANATimezones[user.timezone]) continue;
       const userLocalTime = moment().tz(IANATimezones[user.timezone]);
       if (
         userLocalTime.hour() === 0 &&
@@ -99,7 +99,7 @@ export class CronService {
           where: { userId: user.id },
           orderBy: [{ createdAt: 'desc' }],
         });
-        if (!lastStreakRecord) return;
+        if (!lastStreakRecord) continue;
 
         const createdAt = moment(lastStreakRecord.createdAt).tz(
           IANATimezones[user.timezone],
