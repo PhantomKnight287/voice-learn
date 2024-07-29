@@ -85,7 +85,7 @@ export class CronService {
   //   console.log(res);
   // }
 
-  @Cron(CronExpression.EVERY_SECOND)
+  @Cron(CronExpression.EVERY_MINUTE)
   async streakCronJob() {
     const users = await prisma.user.findMany();
     for (const user of users) {
