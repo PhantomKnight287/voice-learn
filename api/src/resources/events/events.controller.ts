@@ -186,7 +186,8 @@ Here is how your response should look like (note that it's an example response a
 - Do not put the answer of the question in the "questions" array.
 - Please do not use any type of placeholders like [Enter your name here].
 - Note: Do not respond with anything except the array of objects. The response should be a valid JSON array, otherwise the code will break.
-- For 'fill_in_the_blank', the blank word should be "<empty>"
+- For 'fill_in_the_blank', the blank word should be "<empty>" and not "___" or something similar.
+- Max no of options allowed are 4.
 `,
             },
 

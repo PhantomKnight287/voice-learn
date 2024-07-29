@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:app/constants/main.dart';
 import 'package:app/models/language.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/material.dart';
 import 'package:heroicons/heroicons.dart';
@@ -43,7 +44,7 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
       appBar: AppBar(
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: Text(
+        title: const Text(
           "Languages",
         ),
         actions: selected != null
@@ -103,10 +104,13 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
                       selected = language;
                     });
                   },
-                  leading: Image.network(
-                    language.flagUrl,
+                  leading: CachedNetworkImage(
+                    imageUrl: language.flagUrl,
                     width: 35,
                     height: 35,
+                    progressIndicatorBuilder: (context, url, progress) {
+                      return const CircularProgressIndicator.adaptive();
+                    },
                   ),
                 );
               },

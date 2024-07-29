@@ -14,6 +14,7 @@ import 'package:fl_query/fl_query.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -183,8 +184,8 @@ class _ShopScreenState extends State<ShopScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset(
-                  "assets/images/emerald.png",
+                SvgPicture.asset(
+                  "assets/images/emerald.svg",
                   width: 25,
                   height: 25,
                 ),
@@ -400,14 +401,14 @@ class _ShopScreenState extends State<ShopScreen> {
                                                           Colors.grey,
                                                           BlendMode.saturation,
                                                         ),
-                                                        child: Image.asset(
-                                                          "assets/images/emerald.png",
+                                                        child: SvgPicture.asset(
+                                                          "assets/images/emerald.svg",
                                                           width: 25,
                                                           height: 25,
                                                         ),
                                                       )
-                                                    : Image.asset(
-                                                        "assets/images/emerald.png",
+                                                    : SvgPicture.asset(
+                                                        "assets/images/emerald.svg",
                                                         width: 25,
                                                         height: 25,
                                                       ),
@@ -495,14 +496,14 @@ class _ShopScreenState extends State<ShopScreen> {
                                                 data > 5
                                                     ? ColorFiltered(
                                                         colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
-                                                        child: Image.asset(
-                                                          "assets/images/emerald.png",
+                                                        child: SvgPicture.asset(
+                                                          "assets/images/emerald.svg",
                                                           width: 25,
                                                           height: 25,
                                                         ),
                                                       )
-                                                    : Image.asset(
-                                                        "assets/images/emerald.png",
+                                                    : SvgPicture.asset(
+                                                        "assets/images/emerald.svg",
                                                         width: 25,
                                                         height: 25,
                                                       ),

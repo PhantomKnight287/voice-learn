@@ -68,20 +68,21 @@ String secInTime(int sec) {
   return '$minutes:${restSecs.toString().padLeft(2, '0')}';
 }
 
-String getResetTime() {
-  // Get current UTC time
-  DateTime currentUtcTime = DateTime.now().toUtc();
+String getResetTime(String userTimeZone) {
+  // Get current time in user's time zone
+  DateTime currentUserTime = DateTime.now().toUtc().add(getTimeZoneOffset(userTimeZone));
 
-  // Get today's date at 12 PM UTC
-  DateTime utcNoon = DateTime(currentUtcTime.year, currentUtcTime.month, currentUtcTime.day, 12);
-
-  // If the current UTC time is already past 12 PM, get tomorrow's 12 PM
-  if (currentUtcTime.isAfter(utcNoon)) {
-    utcNoon = utcNoon.add(Duration(days: 1));
-  }
+  // Get next midnight in user's time zone
+  DateTime nextMidnight = DateTime(
+    currentUserTime.year,
+    currentUserTime.month,
+    currentUserTime.day,
+    0,
+    0,
+  ).add(Duration(days: 1));
 
   // Calculate the difference
-  Duration difference = utcNoon.difference(currentUtcTime);
+  Duration difference = nextMidnight.difference(currentUserTime);
 
   // Format the difference
   int hours = difference.inHours;
@@ -89,4 +90,12 @@ String getResetTime() {
 
   // Return the formatted result
   return "$hours:${minutes.toString().padLeft(2, '0')}";
+}
+
+Duration getTimeZoneOffset(String timeZone) {
+  // This function should return the offset of the given time zone from UTC
+  // You'll need to implement this based on your time zone data source
+  // For example, you might use a package like `timezone` to get this information
+  // Here's a placeholder implementation:
+  return Duration(hours: 0); // Replace with actual implementation
 }

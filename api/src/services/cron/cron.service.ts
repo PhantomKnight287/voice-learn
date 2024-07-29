@@ -91,10 +91,7 @@ export class CronService {
     for (const user of users) {
       if (!user.timezone || !IANATimezones[user.timezone]) continue;
       const userLocalTime = moment().tz(IANATimezones[user.timezone]);
-      if (
-        userLocalTime.hour() === 0 &&
-        [0, 1].includes(userLocalTime.minute())
-      ) {
+      if (userLocalTime.hour() === 0 && [0].includes(userLocalTime.minute())) {
         const lastStreakRecord = await prisma.streak.findFirst({
           where: { userId: user.id },
           orderBy: [{ createdAt: 'desc' }],
@@ -174,6 +171,38 @@ export class CronService {
               });
             }
           }
+        }
+      } else if (userLocalTime.hour() === 20 && userLocalTime.minute() === 0) {
+        const lastStreakRecord = await prisma.streak.findFirst({
+          where: { userId: user.id },
+          orderBy: [{ createdAt: 'desc' }],
+        });
+        if (!lastStreakRecord) continue;
+
+        const createdAt = moment(lastStreakRecord.createdAt).tz(
+          IANATimezones[user.timezone],
+        );
+        const isWithinRange = createdAt.isBetween(
+          userLocalTime.clone().startOf('day'),
+          userLocalTime,
+          null,
+          '[]',
+        );
+        if (isWithinRange) {
+          return; // user already did a lesson for today
+        } else {
+          if (user.notificationToken)
+            await onesignal.createNotification({
+              app_id: process.env.ONESIGNAL_APP_ID,
+              name: 'Streak Reminder',
+              contents: {
+                en: 'Your streak is about to reset in 2 hours. Complete a lesson now',
+              },
+              headings: {
+                en: `⚠️ streak about to reset.`,
+              },
+              include_subscription_ids: [user.notificationToken],
+            });
         }
       }
     }

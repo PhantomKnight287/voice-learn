@@ -8,7 +8,9 @@ import 'package:app/models/knowledge.dart';
 import 'package:app/models/reason.dart';
 import 'package:app/screens/loading/learning.dart';
 import 'package:app/utils/error.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -301,6 +303,7 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                             final language = languages[index];
                             final tile = ListTile(
                               onTap: () {
+                                HapticFeedback.mediumImpact();
                                 setState(() {
                                   _selectedLanguageId = language.id;
                                   _selectedLanguage = language;
@@ -326,8 +329,11 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                                   fontSize: 20,
                                 ),
                               ),
-                              leading: Image.network(
-                                language.flagUrl,
+                              leading: CachedNetworkImage(
+                                imageUrl: language.flagUrl,
+                                progressIndicatorBuilder: (context, url, progress) {
+                                  return const CircularProgressIndicator.adaptive();
+                                },
                                 width: 35,
                                 height: 35,
                               ),
@@ -525,7 +531,7 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
             decoration: BoxDecoration(
               color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.white : Theme.of(context).scaffoldBackgroundColor,
               boxShadow: [
-                BoxShadow(
+                const BoxShadow(
                   color: SECONDARY_TEXT_COLOR,
                   blurRadius: 5,
                   blurStyle: BlurStyle.outer,

@@ -8,6 +8,7 @@ import 'package:app/main.dart';
 import 'package:app/models/language.dart';
 import 'package:app/screens/languages/main.dart';
 import 'package:app/utils/error.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -441,8 +442,11 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> with RouteAware {
                         child: Row(
                           children: [
                             if (language != null) ...{
-                              Image.network(
-                                language!.flagUrl,
+                              CachedNetworkImage(
+                                imageUrl: language!.flagUrl,
+                                progressIndicatorBuilder: (context, url, progress) {
+                                  return const CircularProgressIndicator.adaptive();
+                                },
                                 width: 35,
                                 height: 35,
                               ),

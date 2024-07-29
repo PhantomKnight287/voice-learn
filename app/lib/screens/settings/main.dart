@@ -11,6 +11,7 @@ import 'package:app/models/user.dart';
 import 'package:app/screens/onboarding/main.dart';
 import 'package:app/screens/settings/change_password.dart';
 import 'package:app/utils/error.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/material.dart';
@@ -217,7 +218,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                               );
                           if (context.mounted) {
-                            Navigator.of(context).pop(); // Close the dialog
+                            Navigator.of(context).pop();
                             final prefs = await SharedPreferences.getInstance();
                             prefs.clear();
                             if (context.mounted) {
@@ -225,6 +226,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             }
                             logger.t("Logged out");
                             if (context.mounted) {
+                              QueryClient.of(context).getQueriesWithPrefix('voice_learn').clear();
                               Navigator.of(context).pushAndRemoveUntil(
                                 MaterialPageRoute(
                                   builder: (context) => const OnboardingScreen(),
@@ -292,7 +294,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Center(
                         child: CircleAvatar(
                           radius: 50,
-                          foregroundImage: NetworkImage(
+                          foregroundImage: CachedNetworkImageProvider(
                             userAvatar,
                           ),
                         ),

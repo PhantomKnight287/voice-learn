@@ -5,6 +5,7 @@ import 'package:app/constants/main.dart';
 import 'package:app/models/leaderboard_item.dart';
 import 'package:app/screens/profile/main.dart';
 import 'package:app/utils/error.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -134,9 +135,12 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
                                     radius: 30,
                                     backgroundColor: Colors.transparent,
                                     child: ClipOval(
-                                      child: Image.network(
-                                        avatar.toString(),
-                                        errorBuilder: (context, error, stackTrace) {
+                                      child: CachedNetworkImage(
+                                        imageUrl: avatar.toString(),
+                                        progressIndicatorBuilder: (context, url, downloadProgress) => CircularProgressIndicator(
+                                          value: downloadProgress.progress,
+                                        ),
+                                        errorWidget: (context, error, stackTrace) {
                                           return const Icon(
                                             Icons.account_circle_rounded,
                                             size: 60,

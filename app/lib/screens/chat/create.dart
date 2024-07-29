@@ -10,8 +10,8 @@ import 'package:app/screens/chat/id.dart';
 import 'package:app/screens/languages/main.dart';
 import 'package:app/screens/voices/main.dart';
 import 'package:app/utils/error.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fl_query/fl_query.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -249,15 +249,15 @@ class _CreateChatScreenState extends State<CreateChatScreen> {
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Color(0xffe7e0e8) : Color(0xff36343a),
+                            color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? const Color(0xffe7e0e8) : const Color(0xff36343a),
                           ),
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Row(
                               children: [
                                 if (language != null) ...{
-                                  Image.network(
-                                    language!.flagUrl,
+                                  CachedNetworkImage(
+                                    imageUrl: language!.flagUrl,
                                     width: 35,
                                     height: 35,
                                   ),

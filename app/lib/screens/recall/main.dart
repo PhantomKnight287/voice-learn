@@ -186,7 +186,7 @@ class _RecallScreenState extends State<RecallScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Icon(
+        child: const Icon(
           Icons.add_rounded,
           color: Colors.black,
         ),

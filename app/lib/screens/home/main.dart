@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/bottom_bar.dart';
 import 'package:app/components/circular_progress.dart';
@@ -19,6 +20,7 @@ import 'package:app/screens/recall/main.dart';
 import 'package:app/screens/shop/main.dart';
 import 'package:app/screens/streaks/main.dart';
 import 'package:app/utils/error.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -423,8 +425,11 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Image.network(
-                            data.language.flagUrl,
+                          CachedNetworkImage(
+                            imageUrl: data.language.flagUrl,
+                            progressIndicatorBuilder: (context, url, progress) {
+                              return const CircularProgressIndicator.adaptive();
+                            },
                             width: 30,
                             height: 30,
                           ),
@@ -478,8 +483,8 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                             icon: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Image.asset(
-                                  "assets/images/emerald.png",
+                                SvgPicture.asset(
+                                  "assets/images/emerald.svg",
                                   width: 25,
                                   height: 25,
                                 ),
@@ -614,20 +619,21 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                                             style: TextStyle(
                                                               fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
                                                               fontWeight: FontWeight.w600,
+                                                              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                                                             ),
                                                           ),
                                                         ),
                                                         state.lives > 5
                                                             ? ColorFiltered(
                                                                 colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
-                                                                child: Image.asset(
-                                                                  "assets/images/emerald.png",
+                                                                child: SvgPicture.asset(
+                                                                  "assets/images/emerald.svg",
                                                                   width: 25,
                                                                   height: 25,
                                                                 ),
                                                               )
-                                                            : Image.asset(
-                                                                "assets/images/emerald.png",
+                                                            : SvgPicture.asset(
+                                                                "assets/images/emerald.svg",
                                                                 width: 25,
                                                                 height: 25,
                                                               ),
@@ -707,20 +713,21 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                                             style: TextStyle(
                                                               fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
                                                               fontWeight: FontWeight.w600,
+                                                              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                                                             ),
                                                           ),
                                                         ),
                                                         state.lives > 5
                                                             ? ColorFiltered(
                                                                 colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
-                                                                child: Image.asset(
-                                                                  "assets/images/emerald.png",
+                                                                child: SvgPicture.asset(
+                                                                  "assets/images/emerald.svg",
                                                                   width: 25,
                                                                   height: 25,
                                                                 ),
                                                               )
-                                                            : Image.asset(
-                                                                "assets/images/emerald.png",
+                                                            : SvgPicture.asset(
+                                                                "assets/images/emerald.svg",
                                                                 width: 25,
                                                                 height: 25,
                                                               ),

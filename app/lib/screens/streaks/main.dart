@@ -133,7 +133,9 @@ class _StreaksScreenState extends State<StreaksScreen> {
                   children: [
                     Center(
                       child: Text(
-                        "${getResetTime()} hrs until streak resets",
+                        "${getResetTime(
+                          DateTime.now().timeZoneName,
+                        )} hrs until streak resets",
                         style: TextStyle(
                           fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.1,
                         ),

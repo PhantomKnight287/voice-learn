@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/circular_progress.dart';
 import 'package:app/components/no_swipe_page_route.dart';
@@ -13,9 +12,9 @@ import 'package:app/screens/loading/questions.dart';
 import 'package:app/screens/questions/complete.dart';
 import 'package:app/screens/questions/main.dart';
 import 'package:fl_query/fl_query.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:app/main.dart';
@@ -92,7 +91,7 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Icon(
+        child: const Icon(
           Icons.add_rounded,
           color: Colors.black,
         ),
@@ -250,8 +249,8 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
                                 children: lesson.completed == false
                                     ? [
                                         if (lesson.emeralds != 0)
-                                          Image.asset(
-                                            "assets/images/emerald.png",
+                                          SvgPicture.asset(
+                                            "assets/images/emerald.svg",
                                             width: 25,
                                             height: 25,
                                           ),

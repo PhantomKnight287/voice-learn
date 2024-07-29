@@ -8,6 +8,7 @@ import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/input.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
+import 'package:app/main.dart';
 import 'package:app/models/chat.dart';
 import 'package:app/models/message.dart';
 import 'package:app/models/user.dart';
@@ -18,6 +19,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -88,7 +90,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 500),
+        duration: const Duration(
+          milliseconds: 500,
+        ),
         curve: Curves.easeOut,
       );
     });
@@ -97,13 +101,15 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   Future<Chat> _fetchChat() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString("token");
-
-    final req = await http.get(Uri.parse("$API_URL/chats/${widget.id}"), headers: {
+    final url = Uri.parse("$API_URL/chats/${widget.id}");
+    logger.t("Fetching chat: ${url.toString()}");
+    final req = await http.get(url, headers: {
       "Authorization": "Bearer $token",
     });
     final body = jsonDecode(
       req.body,
     );
+
     final messages = (body['messages'] as List).map((e) => Message.fromJSON(e)).toList();
     if (context.mounted) {
       setState(() {
@@ -550,8 +556,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.asset(
-                      "assets/images/emerald.png",
+                    SvgPicture.asset(
+                      "assets/images/emerald.svg",
                       width: 25,
                       height: 25,
                     ),
@@ -967,6 +973,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     return Scaffold(
       appBar: AppBar(
         bottom: BOTTOM(context),
+        centerTitle: false,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -999,6 +1006,66 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             ),
           ],
         ),
+      ),
+      body: ListView.builder(
+        itemCount: 10,
+        itemBuilder: (context, index) {
+          bool isUserMessage = index % 2 == 0;
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: isUserMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
+              children: [
+                Shimmer.fromColors(
+                  baseColor: Colors.grey.shade300,
+                  highlightColor: Colors.grey.shade400,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width * 0.6,
+                    padding: const EdgeInsets.all(12.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: isUserMessage
+                          ? const BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10),
+                              bottomLeft: Radius.circular(10),
+                              bottomRight: Radius.circular(0),
+                            )
+                          : const BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10),
+                              bottomLeft: Radius.circular(0),
+                              bottomRight: Radius.circular(10),
+                            ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          height: 20,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Container(
+                          height: 10,
+                          width: MediaQuery.of(context).size.width * 0.4,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

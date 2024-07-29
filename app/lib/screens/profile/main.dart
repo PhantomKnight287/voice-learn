@@ -11,10 +11,12 @@ import 'package:app/screens/notifications/main.dart';
 import 'package:app/screens/settings/main.dart';
 import 'package:app/utils/error.dart';
 import 'package:async_builder/async_builder.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gravatar/utils.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -215,7 +217,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             child: widget.userId == null
                 ? QueryBuilder<dynamic, dynamic>(
-                    widget.userId != null ? "profile_${widget.userId}" : 'profile_stats',
+                    'profile_stats',
                     _getUserProfile,
                     builder: (context, query) {
                       if (query.isLoading) {
@@ -280,215 +282,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SizedBox(
                             height: BASE_MARGIN * 3,
                           ),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  padding: const EdgeInsets.all(
-                                    BASE_MARGIN * 2.5,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: getSecondaryColor(context),
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(
-                                      10,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const HeroIcon(
-                                        HeroIcons.bolt,
-                                        color: PRIMARY_COLOR,
-                                        size: 30,
-                                        style: HeroIconStyle.solid,
-                                      ),
-                                      const SizedBox(
-                                        width: BASE_MARGIN * 2,
-                                      ),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            data['activeStreaks'].toString(),
-                                            style: TextStyle(
-                                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: BASE_MARGIN * 1,
-                                          ),
-                                          Text(
-                                            "Active streak",
-                                            style: Theme.of(context).textTheme.titleSmall,
-                                          )
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(
-                                width: BASE_MARGIN * 2,
-                              ),
-                              Expanded(
-                                  child: Container(
-                                padding: const EdgeInsets.all(
-                                  BASE_MARGIN * 2.5,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: getSecondaryColor(context),
-                                    width: 2.0,
-                                  ),
-                                  borderRadius: BorderRadius.circular(
-                                    10,
-                                  ),
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Image.asset(
-                                      "assets/images/coin.png",
-                                      width: 30,
-                                      height: 30,
-                                    ),
-                                    const SizedBox(
-                                      width: BASE_MARGIN * 2,
-                                    ),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          data['xp'].toString(),
-                                          style: TextStyle(
-                                            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          height: BASE_MARGIN * 1,
-                                        ),
-                                        Text(
-                                          "Total XP",
-                                          style: Theme.of(context).textTheme.titleSmall,
-                                        )
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ))
-                            ],
-                          ),
+                          _buildTopStatsRow(context, data),
                           const SizedBox(
                             height: BASE_MARGIN * 2,
                           ),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  padding: const EdgeInsets.all(
-                                    BASE_MARGIN * 2.5,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: getSecondaryColor(context),
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(
-                                      10,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const HeroIcon(
-                                        HeroIcons.bolt,
-                                        color: PRIMARY_COLOR,
-                                        size: 30,
-                                        style: HeroIconStyle.solid,
-                                      ),
-                                      const SizedBox(
-                                        width: BASE_MARGIN * 2,
-                                      ),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            data['longestStreak'].toString(),
-                                            style: TextStyle(
-                                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: BASE_MARGIN * 1,
-                                          ),
-                                          Text(
-                                            "Longest streak",
-                                            style: Theme.of(context).textTheme.titleSmall,
-                                          )
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(
-                                width: BASE_MARGIN * 2,
-                              ),
-                              Expanded(
-                                  child: Container(
-                                padding: const EdgeInsets.all(
-                                  BASE_MARGIN * 2.5,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: getSecondaryColor(context),
-                                    width: 2.0,
-                                  ),
-                                  borderRadius: BorderRadius.circular(
-                                    10,
-                                  ),
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Image.asset(
-                                      "assets/images/emerald.png",
-                                      width: 25,
-                                      height: 25,
-                                    ),
-                                    const SizedBox(
-                                      width: BASE_MARGIN * 2,
-                                    ),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          data['emeralds'].toString(),
-                                          style: TextStyle(
-                                            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          height: BASE_MARGIN * 1,
-                                        ),
-                                        Text(
-                                          "Emeralds",
-                                          style: Theme.of(context).textTheme.titleSmall,
-                                        )
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ))
-                            ],
-                          ),
+                          _buildBottomStatsRow(context, data),
                           const SizedBox(
                             height: BASE_MARGIN * 3,
                           ),
@@ -502,7 +300,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SizedBox(
                             height: BASE_MARGIN * 3,
                           ),
-                          _buildGraph(data),
+                          if (data['xpHistory'].isNotEmpty) _buildGraph(data),
+                          if (data['xpHistory'].isEmpty)
+                            const Center(
+                              child: Text(
+                                "No XP history found",
+                              ),
+                            ),
                           const SizedBox(
                             height: BASE_MARGIN * 3,
                           ),
@@ -516,7 +320,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SizedBox(
                             height: BASE_MARGIN * 3,
                           ),
-                          _buildAnswersGraph(data),
+                          (data['answerHistory']['correctAnswers'].isEmpty && data['answerHistory']['incorrectAnswers'].isEmpty)
+                              ? const Center(
+                                  child: Text(
+                                    "No answer history found",
+                                  ),
+                                )
+                              : _buildAnswersGraph(data),
                         ],
                       );
                     },
@@ -588,215 +398,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SizedBox(
                             height: BASE_MARGIN * 3,
                           ),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  padding: const EdgeInsets.all(
-                                    BASE_MARGIN * 2.5,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.grey,
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(
-                                      10,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const HeroIcon(
-                                        HeroIcons.bolt,
-                                        color: PRIMARY_COLOR,
-                                        size: 30,
-                                        style: HeroIconStyle.solid,
-                                      ),
-                                      const SizedBox(
-                                        width: BASE_MARGIN * 2,
-                                      ),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            data['activeStreaks'].toString(),
-                                            style: TextStyle(
-                                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: BASE_MARGIN * 1,
-                                          ),
-                                          Text(
-                                            "Active streak",
-                                            style: Theme.of(context).textTheme.titleSmall,
-                                          )
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(
-                                width: BASE_MARGIN * 2,
-                              ),
-                              Expanded(
-                                  child: Container(
-                                padding: const EdgeInsets.all(
-                                  BASE_MARGIN * 2.5,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Colors.grey,
-                                    width: 2.0,
-                                  ),
-                                  borderRadius: BorderRadius.circular(
-                                    10,
-                                  ),
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Image.asset(
-                                      "assets/images/coin.png",
-                                      width: 30,
-                                      height: 30,
-                                    ),
-                                    const SizedBox(
-                                      width: BASE_MARGIN * 2,
-                                    ),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          data['xp'].toString(),
-                                          style: TextStyle(
-                                            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          height: BASE_MARGIN * 1,
-                                        ),
-                                        Text(
-                                          "Total XP",
-                                          style: Theme.of(context).textTheme.titleSmall,
-                                        )
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ))
-                            ],
-                          ),
+                          _buildTopStatsRow(context, data),
                           const SizedBox(
                             height: BASE_MARGIN * 2,
                           ),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  padding: const EdgeInsets.all(
-                                    BASE_MARGIN * 2.5,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.grey,
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(
-                                      10,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const HeroIcon(
-                                        HeroIcons.bolt,
-                                        color: PRIMARY_COLOR,
-                                        size: 30,
-                                        style: HeroIconStyle.solid,
-                                      ),
-                                      const SizedBox(
-                                        width: BASE_MARGIN * 2,
-                                      ),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            data['longestStreak'].toString(),
-                                            style: TextStyle(
-                                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: BASE_MARGIN * 1,
-                                          ),
-                                          Text(
-                                            "Longest streak",
-                                            style: Theme.of(context).textTheme.titleSmall,
-                                          )
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(
-                                width: BASE_MARGIN * 2,
-                              ),
-                              Expanded(
-                                  child: Container(
-                                padding: const EdgeInsets.all(
-                                  BASE_MARGIN * 2.5,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Colors.grey,
-                                    width: 2.0,
-                                  ),
-                                  borderRadius: BorderRadius.circular(
-                                    10,
-                                  ),
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Image.asset(
-                                      "assets/images/emerald.png",
-                                      width: 25,
-                                      height: 25,
-                                    ),
-                                    const SizedBox(
-                                      width: BASE_MARGIN * 2,
-                                    ),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          data['emeralds'].toString(),
-                                          style: TextStyle(
-                                            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          height: BASE_MARGIN * 1,
-                                        ),
-                                        Text(
-                                          "Emeralds",
-                                          style: Theme.of(context).textTheme.titleSmall,
-                                        )
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ))
-                            ],
-                          ),
+                          _buildBottomStatsRow(context, data),
                           Text(
                             "XP History",
                             style: TextStyle(
@@ -807,7 +413,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SizedBox(
                             height: BASE_MARGIN * 3,
                           ),
-                          _buildGraph(data),
+                          if (data['xpHistory'].isNotEmpty) _buildGraph(data),
+                          if (data['xpHistory'].isEmpty)
+                            const Center(
+                              child: Text(
+                                "No XP history found",
+                              ),
+                            ),
                           const SizedBox(
                             height: BASE_MARGIN * 3,
                           ),
@@ -821,14 +433,238 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SizedBox(
                             height: BASE_MARGIN * 3,
                           ),
-                          _buildAnswersGraph(data),
+                          (data['answerHistory']['correctAnswers'].isEmpty && data['answerHistory']['incorrectAnswers'].isEmpty)
+                              ? const Center(
+                                  child: Text(
+                                    "No answer history found",
+                                  ),
+                                )
+                              : _buildAnswersGraph(data),
                         ],
                       );
                     },
+                    refreshConfig: RefreshConfig.withDefaults(
+                      context,
+                      staleDuration: const Duration(
+                        seconds: 10,
+                      ),
+                    ),
                   ),
           ),
         ),
       ),
+    );
+  }
+
+  Row _buildBottomStatsRow(BuildContext context, data) {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.all(
+              BASE_MARGIN * 2.5,
+            ),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: getSecondaryColor(context),
+                width: 2.0,
+              ),
+              borderRadius: BorderRadius.circular(
+                10,
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const HeroIcon(
+                  HeroIcons.bolt,
+                  color: PRIMARY_COLOR,
+                  size: 30,
+                  style: HeroIconStyle.solid,
+                ),
+                const SizedBox(
+                  width: BASE_MARGIN * 2,
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      data['longestStreak'].toString(),
+                      style: TextStyle(
+                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: BASE_MARGIN * 1,
+                    ),
+                    Text(
+                      "Longest streak",
+                      style: Theme.of(context).textTheme.titleSmall,
+                    )
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(
+          width: BASE_MARGIN * 2,
+        ),
+        Expanded(
+            child: Container(
+          padding: const EdgeInsets.all(
+            BASE_MARGIN * 2.5,
+          ),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: getSecondaryColor(context),
+              width: 2.0,
+            ),
+            borderRadius: BorderRadius.circular(
+              10,
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SvgPicture.asset(
+                "assets/images/emerald.svg",
+                width: 25,
+                height: 25,
+              ),
+              const SizedBox(
+                width: BASE_MARGIN * 2,
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    data['emeralds'].toString(),
+                    style: TextStyle(
+                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: BASE_MARGIN * 1,
+                  ),
+                  Text(
+                    "Emeralds",
+                    style: Theme.of(context).textTheme.titleSmall,
+                  )
+                ],
+              ),
+            ],
+          ),
+        ))
+      ],
+    );
+  }
+
+  Row _buildTopStatsRow(BuildContext context, data) {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.all(
+              BASE_MARGIN * 2.5,
+            ),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: getSecondaryColor(context),
+                width: 2.0,
+              ),
+              borderRadius: BorderRadius.circular(
+                10,
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const HeroIcon(
+                  HeroIcons.bolt,
+                  color: PRIMARY_COLOR,
+                  size: 30,
+                  style: HeroIconStyle.solid,
+                ),
+                const SizedBox(
+                  width: BASE_MARGIN * 2,
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      data['activeStreaks'].toString(),
+                      style: TextStyle(
+                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: BASE_MARGIN * 1,
+                    ),
+                    Text(
+                      "Active streak",
+                      style: Theme.of(context).textTheme.titleSmall,
+                    )
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(
+          width: BASE_MARGIN * 2,
+        ),
+        Expanded(
+            child: Container(
+          padding: const EdgeInsets.all(
+            BASE_MARGIN * 2.5,
+          ),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: getSecondaryColor(context),
+              width: 2.0,
+            ),
+            borderRadius: BorderRadius.circular(
+              10,
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(
+                Icons.star_rounded,
+                size: BASE_MARGIN * 8,
+                color: Colors.lime,
+              ),
+              const SizedBox(
+                width: BASE_MARGIN * 2,
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    data['xp'].toString(),
+                    style: TextStyle(
+                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: BASE_MARGIN * 1,
+                  ),
+                  Text(
+                    "Total XP",
+                    style: Theme.of(context).textTheme.titleSmall,
+                  )
+                ],
+              ),
+            ],
+          ),
+        ))
+      ],
     );
   }
 
@@ -1069,10 +905,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Image.asset(
-                    "assets/images/coin.png",
-                    width: 30,
-                    height: 30,
+                  const Icon(
+                    Icons.star_rounded,
+                    size: BASE_MARGIN * 8,
+                    color: Colors.lime,
                   ),
                   const SizedBox(
                     width: BASE_MARGIN * 2,
@@ -1185,8 +1021,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Image.asset(
-                    "assets/images/emerald.png",
+                  SvgPicture.asset(
+                    "assets/images/emerald.svg",
                     width: 25,
                     height: 25,
                   ),
@@ -1327,9 +1163,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               radius: 40,
               backgroundColor: Colors.transparent,
               child: ClipOval(
-                child: Image.network(
-                  profileUrl.toString(),
-                  errorBuilder: (context, error, stackTrace) {
+                child: CachedNetworkImage(
+                  imageUrl: profileUrl.toString(),
+                  progressIndicatorBuilder: (context, url, downloadProgress) => CircularProgressIndicator(
+                    value: downloadProgress.progress,
+                  ),
+                  errorWidget: (context, error, stackTrace) {
                     return const Icon(
                       Icons.account_circle_rounded,
                       size: 80,

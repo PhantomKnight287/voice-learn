@@ -9,6 +9,7 @@ import 'package:app/models/chat.dart';
 import 'package:app/screens/chat/create.dart';
 import 'package:app/screens/chat/id.dart';
 import 'package:app/utils/error.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -96,7 +97,7 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Icon(
+        child: const Icon(
           Icons.add_rounded,
           color: Colors.black,
         ),
@@ -202,8 +203,8 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
                                         if (context.mounted) Navigator.of(context).pop();
                                       },
                                       child: isDeleting
-                                          ? CircularProgressIndicator()
-                                          : Text(
+                                          ? const CircularProgressIndicator()
+                                          : const Text(
                                               "Delete",
                                               style: TextStyle(
                                                 color: Colors.red,
@@ -256,8 +257,11 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
                       borderRadius: BorderRadius.circular(BASE_MARGIN * 2),
                     ),
                     enabled: true,
-                    leading: Image.network(
-                      chat.flag!,
+                    leading: CachedNetworkImage(
+                      imageUrl: chat.flag!,
+                      progressIndicatorBuilder: (context, url, progress) {
+                        return const CircularProgressIndicator.adaptive();
+                      },
                       width: 40,
                       height: 40,
                     ),

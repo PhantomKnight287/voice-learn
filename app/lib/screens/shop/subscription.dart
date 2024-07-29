@@ -213,8 +213,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
       ),
       Row(
         children: [
-          Image.asset(
-            "assets/images/emerald.png",
+          SvgPicture.asset(
+            "assets/images/emerald.svg",
             width: 25,
             height: 25,
           ),

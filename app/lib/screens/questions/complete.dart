@@ -1,16 +1,17 @@
 import 'dart:convert';
 
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/responses/lessons/stats.dart';
 import 'package:app/screens/questions/stats.dart';
-import 'package:app/utils/string.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -168,174 +169,50 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
                   );
                 },
                 builder: (context, value) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                  return const Wrap(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.all(BASE_MARGIN * 2),
-                              decoration: BoxDecoration(
-                                color: PRIMARY_COLOR,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    "XP Earned",
-                                    style: TextStyle(
-                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  const SizedBox(height: BASE_MARGIN * 2),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color: getSecondaryColor(context),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: BASE_MARGIN * 5,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        const Icon(
-                                          Icons.star_rounded,
-                                          size: BASE_MARGIN * 8,
-                                        ),
-                                        const SizedBox(
-                                          width: BASE_MARGIN * 2,
-                                        ),
-                                        Text(
-                                          value!.xpEarned.toString(),
-                                          style: TextStyle(
-                                            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(
-                            width: BASE_MARGIN * 2,
-                          ),
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.all(BASE_MARGIN * 2),
-                              decoration: BoxDecoration(
-                                color: Colors.lightBlue,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    "Time Taken",
-                                    style: TextStyle(
-                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  const SizedBox(height: BASE_MARGIN * 2),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color: getSecondaryColor(context),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: BASE_MARGIN * 5,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        const Icon(
-                                          Icons.watch_later_outlined,
-                                          size: BASE_MARGIN * 8,
-                                        ),
-                                        const SizedBox(
-                                          width: BASE_MARGIN * 2,
-                                        ),
-                                        Text(
-                                          calculateTimeDifference(
-                                            value.startDate,
-                                            value.endDate,
-                                          ),
-                                          style: TextStyle(
-                                            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(
-                            width: BASE_MARGIN * 2,
-                          ),
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.all(BASE_MARGIN * 2),
-                              decoration: BoxDecoration(
-                                color: Colors.lightGreen,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    "Accuracy",
-                                    style: TextStyle(
-                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  const SizedBox(height: BASE_MARGIN * 2),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color: getSecondaryColor(context),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: BASE_MARGIN * 5,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Image.asset(
-                                          "assets/images/target.png",
-                                          width: BASE_MARGIN * 8,
-                                        ),
-                                        const SizedBox(
-                                          width: BASE_MARGIN * 2,
-                                        ),
-                                        Text(
-                                          "${((value.correctAnswers / (value.correctAnswers + value.incorrectAnswers)) * 100).toStringAsFixed(0)}%",
-                                          style: TextStyle(
-                                            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
+                      StatCard(
+                        backgroundColor: Color(0xFFFFF5F5),
+                        borderColor: Color(0xFFFEE2E2),
+                        iconBackgroundColor: Color(0xFFFEE2E2),
+                        icon: Icon(
+                          LucideIcons.locateFixed,
+                          color: Color(0xFFF87171),
+                        ),
+                        title: 'Accuracy',
+                        value: '92%',
+                        valueColor: Color(0xFFEF4444),
+                      ),
+                      SizedBox(
+                        height: BASE_MARGIN * 2,
+                      ),
+                      StatCard(
+                        backgroundColor: Color(0xFFF0FEFF),
+                        borderColor: Color(0xFFCCFBF1),
+                        iconBackgroundColor: Color(0xFFCCFBF1),
+                        icon: Icon(
+                          LucideIcons.timer,
+                          color: Color(0xFF06B6D4),
+                        ),
+                        title: 'Time Taken',
+                        value: '2:45',
+                        valueColor: Color(0xFF0891B2),
+                      ),
+                      SizedBox(
+                        height: BASE_MARGIN * 2,
+                      ),
+                      StatCard(
+                        backgroundColor: Color(0xFFF5F3FF),
+                        borderColor: Color(0xFFE9D5FF),
+                        iconBackgroundColor: Color(0xFFE9D5FF),
+                        icon: Icon(
+                          Icons.star_rounded,
+                          color: Color(0xFFA855F7),
+                        ),
+                        title: 'XP Earned',
+                        value: '1250',
+                        valueColor: Color(0xFF8B5CF6),
+                      ),
                     ],
                   );
                 },
@@ -412,6 +289,81 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class StatCard extends StatelessWidget {
+  final Color backgroundColor;
+  final Color borderColor;
+  final Color iconBackgroundColor;
+  final Widget icon;
+  final String title;
+  final String value;
+  final Color valueColor;
+
+  const StatCard({
+    super.key,
+    required this.backgroundColor,
+    required this.borderColor,
+    required this.iconBackgroundColor,
+    required this.icon,
+    required this.title,
+    required this.value,
+    required this.valueColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDarkMode = AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDarkMode ? Colors.transparent : backgroundColor,
+        border: Border.all(
+          color: getSecondaryColor(context),
+        ),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      padding: const EdgeInsets.all(
+        8,
+      ),
+      margin: const EdgeInsets.all(8),
+      child: Row(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: iconBackgroundColor,
+              borderRadius: BorderRadius.circular(50),
+            ),
+            padding: const EdgeInsets.all(8),
+            child: icon,
+          ),
+          const SizedBox(
+            width: 8,
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF9CA3AF),
+                ),
+              ),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: valueColor,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

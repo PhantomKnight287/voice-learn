@@ -25,8 +25,8 @@ export class QuestionsService {
                 language: {
                   select: {
                     name: true,
-                    id:true,
-                    flagUrl:true,
+                    id: true,
+                    flagUrl: true,
                   },
                 },
               },
@@ -274,12 +274,22 @@ export class QuestionsService {
                 },
               },
             });
+            if (olderCorrectionModule) {
+              await prisma.lesson.update({
+                where: { id: olderCorrectionModule.id },
+                data: {
+                  questionsCount: {
+                    increment: allIncorrectQuestions.length,
+                  },
+                },
+              });
+            }
           }
         }
       }
 
       const user = await tx.user.findFirst({ where: { id: userId } });
-      const { currentDate,currentDateStart } = generateTimestamps(
+      const { currentDate, currentDateStart } = generateTimestamps(
         user.timezone,
       );
 
@@ -331,9 +341,7 @@ export class QuestionsService {
         },
       });
     });
-    const { currentDate,currentDateStart } = generateTimestamps(
-      user.timezone,
-    );
+    const { currentDate, currentDateStart } = generateTimestamps(user.timezone);
 
     const streak = await prisma.streak.findFirst({
       where: {

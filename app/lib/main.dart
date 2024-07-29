@@ -131,6 +131,7 @@ class _VoiceLearnAppState extends State<VoiceLearnApp> {
           BlocProvider(create: (context) => ApplicationBloc()),
         ],
         child: AdaptiveTheme(
+            debugShowFloatingThemeButton: kDebugMode,
             light: ThemeData(
               colorScheme: ColorScheme.fromSeed(
                 seedColor: Colors.deepPurple,
@@ -213,7 +214,6 @@ class _VoiceLearnAppState extends State<VoiceLearnApp> {
               ),
             ),
             initial: AdaptiveThemeMode.light,
-            debugShowFloatingThemeButton: kDebugMode,
             builder: (theme, darkTheme) {
               return MaterialApp(
                 title: 'Voice Learn',
