@@ -13,6 +13,7 @@ import 'package:app/models/chat.dart';
 import 'package:app/models/message.dart';
 import 'package:app/models/user.dart';
 import 'package:app/screens/recall/notes/create.dart';
+import 'package:app/screens/shop/main.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/cupertino.dart';
@@ -549,29 +550,38 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
               ],
             ),
             actions: [
-              Padding(
-                padding: const EdgeInsets.only(
-                  right: 10,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset(
-                      "assets/images/emerald.svg",
-                      width: 25,
-                      height: 25,
-                    ),
-                    const SizedBox(
-                      width: BASE_MARGIN * 2,
-                    ),
-                    Text(
-                      state.emeralds.toString(),
-                      style: TextStyle(
-                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                        fontWeight: FontWeight.w700,
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(NoSwipePageRoute(
+                    builder: (context) {
+                      return const ShopScreen();
+                    },
+                  ));
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    right: 10,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                        "assets/images/emerald.svg",
+                        width: 25,
+                        height: 25,
                       ),
-                    ),
-                  ],
+                      const SizedBox(
+                        width: BASE_MARGIN * 2,
+                      ),
+                      Text(
+                        state.emeralds.toString(),
+                        style: TextStyle(
+                          fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

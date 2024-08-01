@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/bloc/user/user_bloc.dart';
@@ -8,6 +9,7 @@ import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/main.dart';
 import 'package:app/models/purchaseable_product.dart';
+import 'package:app/models/user.dart';
 import 'package:app/screens/shop/transaction.dart';
 import 'package:app/utils/error.dart';
 import 'package:fl_query/fl_query.dart';
@@ -34,6 +36,7 @@ class _ShopScreenState extends State<ShopScreen> {
   List<PurchasableProduct> products = [];
   bool _refillShieldsLoading = false;
   bool _buyOneShieldLoading = false;
+  StreamSubscription<List<PurchaseDetails>>? _purchaseSubscription;
   Future<void> _buyOneStreakShield() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString("token");
@@ -129,17 +132,10 @@ class _ShopScreenState extends State<ShopScreen> {
     for (var element in res.notFoundIDs) {
       debugPrint('Purchase $element not found');
     }
+    print(await _iap.countryCode());
     setState(() {
       products = res.productDetails.map((e) => PurchasableProduct(e)).toList();
     });
-  }
-
-  restorePurchases() async {
-    try {
-      await _iap.restorePurchases();
-    } catch (error) {
-      logger.e("Failed to restore purchases: ${error.toString()}");
-    }
   }
 
   Future<int> _fetchStreakShields() async {
@@ -266,6 +262,7 @@ class _ShopScreenState extends State<ShopScreen> {
                               )).then(
                                 (value) {
                                   setState(() {});
+                                  initialize();
                                 },
                               );
                             },
@@ -342,7 +339,7 @@ class _ShopScreenState extends State<ShopScreen> {
                                         _setState(() {
                                           _refillShieldsLoading = false;
                                         });
-                                        Navigator.pop(context);
+                                        if (context.mounted) Navigator.pop(context);
                                       },
                                       style: ButtonStyle(
                                         backgroundColor: data < 5
@@ -440,7 +437,7 @@ class _ShopScreenState extends State<ShopScreen> {
                                         _setState(() {
                                           _buyOneShieldLoading = false;
                                         });
-                                        Navigator.pop(context);
+                                        if (context.mounted) Navigator.pop(context);
                                       },
                                       style: ButtonStyle(
                                         backgroundColor: data < 5

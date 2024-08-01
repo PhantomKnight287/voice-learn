@@ -1,5 +1,5 @@
-import { TransactionType } from '@prisma/client';
-import { IsEnum, IsString } from 'class-validator';
+import { TransactionType, Platform } from '@prisma/client';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
 
 export class CreateTransactionDTO {
   @IsString()
@@ -10,4 +10,11 @@ export class CreateTransactionDTO {
 
   @IsEnum(TransactionType)
   type: TransactionType;
+
+  @IsEnum(Platform)
+  platform: Platform;
+
+  @IsString()
+  @IsOptional()
+  purchaseId: string;
 }

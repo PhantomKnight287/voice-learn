@@ -4,6 +4,7 @@ import { IANATimezones } from 'src/constants/iana';
 export function generateTimestamps(timezone = 'UTC') {
   // Get the current date in the specified timezone
   const now = moment().tz(IANATimezones[timezone]);
+  
   const yesterdayStart = now.clone().subtract(1, 'day').startOf('day');
   const todayStart = now.clone().startOf('day');
   const tomorrowStart = now.clone().add(1, 'day').startOf('day');

@@ -6,6 +6,7 @@ import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/responses/lessons/stats.dart';
 import 'package:app/screens/questions/stats.dart';
+import 'package:app/utils/string.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -67,6 +68,8 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
   }
 
   Future<LessonStats> _fetchLessonStats() async {
+    final userBloc = context.read<UserBloc>();
+    final userState = userBloc.state;
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString("token");
     final req = await http.get(Uri.parse("$API_URL/lessons/${widget.questionId}/stats"), headers: {
@@ -74,8 +77,6 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
     });
     final body = jsonDecode(req.body);
     if (req.statusCode == 200) {
-      final userBloc = context.read<UserBloc>();
-      final userState = userBloc.state;
       userBloc.add(
         UserLoggedInEvent(
           id: userState.id,
@@ -109,14 +110,6 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
       appBar: AppBar(
         title: const Text(
           "Lesson Completed",
-        ),
-        leading: IconButton(
-          onPressed: () async {
-            Navigator.pop(context);
-          },
-          icon: const Icon(
-            Icons.arrow_back_rounded,
-          ),
         ),
         centerTitle: true,
       ),
@@ -169,49 +162,52 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
                   );
                 },
                 builder: (context, value) {
-                  return const Wrap(
+                  return Wrap(
                     children: [
                       StatCard(
-                        backgroundColor: Color(0xFFFFF5F5),
-                        borderColor: Color(0xFFFEE2E2),
-                        iconBackgroundColor: Color(0xFFFEE2E2),
-                        icon: Icon(
+                        backgroundColor: const Color(0xFFFFF5F5),
+                        borderColor: const Color(0xFFFEE2E2),
+                        iconBackgroundColor: const Color(0xFFFEE2E2),
+                        icon: const Icon(
                           LucideIcons.locateFixed,
                           color: Color(0xFFF87171),
                         ),
                         title: 'Accuracy',
-                        value: '92%',
-                        valueColor: Color(0xFFEF4444),
+                        value: "${((value!.correctAnswers / (value.correctAnswers + value.incorrectAnswers)) * 100).toStringAsFixed(0)}%",
+                        valueColor: const Color(0xFFEF4444),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: BASE_MARGIN * 2,
                       ),
                       StatCard(
-                        backgroundColor: Color(0xFFF0FEFF),
-                        borderColor: Color(0xFFCCFBF1),
-                        iconBackgroundColor: Color(0xFFCCFBF1),
-                        icon: Icon(
+                        backgroundColor: const Color(0xFFF0FEFF),
+                        borderColor: const Color(0xFFCCFBF1),
+                        iconBackgroundColor: const Color(0xFFCCFBF1),
+                        icon: const Icon(
                           LucideIcons.timer,
                           color: Color(0xFF06B6D4),
                         ),
                         title: 'Time Taken',
-                        value: '2:45',
-                        valueColor: Color(0xFF0891B2),
+                        value: calculateTimeDifference(
+                          value.startDate,
+                          value.endDate,
+                        ),
+                        valueColor: const Color(0xFF0891B2),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: BASE_MARGIN * 2,
                       ),
                       StatCard(
-                        backgroundColor: Color(0xFFF5F3FF),
-                        borderColor: Color(0xFFE9D5FF),
-                        iconBackgroundColor: Color(0xFFE9D5FF),
-                        icon: Icon(
+                        backgroundColor: const Color(0xFFF5F3FF),
+                        borderColor: const Color(0xFFE9D5FF),
+                        iconBackgroundColor: const Color(0xFFE9D5FF),
+                        icon: const Icon(
                           Icons.star_rounded,
                           color: Color(0xFFA855F7),
                         ),
                         title: 'XP Earned',
-                        value: '1250',
-                        valueColor: Color(0xFF8B5CF6),
+                        value: value!.xpEarned.toString(),
+                        valueColor: const Color(0xFF8B5CF6),
                       ),
                     ],
                   );

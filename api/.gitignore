@@ -7,3 +7,6 @@ dist
 
 public/downloads/**
 !.gitkeep
+
+
+*.p8

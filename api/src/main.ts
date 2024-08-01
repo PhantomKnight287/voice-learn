@@ -8,7 +8,7 @@ import { AppModule } from './app.module';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
-import { ELEVENLABS_API_URL, errorSubject$ } from './constants';
+import { ELEVENLABS_API_URL, errorSubject$, onesignal } from './constants';
 
 import { prisma } from './db';
 import { Voice } from './types/voice';
@@ -43,6 +43,7 @@ async function bootstrap() {
   await app.listen(5000);
   await fetchVoices();
   await loadOpenAiVoices();
+  
 }
 bootstrap();
 

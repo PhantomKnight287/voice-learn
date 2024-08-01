@@ -11,6 +11,11 @@ import OpenAI from 'openai';
 export const ONBOARDING_QUEUE = 'onboarding';
 import { ElevenLabsClient } from 'elevenlabs';
 import * as OneSignal from '@onesignal/node-onesignal';
+import {
+  AppStoreServerAPI,
+  Environment,
+} from 'app-store-server-api';
+import { readFileSync } from 'fs';
 
 export const PATH_GENERATION_SUBJECT = new Subject<string>();
 
@@ -38,8 +43,11 @@ export const envSchema = z.object({
   ONESIGNAL_REST_API_KEY: z.string(),
   EMAILTHING_TOKEN: z.string(),
   RESET_PASSWORD_SECRET: z.string(),
-  HOST:z.string(),
-  ADMIN_USER_ID:z.string(),
+  HOST: z.string(),
+  ADMIN_USER_ID: z.string(),
+  APPLE_KEY_ID: z.string(),
+  APPLE_ISSUER_ID: z.string(),
+  APPLE_SHARED_SECRET: z.string(),
 });
 const safeParseResult = envSchema.safeParse(process.env);
 if (safeParseResult.success === false) {
@@ -123,6 +131,11 @@ export const elevenLabs = new ElevenLabsClient({
 
 export const ELEVENLABS_API_URL = 'https://api.elevenlabs.io/v1';
 
+export const BUNDLE_ID = {
+  android: 'com.voice_learn.app',
+  ios: 'com.voice-learn.app',
+};
+
 export const PRODUCTS = {
   emeralds_100: 100,
   emeralds_200: 200,
@@ -187,3 +200,11 @@ export const testSentences = {
   Vietnamese: 'Xin chào, đây là tốc độ của giọng nói',
   French: "Bonjour, c'est la vitesse de la voix",
 };
+
+export const appleAPI = new AppStoreServerAPI(
+  readFileSync(`${process.cwd()}/Apple_key.p8`,'utf-8'),
+  process.env.APPLE_KEY_ID!,
+  process.env.APPLE_ISSUER_ID!,
+  BUNDLE_ID.ios,
+  process.env.DEV === 'true' ? Environment.Sandbox : Environment.Production,
+);

@@ -630,7 +630,6 @@ Constraints:
 
         const data = await this.geminiService.generateObject({
           schema: learning_path_schema,
-          model: path.user.tier === 'free' ? undefined : aiSdkOpenAI('gpt-4o'),
           messages: [
             {
               role: 'system',

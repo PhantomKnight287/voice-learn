@@ -131,6 +131,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
     _nameController.text = body['name'];
     _emailController.text = body['email'];
+
     _notificationsAllowed = (body['notificationToken'] != null && body['notificationToken'].isNotEmpty) && await Permission.notification.isGranted;
     _devModeEnabled = prefs.getBool("dev_enabled") ?? false;
     return body;

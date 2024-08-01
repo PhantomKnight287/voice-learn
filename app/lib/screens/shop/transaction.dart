@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/constants/main.dart';
@@ -71,12 +72,12 @@ class _TransactionScreenState extends State<TransactionScreen> {
       },
       onError: print,
     );
+    await _iap.restorePurchases();
   }
 
   handlePurchaseUpdates(List<PurchaseDetails> purchaseDetailsList) async {
     for (int index = 0; index < purchaseDetailsList.length; index++) {
       var purchaseStatus = purchaseDetailsList[index].status;
-      printError(purchaseStatus.toString());
       switch (purchaseStatus) {
         case PurchaseStatus.pending:
           continue;
@@ -114,13 +115,15 @@ class _TransactionScreenState extends State<TransactionScreen> {
         final userState = userBloc.state;
         final details = purchaseDetailsList[index];
         if (widget.type == ProductType.consumable) {
-          userBloc.add(
-            UserLoggedInEvent.setEmeraldsAndLives(
-              userState,
-              userState.emeralds + int.parse((details.productID.split("_")[1])),
-              null,
-            ),
-          );
+          if (details.productID.startsWith("emeralds_")) {
+            userBloc.add(
+              UserLoggedInEvent.setEmeraldsAndLives(
+                userState,
+                userState.emeralds + int.parse((details.productID.split("_")[1])),
+                null,
+              ),
+            );
+          }
         } else {
           userBloc.add(
             UserLoggedInEvent.setTier(
@@ -141,10 +144,13 @@ class _TransactionScreenState extends State<TransactionScreen> {
             {
               "sku": details.productID,
               "token": details.verificationData.serverVerificationData,
-              "type": "one_time_product",
+              "type": details.productID.startsWith("tier_") ? "subscription" : "one_time_product",
+              "platform": Platform.isIOS ? "ios" : "android",
+              "purchaseId": details.purchaseID,
             },
           ),
         );
+
         await _iap.completePurchase(purchaseDetailsList[index]).then((value) async {
           if (purchaseStatus == PurchaseStatus.purchased) {
             toastification.show(

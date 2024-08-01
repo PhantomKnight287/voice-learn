@@ -42,6 +42,7 @@ import { RecallsModule } from './resources/recalls/recalls.module';
 import { AdminModule } from './resources/admin/admin.module';
 import { AdminAuthMiddleware } from './middlewares/admin/admin.middleware';
 import { AdminAuthService } from './resources/admin/auth/auth.service';
+import { IAPModule, AppleEnvironment } from '@jeremybarbet/nest-iap';
 
 @Module({
   imports: [
@@ -85,6 +86,15 @@ import { AdminAuthService } from './resources/admin/auth/auth.service';
     ReportsModule,
     RecallsModule,
     AdminModule,
+    IAPModule.forRoot({
+      apple: {
+        environment:
+          process.env.DEV === 'true'
+            ? AppleEnvironment.SANDBOX
+            : AppleEnvironment.PRODUCTION,
+        password: process.env.APPLE_SHARED_SECRET!,
+      },
+    }),
   ],
   controllers: [AppController],
   providers: [

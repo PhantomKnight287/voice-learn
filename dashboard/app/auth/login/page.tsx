@@ -12,7 +12,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast";
-import { useState } from "react"
+import { useActionState, useState, useTransition } from "react"
+import { loginAction } from "./action";
 
 export default function Login() {
     return (
@@ -25,7 +26,8 @@ export default function Login() {
 function LoginForm() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
-    const {toast} = useToast()
+    const { toast } = useToast()
+
     return (
         <Card className="w-full max-w-sm">
             <CardHeader>
@@ -52,8 +54,12 @@ function LoginForm() {
             </CardContent>
             <CardFooter>
                 <Button className="w-full"
-                
-                    onClick={()=>{
+
+                    onClick={async () => {
+                        const data = await loginAction(email, password)
+                        if (data.error) {
+                            return toast({ title: data.error, variant: "destructive" })
+                        }
                         
                     }}
                 >Sign in</Button>

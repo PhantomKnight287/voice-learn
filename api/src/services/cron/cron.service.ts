@@ -1,19 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { prisma } from 'src/db';
 import { S3Service } from '../s3/s3.service';
 import { ConfigService } from '@nestjs/config';
-import { generateTimestamps } from 'src/lib/time';
-import { onesignal } from 'src/constants';
+import { appleAPI, onesignal, PRODUCTS } from 'src/constants';
 import { createId } from '@paralleldrive/cuid2';
 import moment from 'moment-timezone';
 import { IANATimezones } from 'src/constants/iana';
+import { IAPService } from '@jeremybarbet/nest-iap';
+import { Tiers } from '@prisma/client';
+import { sign } from 'jsonwebtoken';
+import { readFileSync } from 'fs';
 
 @Injectable()
 export class CronService {
+  private readonly logger = new Logger(CronService.name);
   constructor(
     protected readonly s3: S3Service,
     protected readonly configService: ConfigService,
+    private readonly iapService: IAPService,
   ) {}
   @Cron(CronExpression.EVERY_4_HOURS, {})
   async giveHeart() {
@@ -63,27 +68,64 @@ export class CronService {
     });
   }
 
-  // @Cron(CronExpression.EVERY_10_SECONDS, {
-  //   disabled: process.env.DEV !== 'true',
-  // })
-  // async testNotifications() {
-  //   console.log('sending notifications');
-  //   const users = await prisma.user.findMany({
-  //     where: { notificationToken: { not: null } },
-  //   });
-  //   const res = await onesignal.createNotification({
-  //     app_id: process.env.ONESIGNAL_APP_ID,
-  //     name: 'Test Notifications Using Cron',
-  //     headings: {
-  //       en: 'Your streak was reset 💀',
-  //     },
-  //     contents: {
-  //       en: 'Try not to skip more lessons.',
-  //     },
-  //     include_subscription_ids:['a0bb338e-6cdd-46bf-83f7-f52bffc72cc6'],
-  //   });
-  //   console.log(res);
-  // }
+//   @Cron(CronExpression.EVERY_10_SECONDS)
+//   async pollSubscriptionStatus() {
+//     this.logger.debug('Polling subscription status for all users');
+
+//     const users = await prisma.user.findMany({
+//       where: { tier: 'premium' },
+//     });
+
+//     for (const user of users) {
+//       const transaction = await prisma.transaction.findFirst({
+//         where: {
+//           userId: user.id,
+//           type: 'subscription',
+//           platform: 'ios',
+//           purchaseId: { not: null },
+//         },
+//       });
+
+//       if (!transaction) continue;
+//       const now = Math.round(new Date().getTime() / 1000);
+//       const exp = now + 900
+//       const token = sign(
+//         {
+//           iat: now,
+//           iss: process.env.APPLE_ISSUER_ID,
+//           exp: exp,
+//           aud: 'appstoreconnect-v1',
+//           bid: 'com.voice-learn.app',
+//         },
+//         `-----BEGIN PRIVATE KEY-----
+// MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgwFEKCHOEqum4Xc/t
+// sg+aU9M1wv36wkMPsYkACjp1vWSgCgYIKoZIzj0DAQehRANCAATRXotBkyVzOBL+
+// mODQTKfS68M1IKHquIfp0P8rwYrNwkUYu/iwwakYvgN83nYDmdvaByo2sS2zcZZ7
+// aZfFP7//
+// -----END PRIVATE KEY-----`,
+//         {
+//           algorithm: 'ES256',
+//           header: {
+//             typ: 'JWT',
+//             kid: "4DUY38PY84",
+//             alg: 'ES256',
+//           },
+//         },
+//       );
+//       const data = await fetch(
+//         `${process.env.DEV === 'true'
+//           ? 'https://api.storekit-sandbox.itunes.apple.com/inApps/v1/subscriptions'
+//           : 'https://api.storekit.itunes.apple.com/inApps/v1/subscriptions'}/${transaction.purchaseId}`,
+//           {
+//             headers:{
+//               Authorization:`Bearer ${token}`
+//             }
+//           }
+//       );
+//       // const res = await  data.text()
+//       // console.log(res)
+//     }
+//   }
 
   @Cron(CronExpression.EVERY_MINUTE)
   async streakCronJob() {
@@ -172,7 +214,10 @@ export class CronService {
             }
           }
         }
-      } else if (userLocalTime.hour() === 20 && userLocalTime.minute() === 0) {
+      } else if (
+        (userLocalTime.hour() === 20 || userLocalTime.hour() == 22) &&
+        userLocalTime.minute() === 0
+      ) {
         const lastStreakRecord = await prisma.streak.findFirst({
           where: { userId: user.id },
           orderBy: [{ createdAt: 'desc' }],
@@ -196,13 +241,69 @@ export class CronService {
               app_id: process.env.ONESIGNAL_APP_ID,
               name: 'Streak Reminder',
               contents: {
-                en: 'Your streak is about to reset in 2 hours. Complete a lesson now',
+                en: `Your streak is about to reset in ${userLocalTime.hour() == 20 ? '4' : '2'} hours. Complete a lesson now.`,
               },
               headings: {
-                en: `⚠️ streak about to reset.`,
+                en: `⚠️ Streak about to reset`,
               },
               include_subscription_ids: [user.notificationToken],
             });
+        }
+      }
+    }
+  }
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  async completeIncompleteIOSTransactions() {
+    const transactions = await prisma.transaction.findMany({
+      where: {
+        completed: false,
+        platform: 'ios',
+        userId: { not: null },
+      },
+    });
+    for (const transaction of transactions) {
+      const response = await this.iapService.verifyAppleReceipt({
+        transactionReceipt: transaction.purchaseToken,
+      });
+      if (response.valid) {
+        if (transaction.userId) {
+          if (transaction.sku.startsWith('tier_')) {
+            await prisma.user.update({
+              where: { id: transaction.userId },
+              data: {
+                tier: 'premium',
+                transactions: {
+                  update: {
+                    where: {
+                      id: transaction.id,
+                    },
+                    data: { userUpdated: true, completed: true },
+                  },
+                },
+              },
+            });
+            continue;
+          } else {
+            await prisma.user.update({
+              where: {
+                id: transaction.userId,
+              },
+              data: {
+                emeralds: {
+                  increment: PRODUCTS[transaction.sku] ?? 0,
+                },
+                transactions: {
+                  update: {
+                    where: {
+                      id: transaction.id,
+                    },
+                    data: { userUpdated: true, completed: true },
+                  },
+                },
+              },
+            });
+          }
         }
       }
     }

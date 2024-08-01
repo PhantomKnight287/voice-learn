@@ -19,13 +19,15 @@ export class TransactionsService {
           sku: body.sku,
           type: body.type,
           userId,
+          platform: body.platform,
+          purchaseId: body.purchaseId,
         },
       });
     }
     if (!transaction.userId) {
       transaction = await prisma.transaction.update({
         where: { id: transaction.id },
-        data: { userId },
+        data: { userId, platform: body.platform, purchaseId: body.purchaseId },
       });
     }
 
@@ -34,6 +36,7 @@ export class TransactionsService {
       transaction.completed == false &&
       transaction.userUpdated == false
     ) {
+      console.log(transaction)
       if (transaction.type === 'one_time_product') {
         await prisma.$transaction([
           prisma.user.update({
@@ -48,7 +51,12 @@ export class TransactionsService {
           }),
           prisma.transaction.update({
             where: { id: transaction.id },
-            data: { userUpdated: true, completed: true },
+            data: {
+              userUpdated: true,
+              completed: true,
+              platform: body.platform,
+              purchaseId: body.purchaseId,
+            },
           }),
         ]);
       } else {
@@ -63,7 +71,12 @@ export class TransactionsService {
           }),
           prisma.transaction.update({
             where: { id: transaction.id },
-            data: { userUpdated: true, completed: true },
+            data: {
+              userUpdated: true,
+              completed: true,
+              platform: body.platform,
+              purchaseId: body.purchaseId,
+            },
           }),
         ]);
       }

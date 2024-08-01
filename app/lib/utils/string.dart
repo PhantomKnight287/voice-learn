@@ -99,3 +99,56 @@ Duration getTimeZoneOffset(String timeZone) {
   // Here's a placeholder implementation:
   return Duration(hours: 0); // Replace with actual implementation
 }
+
+String getCurrencySymbol(String countryCode) {
+  // This map contains country codes as keys and their corresponding currency symbols as values
+  final Map<String, String> currencySymbols = {
+    'USD': '\$', // United States Dollar
+    'EUR': '€', // Euro
+    'GBP': '£', // British Pound
+    'JPY': '¥', // Japanese Yen
+    'CNY': '¥', // Chinese Yuan
+    'INR': '₹', // Indian Rupee
+    'RUB': '₽', // Russian Ruble
+    'KRW': '₩', // South Korean Won
+    'BRL': 'R\$', // Brazilian Real
+    'CAD': 'CA\$', // Canadian Dollar
+    'AUD': 'A\$', // Australian Dollar
+    'CHF': 'Fr', // Swiss Franc
+    'MXN': 'Mex\$', // Mexican Peso
+    'SGD': 'S\$', // Singapore Dollar
+    'NZD': 'NZ\$', // New Zealand Dollar
+    'SEK': 'kr', // Swedish Krona
+    'NOK': 'kr', // Norwegian Krone
+    'DKK': 'kr', // Danish Krone
+    'PLN': 'zł', // Polish Zloty
+    'ZAR': 'R', // South African Rand
+    'TRY': '₺', // Turkish Lira
+    'THB': '฿', // Thai Baht
+    'MYR': 'RM', // Malaysian Ringgit
+    'IDR': 'Rp', // Indonesian Rupiah
+    'PHP': '₱', // Philippine Peso
+    'VND': '₫', // Vietnamese Dong
+    'HKD': 'HK\$', // Hong Kong Dollar
+    'TWD': 'NT\$', // New Taiwan Dollar
+    'SAR': '﷼', // Saudi Riyal
+    'AED': 'د.إ', // United Arab Emirates Dirham
+    'ILS': '₪', // Israeli Shekel
+    'EGP': '£', // Egyptian Pound
+    'NGN': '₦', // Nigerian Naira
+    'PKR': '₨', // Pakistani Rupee
+    'BDT': '৳', // Bangladeshi Taka
+    'LKR': 'Rs', // Sri Lankan Rupee
+    'KWD': 'د.ك', // Kuwaiti Dinar
+    'OMR': 'ر.ع.', // Omani Rial
+    'QAR': 'ر.ق', // Qatari Riyal
+    'BHD': 'ب.د', // Bahraini Dinar
+    'IQD': 'ع.د', // Iraqi Dinar
+    'JOD': 'د.ا', // Jordanian Dinar
+    // Add more country codes and currency symbols as needed
+  };
+  countryCode = countryCode.toUpperCase();
+
+  // Return the currency symbol if found, otherwise return a default symbol
+  return (currencySymbols[countryCode] ?? "\$");
+}

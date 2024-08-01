@@ -872,7 +872,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                           cells: [
                             DataCell(
                               Text(
-                                'Voice Messages Duration',
+                                'Voice Note Duration',
                               ),
                             ),
                             DataCell(

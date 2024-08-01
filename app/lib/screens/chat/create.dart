@@ -305,7 +305,7 @@ class _CreateChatScreenState extends State<CreateChatScreen> {
                   ),
                 ),
                 const SizedBox(
-                  height: BASE_MARGIN * 4,
+                  height: BASE_MARGIN * 5,
                 ),
                 ElevatedButton(
                   onPressed: _createChat,

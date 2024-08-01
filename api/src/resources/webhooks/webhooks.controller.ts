@@ -19,4 +19,10 @@ export class WebhooksController {
     res.status(204).send();
     this.webhooksService.handleGooglePlayEvent(data);
   }
+
+  @Post('app-store')
+  handleAppStoreEvent(@Response() res: R, @Body() data: any) {
+    res.status(204).send();
+    this.webhooksService.handleAppStoreEvent(data);
+  }
 }

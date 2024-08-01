@@ -73,7 +73,7 @@ post_install do |installer|
         # 'PERMISSION_LOCATION=1',
        
         ## dart: PermissionGroup.notification
-        # 'PERMISSION_NOTIFICATIONS=1',
+        'PERMISSION_NOTIFICATIONS=1',
 
         ## dart: PermissionGroup.mediaLibrary
         'PERMISSION_MEDIA_LIBRARY=1',
@@ -93,4 +93,9 @@ post_install do |installer|
 
     end
   end
+end
+
+target 'OneSignalNotificationServiceExtension' do
+  use_frameworks!
+  pod 'OneSignalXCFramework', '>= 5.0.0', '< 6.0'
 end

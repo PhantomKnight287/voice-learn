@@ -313,13 +313,14 @@ model Voice {
 }
 
 model Transaction {
-  id               String @id @unique @default(cuid())
-  purchaseToken    String @unique
+  id               String          @id @unique @default(cuid())
+  purchaseToken    String          @db.Text
   sku              String
   notificationType Int?
-
-  completed Boolean         @default(false)
-  type      TransactionType
+  purchaseId       String?
+  completed        Boolean         @default(false)
+  type             TransactionType
+  platform         Platform        @default(ios)
 
   user   User?   @relation(fields: [userId], references: [id])
   userId String?
@@ -328,6 +329,11 @@ model Transaction {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum Platform {
+  android
+  ios
 }
 
 model Report {
