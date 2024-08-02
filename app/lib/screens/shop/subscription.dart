@@ -56,7 +56,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
             width: BASE_MARGIN * 2,
           ),
           Text(
-            "6 voices",
+            "10 Voice Messages",
             style: TextStyle(
               color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
               fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
@@ -181,7 +181,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
             width: BASE_MARGIN * 2,
           ),
           Text(
-            "Unlock 40+ voices",
+            "Unlimited Voice Messages",
             style: TextStyle(
               color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
               fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
@@ -479,7 +479,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                                 height: BASE_MARGIN * 4,
                               ),
                               ElevatedButton(
-                                onPressed: () {
+                                onPressed: () async {
                                   if (state.tier == Tiers.premium) return;
                                   if (query.isLoading == false && data != null) {
                                     Navigator.of(context).push(

@@ -25,14 +25,28 @@ class Chat {
       name: json['name'],
       initialPrompt: json['initialPrompt'],
       language: json['language']['name'],
-      lastMessage: (json['messages'] != null && json['messages'].isNotEmpty)
-          ? (json['messages'][json['messages'].length - 1]['content'] as List).map((e) => e['word']).join(
-                " ",
-              )
-          : '',
+      lastMessage: getLastMessage(json),
       flag: json['language']['flagUrl'],
       voice: json['voice']['name'],
       voiceUrl: json['voice']['previewUrl'],
     );
   }
+}
+
+String getLastMessage(Map<String, dynamic> json) {
+  if (json['messages'] != null && json['messages'].isNotEmpty) {
+    var lastMessage = json['messages'].last;
+
+    if (lastMessage is String) {
+      // New format: array of strings
+      return lastMessage;
+    } else if (lastMessage is Map<String, dynamic> && lastMessage['content'] is List) {
+      // Old format: array of objects
+      return (lastMessage['content'] as List).map((e) => e is String ? e : (e['word'] ?? '')).join(" ");
+    } else {
+      // Unexpected format
+      return '';
+    }
+  }
+  return '';
 }

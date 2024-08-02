@@ -135,7 +135,6 @@ class _ViewHandlerState extends State<ViewHandler> {
   Widget build(BuildContext context) {
     final userBloc = context.read<UserBloc>();
     final state = userBloc.state;
-
     return Stack(
       children: [
         if (state.id.isNotEmpty) const HomeScreen(),
