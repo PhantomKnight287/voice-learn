@@ -41,6 +41,7 @@ void main() async {
     OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
   }
   await Purchases.setLogLevel(LogLevel.verbose);
+  await OneSignal.Location.setShared(false);
 
   PurchasesConfiguration configuration;
   if (Platform.isAndroid) {
