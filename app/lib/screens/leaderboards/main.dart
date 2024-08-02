@@ -8,6 +8,7 @@ import 'package:app/utils/error.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -123,13 +124,28 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
                                       right: 20,
                                       left: 20,
                                     ),
-                                    child: Text(
-                                      (index + 1).toString(),
-                                      style: TextStyle(
-                                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
+                                    child: index == 0
+                                        ? SvgPicture.asset(
+                                            "assets/svgs/gold-crown.svg",
+                                            width: 35,
+                                          )
+                                        : index == 1
+                                            ? SvgPicture.asset(
+                                                "assets/svgs/silver-crown.svg",
+                                                width: 35,
+                                              )
+                                            : index == 2
+                                                ? SvgPicture.asset(
+                                                    "assets/svgs/bronze-crown.svg",
+                                                    width: 35,
+                                                  )
+                                                : Text(
+                                                    (index + 1).toString(),
+                                                    style: TextStyle(
+                                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                                      fontWeight: FontWeight.w600,
+                                                    ),
+                                                  ),
                                   ),
                                   CircleAvatar(
                                     radius: 30,

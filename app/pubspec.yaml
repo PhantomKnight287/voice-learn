@@ -139,6 +139,7 @@ flutter:
     - assets/images/
     - assets/audios/
     - assets/logo/
+    - assets/animations/chests/
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
