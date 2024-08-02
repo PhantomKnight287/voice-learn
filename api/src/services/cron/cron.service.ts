@@ -3,14 +3,11 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { prisma } from 'src/db';
 import { S3Service } from '../s3/s3.service';
 import { ConfigService } from '@nestjs/config';
-import { appleAPI, onesignal, PRODUCTS } from 'src/constants';
+import { onesignal, PRODUCTS } from 'src/constants';
 import { createId } from '@paralleldrive/cuid2';
 import moment from 'moment-timezone';
 import { IANATimezones } from 'src/constants/iana';
 import { IAPService } from '@jeremybarbet/nest-iap';
-import { Tiers } from '@prisma/client';
-import { sign } from 'jsonwebtoken';
-import { readFileSync } from 'fs';
 
 @Injectable()
 export class CronService {
@@ -68,64 +65,64 @@ export class CronService {
     });
   }
 
-//   @Cron(CronExpression.EVERY_10_SECONDS)
-//   async pollSubscriptionStatus() {
-//     this.logger.debug('Polling subscription status for all users');
+  //   @Cron(CronExpression.EVERY_10_SECONDS)
+  //   async pollSubscriptionStatus() {
+  //     this.logger.debug('Polling subscription status for all users');
 
-//     const users = await prisma.user.findMany({
-//       where: { tier: 'premium' },
-//     });
+  //     const users = await prisma.user.findMany({
+  //       where: { tier: 'premium' },
+  //     });
 
-//     for (const user of users) {
-//       const transaction = await prisma.transaction.findFirst({
-//         where: {
-//           userId: user.id,
-//           type: 'subscription',
-//           platform: 'ios',
-//           purchaseId: { not: null },
-//         },
-//       });
+  //     for (const user of users) {
+  //       const transaction = await prisma.transaction.findFirst({
+  //         where: {
+  //           userId: user.id,
+  //           type: 'subscription',
+  //           platform: 'ios',
+  //           purchaseId: { not: null },
+  //         },
+  //       });
 
-//       if (!transaction) continue;
-//       const now = Math.round(new Date().getTime() / 1000);
-//       const exp = now + 900
-//       const token = sign(
-//         {
-//           iat: now,
-//           iss: process.env.APPLE_ISSUER_ID,
-//           exp: exp,
-//           aud: 'appstoreconnect-v1',
-//           bid: 'com.voice-learn.app',
-//         },
-//         `-----BEGIN PRIVATE KEY-----
-// MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgwFEKCHOEqum4Xc/t
-// sg+aU9M1wv36wkMPsYkACjp1vWSgCgYIKoZIzj0DAQehRANCAATRXotBkyVzOBL+
-// mODQTKfS68M1IKHquIfp0P8rwYrNwkUYu/iwwakYvgN83nYDmdvaByo2sS2zcZZ7
-// aZfFP7//
-// -----END PRIVATE KEY-----`,
-//         {
-//           algorithm: 'ES256',
-//           header: {
-//             typ: 'JWT',
-//             kid: "4DUY38PY84",
-//             alg: 'ES256',
-//           },
-//         },
-//       );
-//       const data = await fetch(
-//         `${process.env.DEV === 'true'
-//           ? 'https://api.storekit-sandbox.itunes.apple.com/inApps/v1/subscriptions'
-//           : 'https://api.storekit.itunes.apple.com/inApps/v1/subscriptions'}/${transaction.purchaseId}`,
-//           {
-//             headers:{
-//               Authorization:`Bearer ${token}`
-//             }
-//           }
-//       );
-//       // const res = await  data.text()
-//       // console.log(res)
-//     }
-//   }
+  //       if (!transaction) continue;
+  //       const now = Math.round(new Date().getTime() / 1000);
+  //       const exp = now + 900
+  //       const token = sign(
+  //         {
+  //           iat: now,
+  //           iss: process.env.APPLE_ISSUER_ID,
+  //           exp: exp,
+  //           aud: 'appstoreconnect-v1',
+  //           bid: 'com.voice-learn.app',
+  //         },
+  //         `-----BEGIN PRIVATE KEY-----
+  // MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgwFEKCHOEqum4Xc/t
+  // sg+aU9M1wv36wkMPsYkACjp1vWSgCgYIKoZIzj0DAQehRANCAATRXotBkyVzOBL+
+  // mODQTKfS68M1IKHquIfp0P8rwYrNwkUYu/iwwakYvgN83nYDmdvaByo2sS2zcZZ7
+  // aZfFP7//
+  // -----END PRIVATE KEY-----`,
+  //         {
+  //           algorithm: 'ES256',
+  //           header: {
+  //             typ: 'JWT',
+  //             kid: "4DUY38PY84",
+  //             alg: 'ES256',
+  //           },
+  //         },
+  //       );
+  //       const data = await fetch(
+  //         `${process.env.DEV === 'true'
+  //           ? 'https://api.storekit-sandbox.itunes.apple.com/inApps/v1/subscriptions'
+  //           : 'https://api.storekit.itunes.apple.com/inApps/v1/subscriptions'}/${transaction.purchaseId}`,
+  //           {
+  //             headers:{
+  //               Authorization:`Bearer ${token}`
+  //             }
+  //           }
+  //       );
+  //       // const res = await  data.text()
+  //       // console.log(res)
+  //     }
+  //   }
 
   @Cron(CronExpression.EVERY_MINUTE)
   async streakCronJob() {
@@ -163,6 +160,8 @@ export class CronService {
                 en: 'Your streak is safe 😊',
               },
               include_subscription_ids: [user.notificationToken],
+              large_icon:
+                'https://cdn.voicelearn.tech/image-removebg-preview%20(1).png',
             });
           }
         } else {
@@ -192,6 +191,8 @@ export class CronService {
                   en: 'Your streak was saved by Streak Shield! 😊',
                 },
                 include_subscription_ids: [user.notificationToken],
+                large_icon:
+                  'https://cdn.voicelearn.tech/image-removebg-preview%20(1).png',
               });
             }
           } else {
@@ -210,6 +211,8 @@ export class CronService {
                   en: 'Try not to skip more lessons.',
                 },
                 include_subscription_ids: [user.notificationToken],
+                large_icon:
+                  'https://cdn.voicelearn.tech/image-removebg-preview.png',
               });
             }
           }
@@ -247,6 +250,8 @@ export class CronService {
                 en: `⚠️ Streak about to reset`,
               },
               include_subscription_ids: [user.notificationToken],
+              large_icon:
+                'https://cdn.voicelearn.tech/image-removebg-preview.png',
             });
         }
       }
