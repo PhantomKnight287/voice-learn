@@ -4,14 +4,13 @@ import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/models/user.dart';
 import 'package:app/screens/shop/transaction.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:app/classes/sku.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/utils/print.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:heroicons/heroicons.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:shimmer/shimmer.dart';
 
 class SubscriptionScreen extends StatefulWidget {
@@ -422,13 +421,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                       QueryBuilder(
                         'premium_price',
                         () async {
-                          final instance = InAppPurchase.instance;
-                          if (!await instance.isAvailable()) throw "Billing not available on your device";
-                          final info = await instance.queryProductDetails(
-                            {InAppSubscriptionsPurchaseSku.premium},
-                          );
-                          if (info.notFoundIDs.isNotEmpty) throw "Failed to load pricing";
-                          return info.productDetails[0];
+                          Offerings offerings = await Purchases.getOfferings();
+                          if (offerings.current != null && offerings.current!.availablePackages.isNotEmpty) return offerings.current!.availablePackages.first;
+                          return null;
                         },
                         builder: (context, query) {
                           if (query.hasError) {
@@ -436,97 +431,103 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                               query.error.toString(),
                             );
                           }
-                          if (query.isLoading) {
-                            return Shimmer.fromColors(
-                              baseColor: Colors.grey.shade300,
-                              highlightColor: Colors.grey.shade400,
-                              child: Container(
-                                height: 10,
-                                width: 70,
-                                decoration: BoxDecoration(
-                                  color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                            );
-                          }
 
                           if (query.hasError) return const SizedBox();
                           final data = query.data;
-                          if (data == null) return const SizedBox();
-                          return Text(
-                            "${data.price} / month",
-                            style: TextStyle(
-                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 0.8,
-                              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
+
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              (query.isLoading || data == null)
+                                  ? Shimmer.fromColors(
+                                      baseColor: Colors.grey.shade300,
+                                      highlightColor: Colors.grey.shade400,
+                                      child: Container(
+                                        height: 10,
+                                        width: 70,
+                                        decoration: BoxDecoration(
+                                          color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                      ),
+                                    )
+                                  : Text(
+                                      "${data.storeProduct.priceString} / month",
+                                      style: TextStyle(
+                                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 0.8,
+                                        color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                              const SizedBox(
+                                height: BASE_MARGIN * 4,
+                              ),
+                              ListView.separated(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemBuilder: (context, index) {
+                                  return PREMIUM_FEATURES[index];
+                                },
+                                separatorBuilder: (context, index) {
+                                  return const SizedBox(
+                                    height: BASE_MARGIN * 2,
+                                  );
+                                },
+                                itemCount: PREMIUM_FEATURES.length,
+                              ),
+                              const SizedBox(
+                                height: BASE_MARGIN * 4,
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (state.tier == Tiers.premium) return;
+                                  if (query.isLoading == false && data != null) {
+                                    Navigator.of(context).push(
+                                      NoSwipePageRoute(
+                                        builder: (context) {
+                                          return TransactionScreen(
+                                            package: data,
+                                            type: ProductType.subscription,
+                                          );
+                                        },
+                                      ),
+                                    ).then(
+                                      (value) {
+                                        setState(() {});
+                                      },
+                                    );
+                                  }
+                                },
+                                style: ButtonStyle(
+                                  alignment: Alignment.center,
+                                  backgroundColor: WidgetStateProperty.all(
+                                    state.tier == Tiers.free ? PRIMARY_COLOR : SECONDARY_BG_COLOR,
+                                  ),
+                                  foregroundColor: WidgetStateProperty.all(AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white),
+                                  padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
+                                    (Set<WidgetState> states) {
+                                      return const EdgeInsets.all(15);
+                                    },
+                                  ),
+                                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                ),
+                                child: Text(
+                                  state.tier == Tiers.premium ? "This is what you have" : "Upgrade Now!",
+                                  style: TextStyle(
+                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: "CalSans",
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              )
+                            ],
                           );
                         },
-                      ),
-                      const SizedBox(
-                        height: BASE_MARGIN * 4,
-                      ),
-                      ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          return PREMIUM_FEATURES[index];
-                        },
-                        separatorBuilder: (context, index) {
-                          return const SizedBox(
-                            height: BASE_MARGIN * 2,
-                          );
-                        },
-                        itemCount: PREMIUM_FEATURES.length,
-                      ),
-                      const SizedBox(
-                        height: BASE_MARGIN * 4,
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (state.tier == Tiers.premium) return;
-                          Navigator.of(context).push(
-                            NoSwipePageRoute(
-                              builder: (context) {
-                                return TransactionScreen(
-                                  sku: InAppSubscriptionsPurchaseSku.premium,
-                                  type: ProductType.subscription,
-                                );
-                              },
-                            ),
-                          ).then(
-                            (value) {
-                              setState(() {});
-                            },
-                          );
-                        },
-                        style: ButtonStyle(
-                          alignment: Alignment.center,
-                          backgroundColor: WidgetStateProperty.all(
-                            state.tier == Tiers.free ? PRIMARY_COLOR : SECONDARY_BG_COLOR,
-                          ),
-                          foregroundColor: WidgetStateProperty.all(AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white),
-                          padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
-                            (Set<WidgetState> states) {
-                              return const EdgeInsets.all(15);
-                            },
-                          ),
-                          shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
-                        child: Text(
-                          state.tier == Tiers.premium ? "This is what you have" : "Upgrade Now!",
-                          style: TextStyle(
-                            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: "CalSans",
-                            color: Colors.black,
-                          ),
-                        ),
                       ),
                     ],
                   ),
@@ -605,13 +606,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                               QueryBuilder(
                                 'premium_price',
                                 () async {
-                                  final instance = InAppPurchase.instance;
-                                  if (!await instance.isAvailable()) throw "Billing not available on your device";
-                                  final info = await instance.queryProductDetails(
-                                    {InAppSubscriptionsPurchaseSku.premium},
-                                  );
-                                  if (info.notFoundIDs.isNotEmpty) throw "Failed to load pricing";
-                                  return info.productDetails[0];
+                                  Offerings offerings = await Purchases.getOfferings();
+                                  if (offerings.current != null && offerings.current!.availablePackages.isNotEmpty) return offerings.current!.availablePackages.first;
+                                  return null;
                                 },
                                 builder: (context, query) {
                                   if (query.hasError) {
@@ -638,7 +635,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                                   final data = query.data;
                                   if (data == null) return const SizedBox();
                                   return Text(
-                                    data.price,
+                                    data.storeProduct.priceString,
                                     style: TextStyle(
                                       fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 0.8,
                                       color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,

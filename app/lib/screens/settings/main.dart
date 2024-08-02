@@ -604,52 +604,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 10,
                               ),
                             ),
-                            child: Banner(
-                              message: "Experimental",
-                              location: BannerLocation.topEnd,
-                              child: ListTile(
-                                  title: Padding(
-                                    padding: const EdgeInsets.only(
-                                      bottom: BASE_MARGIN * 1,
-                                    ),
-                                    child: Text(
-                                      "Theme",
-                                      style: TextStyle(
-                                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                            child: ListTile(
+                                title: Padding(
+                                  padding: const EdgeInsets.only(
+                                    bottom: BASE_MARGIN * 1,
                                   ),
-                                  subtitle: const Text(
-                                    "Change theme of app",
+                                  child: Text(
+                                    "Theme",
                                     style: TextStyle(
-                                      color: SECONDARY_TEXT_COLOR,
+                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    softWrap: true,
                                   ),
-                                  trailing: DropdownButton(
-                                    value: AdaptiveTheme.of(context).mode.toString().replaceFirst("AdaptiveThemeMode.", "").toLowerCase(),
-                                    items: const [
-                                      DropdownMenuItem(
-                                        value: "light",
-                                        child: Text("Light"),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: "dark",
-                                        child: Text("Dark"),
-                                      ),
-                                    ],
-                                    onChanged: (value) async {
-                                      final prefs = await SharedPreferences.getInstance();
-                                      if (value == "light") {
-                                        AdaptiveTheme.of(context).setLight();
-                                      } else {
-                                        AdaptiveTheme.of(context).setDark();
-                                      }
-                                      prefs.setString("theme", value ?? "dark");
-                                    },
-                                  )),
-                            ),
+                                ),
+                                subtitle: const Text(
+                                  "Change theme of app",
+                                  style: TextStyle(
+                                    color: SECONDARY_TEXT_COLOR,
+                                  ),
+                                  softWrap: true,
+                                ),
+                                trailing: DropdownButton(
+                                  value: AdaptiveTheme.of(context).mode.toString().replaceFirst("AdaptiveThemeMode.", "").toLowerCase(),
+                                  items: const [
+                                    DropdownMenuItem(
+                                      value: "light",
+                                      child: Text("Light"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "dark",
+                                      child: Text("Dark"),
+                                    ),
+                                  ],
+                                  onChanged: (value) async {
+                                    final prefs = await SharedPreferences.getInstance();
+                                    if (value == "light") {
+                                      AdaptiveTheme.of(context).setLight();
+                                    } else {
+                                      AdaptiveTheme.of(context).setDark();
+                                    }
+                                    prefs.setString("theme", value ?? "dark");
+                                  },
+                                )),
                           ),
                           const SizedBox(
                             height: BASE_MARGIN * 4,

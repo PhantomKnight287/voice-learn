@@ -5,6 +5,7 @@ import 'dart:ui';
 
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/bloc/user/user_bloc.dart';
+import 'package:app/components/backward_compatible_word_renderer.dart';
 import 'package:app/components/input.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
@@ -1154,54 +1155,11 @@ class _ChatBubbleState extends State<ChatBubble> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (widget.text != null) ...{
-                    Wrap(
-                      children: [
-                        for (var word in widget.text!) ...{
-                          if (word != null)
-                            word['translation'] != null
-                                ? GestureDetector(
-                                    onLongPress: () async {
-                                      if (word['word'] == "<empty>") return;
-                                      await HapticFeedback.lightImpact();
-                                      if (context.mounted) {
-                                        Navigator.of(context).push(
-                                          NoSwipePageRoute(
-                                            builder: (context) {
-                                              return CreateNoteScreen(
-                                                title: word['word'],
-                                                description: word['translation'],
-                                              );
-                                            },
-                                          ),
-                                        );
-                                      }
-                                    },
-                                    child: Tooltip(
-                                      message: word['translation'],
-                                      triggerMode: TooltipTriggerMode.tap,
-                                      child: Text(
-                                        word['word'],
-                                        style: const TextStyle(
-                                          decoration: TextDecoration.underline,
-                                          decorationStyle: TextDecorationStyle.dashed,
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                : Text(
-                                    word['word'],
-                                    style: TextStyle(
-                                      color: widget.isSentByMe ? Colors.black : null,
-                                    ),
-                                  ),
-                          SizedBox(
-                            width: BASE_MARGIN.toDouble(),
-                          ),
-                        },
-                      ],
-                    )
-                  },
+                  if (widget.text != null)
+                    BackwardCompatibleWordRendering(
+                      isSentByMe: widget.isSentByMe,
+                      text: widget.text,
+                    ),
                   if (widget.audioUrl != null || widget.audioId != null) ...{
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,

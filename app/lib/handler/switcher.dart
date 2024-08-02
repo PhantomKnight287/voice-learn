@@ -14,6 +14,7 @@ import 'package:app/screens/onboarding/questions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:rive/rive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -88,6 +89,8 @@ class _ViewHandlerState extends State<ViewHandler> {
         logger.i("User State Hydrated");
         await OneSignal.login(user.id);
         logger.i("Logged into onesignal");
+        await Purchases.logIn(user.id);
+        logger.i("Logged into revenue cat");
         if (body['path']?['type'] == 'created') {
           Navigator.of(context).pushReplacement(
             NoSwipePageRoute(

@@ -70,17 +70,12 @@ export class ChatsService {
       where: { id: userId },
       select: { _count: { select: { chats: true } }, tier: true },
     });
-    if (user.tier === 'free' && user._count.chats >= 10) {
+    if (user.tier === 'free' && user._count.chats >= 5) {
       throw new HttpException(
-        'You are only allowed to create 10 free chats. Please upgrade to the Premium to create more chats.',
+        'You are only allowed to create 5 free chats. Please upgrade to the Premium to create more chats.',
         HttpStatus.PAYMENT_REQUIRED,
       );
     }
-    if (user.tier === 'free' && voice.provider !== 'OpenAI')
-      throw new HttpException(
-        'You are only allowed to use free voices.',
-        HttpStatus.PAYMENT_REQUIRED,
-      );
     const chat = await prisma.chat.create({
       data: {
         id: `chat_${createId()}`,

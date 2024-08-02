@@ -201,7 +201,7 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> with RouteAware {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    "Title",
+                    "Term",
                     style: TextStyle(
                       fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                       fontWeight: FontWeight.w600,
@@ -241,7 +241,7 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> with RouteAware {
                     height: BASE_MARGIN * 3,
                   ),
                   Text(
-                    "Description",
+                    "Translation",
                     style: TextStyle(
                       fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                       fontWeight: FontWeight.w600,

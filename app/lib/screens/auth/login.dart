@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 
@@ -121,7 +122,8 @@ class _LoginScreenState extends State<LoginScreen> {
     logger.d("Login Successful. User Id:${response.user.id}. Email:${response.user.email}");
     await OneSignal.login(response.user.id);
     logger.d("Logged into OneSignal");
-
+    await Purchases.logIn(response.user.id);
+    logger.i("Logged into revenue cat");
     if (body['path']?['type'] == 'created') {
       Navigator.of(context).pushAndRemoveUntil(
         NoSwipePageRoute(

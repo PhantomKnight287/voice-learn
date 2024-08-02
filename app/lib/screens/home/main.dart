@@ -483,10 +483,13 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                             icon: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                SvgPicture.asset(
-                                  "assets/images/emerald.svg",
-                                  width: 25,
-                                  height: 25,
+                                Hero(
+                                  tag: "emerald",
+                                  child: SvgPicture.asset(
+                                    "assets/images/emerald.svg",
+                                    width: 25,
+                                    height: 25,
+                                  ),
                                 ),
                                 const SizedBox(
                                   width: BASE_MARGIN * 2,

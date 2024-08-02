@@ -5,6 +5,7 @@ import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/input.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
+import 'package:app/main.dart';
 import 'package:app/models/responses/auth/main.dart';
 import 'package:app/screens/auth/login.dart';
 import 'package:app/screens/onboarding/questions.dart';
@@ -14,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -131,7 +133,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         );
     await OneSignal.login(response.user.id);
-
+    logger.i("Logged into onesignal");
+    await Purchases.logIn(response.user.id);
+    logger.i("Logged into revenue cat");
     Navigator.of(context).pushAndRemoveUntil(
       NoSwipePageRoute(
         builder: (context) => const OnboardingQuestionsScreen(),

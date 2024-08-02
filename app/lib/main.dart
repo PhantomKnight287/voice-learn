@@ -12,6 +12,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 import 'package:fl_query_connectivity_plus_adapter/fl_query_connectivity_plus_adapter.dart';
@@ -39,6 +40,18 @@ void main() async {
   if (kDebugMode) {
     OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
   }
+  await Purchases.setLogLevel(LogLevel.verbose);
+
+  PurchasesConfiguration configuration;
+  if (Platform.isAndroid) {
+    configuration = PurchasesConfiguration(REVENUECAT_GOOGLE_KEY);
+  } else {
+    configuration = PurchasesConfiguration(
+      REVENUECAT_IOS_KEY,
+    );
+  }
+  await Purchases.configure(configuration);
+
   OneSignal.initialize(ONESIGNAL_APP_ID);
   await QueryClient.initialize(
     cachePrefix: 'voice_learn',

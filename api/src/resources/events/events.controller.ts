@@ -501,8 +501,7 @@ Constraints:
             },
             {
               role: 'system',
-              content: `Your response must be an object containing "response", which is an array of objects where 'word' will be the actual word in ${chat.language.name} and 'translation' will be the translation in English. Example: [{"word":"Guten","translation":"Good"},{"word":"morgen","translation":"morning"}]
-  
+              content: `Your response must be an object containing "response", which will be a string with your response. Example: {"response":"Hello, how are you?"}
   Generate responses that are relevant and meaningful to the user's input. Avoid generating nonsensical or out-of-context content.`,
             },
             //@ts-expect-error
@@ -533,11 +532,8 @@ Constraints:
         if (chat.voice.provider === 'OpenAI' && userMessage.attachmentId) {
           const voice = await openai.audio.speech.create({
             model: 'tts-1',
-            input: (
-              res.object as unknown as z.infer<typeof llmTextResponse>
-            ).response
-              .map((word) => word.word)
-              .join(' '),
+            input: (res.object as unknown as z.infer<typeof llmTextResponse>)
+              .response,
             //setting any as the provider is OpenAI so voices are already verified
             voice: chat.voice.name.toLowerCase() as any,
             speed: 1,
@@ -552,9 +548,7 @@ Constraints:
             voice: chat.voice.name,
             text: (
               res.object as unknown as z.infer<typeof llmTextResponse>
-            ).response
-              .map((word) => word.word)
-              .join(' '),
+            ).response,
             model_id: 'eleven_multilingual_v2',
             stream: true,
             enable_logging: true,
@@ -610,7 +604,7 @@ Constraints:
         const llmMessage = await prisma.message.create({
           data: {
             id: `message_${createId()}`,
-            content: (res.object as z.infer<typeof llmTextResponse>).response,
+            content: (res.object as z.infer<typeof llmTextResponse>).response.split(" "),
             author: 'Bot',
             chatId: body.id,
             attachmentId: llmAudio,

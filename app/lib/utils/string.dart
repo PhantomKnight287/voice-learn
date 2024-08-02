@@ -76,10 +76,10 @@ String getResetTime(String userTimeZone) {
   DateTime nextMidnight = DateTime(
     currentUserTime.year,
     currentUserTime.month,
-    currentUserTime.day,
+    currentUserTime.day + 1, // Ensures it's the next midnight
     0,
     0,
-  ).add(Duration(days: 1));
+  );
 
   // Calculate the difference
   Duration difference = nextMidnight.difference(currentUserTime);
