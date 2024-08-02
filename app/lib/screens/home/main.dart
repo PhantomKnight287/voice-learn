@@ -54,8 +54,9 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
   }
 
   Future<bool> _buyOneLife() async {
-    final prefs = await SharedPreferences.getInstance();
+    final userBloc = context.read<UserBloc>();
 
+    final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString("token");
     final req = await http.post(
       Uri.parse(
@@ -78,7 +79,6 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
       );
       return false;
     }
-    final userBloc = context.read<UserBloc>();
     final userState = userBloc.state;
     userBloc.add(UserLoggedInEvent.setEmeraldsAndLives(userState, body['emeralds'], body['lives']));
     return true;
