@@ -52,9 +52,6 @@ class InputField extends StatelessWidget {
       controller: controller,
       obscureText: obscureText ?? false,
       minLines: minLines,
-      onTapOutside: (event) {
-        FocusManager.instance.primaryFocus?.unfocus();
-      },
       maxLines: obscureText == null
           ? maxLines
           : obscureText == true

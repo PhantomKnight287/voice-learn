@@ -343,6 +343,9 @@ class _CreateChatScreenState extends State<CreateChatScreen> {
                           ),
                         ),
                 ),
+                const SizedBox(
+                  height: BASE_MARGIN * 3,
+                ),
               ],
             ),
           ),

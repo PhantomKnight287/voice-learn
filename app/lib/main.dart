@@ -11,7 +11,6 @@ import 'package:app/logs/main.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
@@ -24,6 +23,7 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 final RouteObserver<ModalRoute> routeObserver = RouteObserver<ModalRoute>();
 
@@ -36,7 +36,6 @@ final logger = Logger(
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  unawaited(MobileAds.instance.initialize());
   if (kDebugMode) {
     OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
   }
@@ -58,9 +57,20 @@ void main() async {
     cachePrefix: 'voice_learn',
     connectivity: FlQueryConnectivityPlusAdapter(),
   );
-  runApp(
-    QueryClientProvider(
-      child: const VoiceLearnApp(),
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = 'https://19a3b39cf3893b0234988f1e59625785@o4507713912897536.ingest.de.sentry.io/4507713920368720';
+      // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
+      // We recommend adjusting this value in production.
+      options.tracesSampleRate = 1.0;
+      // The sampling rate for profiling is relative to tracesSampleRate
+      // Setting to 1.0 will profile 100% of sampled transactions:
+      options.profilesSampleRate = 1.0;
+    },
+    appRunner: () => runApp(
+      QueryClientProvider(
+        child: const VoiceLearnApp(),
+      ),
     ),
   );
 }
@@ -145,7 +155,7 @@ class _VoiceLearnAppState extends State<VoiceLearnApp> {
           BlocProvider(create: (context) => ApplicationBloc()),
         ],
         child: AdaptiveTheme(
-            debugShowFloatingThemeButton: kDebugMode,
+            debugShowFloatingThemeButton: false,
             light: ThemeData(
               colorScheme: ColorScheme.fromSeed(
                 seedColor: Colors.deepPurple,

@@ -18,11 +18,7 @@ export class VoicesService {
         },
       ],
     });
-    voices.sort((a, b) => {
-      const hasFreeA = a.tiers.includes('free') ? 0 : 1;
-      const hasFreeB = b.tiers.includes('free') ? 0 : 1;
-      return hasFreeA - hasFreeB;
-    });
+
     return voices;
   }
 }

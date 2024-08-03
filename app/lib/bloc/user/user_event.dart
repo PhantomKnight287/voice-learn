@@ -17,6 +17,7 @@ abstract class UserEvent extends UserModel {
     required super.tier,
     super.avatarHash,
     super.isStreakActive,
+    required super.voiceMessages,
   });
 }
 
@@ -36,6 +37,7 @@ class UserLoggedInEvent extends UserEvent {
     super.avatarHash,
     super.isStreakActive,
     required super.tier,
+    required super.voiceMessages,
   });
   factory UserLoggedInEvent.fromUser(UserModel user, String token) {
     return UserLoggedInEvent(
@@ -53,9 +55,15 @@ class UserLoggedInEvent extends UserEvent {
       isStreakActive: user.isStreakActive,
       tier: user.tier,
       avatarHash: user.avatarHash,
+      voiceMessages: user.voiceMessages,
     );
   }
-  factory UserLoggedInEvent.setEmeraldsAndLives(UserModel user, int emeralds, int? lives) {
+  factory UserLoggedInEvent.setEmeraldsAndLives(
+    UserModel user,
+    int emeralds,
+    int? lives, {
+    int? voiceMessages,
+  }) {
     return UserLoggedInEvent(
       id: user.id,
       name: user.name,
@@ -71,6 +79,7 @@ class UserLoggedInEvent extends UserEvent {
       isStreakActive: user.isStreakActive,
       tier: user.tier,
       avatarHash: user.avatarHash,
+      voiceMessages: voiceMessages ?? user.voiceMessages,
     );
   }
 
@@ -90,6 +99,7 @@ class UserLoggedInEvent extends UserEvent {
       isStreakActive: user.isStreakActive,
       tier: tier,
       avatarHash: user.avatarHash,
+      voiceMessages: user.voiceMessages,
     );
   }
   factory UserLoggedInEvent.setEmailAndName(UserModel user, String email, String name) {
@@ -108,6 +118,7 @@ class UserLoggedInEvent extends UserEvent {
       isStreakActive: user.isStreakActive,
       tier: user.tier,
       avatarHash: user.avatarHash,
+      voiceMessages: user.voiceMessages,
     );
   }
 }
@@ -127,6 +138,7 @@ class UserLoggedOutEvent extends UserEvent {
     super.isStreakActive,
     super.avatarHash,
     required super.tier,
+    required super.voiceMessages,
   });
 }
 
@@ -145,5 +157,26 @@ class DecreaseUserHeartEvent extends UserEvent {
     required super.tier,
     super.isStreakActive,
     super.avatarHash,
+    required super.voiceMessages,
+    super.email,
   });
+  factory DecreaseUserHeartEvent.decreaseBy(UserModel user, {int decrement = 1}) {
+    return DecreaseUserHeartEvent(
+      id: user.id,
+      name: user.name,
+      token: user.token,
+      email: user.email,
+      createdAt: user.createdAt,
+      paths: user.paths,
+      updatedAt: user.updatedAt,
+      emeralds: user.emeralds,
+      lives: user.lives - (decrement),
+      xp: user.xp,
+      streaks: user.streaks,
+      isStreakActive: user.isStreakActive,
+      tier: user.tier,
+      avatarHash: user.avatarHash,
+      voiceMessages: user.voiceMessages,
+    );
+  }
 }

@@ -28,7 +28,7 @@ class UserModel {
   final bool isStreakActive;
   final Tiers tier;
   final String? avatarHash;
-
+  final int voiceMessages;
   UserModel({
     required this.id,
     this.email,
@@ -42,6 +42,7 @@ class UserModel {
     required this.xp,
     required this.streaks,
     required this.tier,
+    required this.voiceMessages,
     this.avatarHash,
     this.isStreakActive = false,
   });
@@ -64,6 +65,7 @@ class UserModel {
         json['tier'],
       ),
       avatarHash: json['avatarHash'],
+      voiceMessages: json['voiceMessages'] ?? 0,
     );
   }
 

@@ -205,11 +205,13 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     socket!.on("user_update", (data) {
       final userBloc = context.read<UserBloc>();
       final userState = userBloc.state;
+      print(data['voiceMessages']);
       userBloc.add(
         UserLoggedInEvent.setEmeraldsAndLives(
           userState,
           data['emeralds'],
           data['lives'],
+          voiceMessages: data['voiceMessages'],
         ),
       );
     });
@@ -567,15 +569,15 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SvgPicture.asset(
-                        "assets/images/emerald.svg",
-                        width: 25,
-                        height: 25,
+                        "assets/svgs/voice_credit.svg",
+                        width: 30,
+                        height: 30,
                       ),
                       const SizedBox(
                         width: BASE_MARGIN * 2,
                       ),
                       Text(
-                        state.emeralds.toString(),
+                        state.voiceMessages.toString(),
                         style: TextStyle(
                           fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
                           fontWeight: FontWeight.w700,
@@ -884,6 +886,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                           : GestureDetector(
                               key: const ValueKey('mic'),
                               onTap: () async {
+                                await HapticFeedback.lightImpact();
                                 if (!_isPreview || filePath.isEmpty || _loading || disabled) return;
                                 setState(() {
                                   disabled = true;
@@ -943,11 +946,14 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
                                 _scrollToBottom();
                               },
-                              onLongPressStart: (_) {
+                              onLongPressStart: (_) async {
+                                await HapticFeedback.lightImpact();
                                 if (_loading || disabled) return;
                                 _startRecording();
                               },
-                              onLongPressEnd: (_) {
+                              onLongPressEnd: (_) async {
+                                await HapticFeedback.lightImpact();
+
                                 if (_loading || disabled) return;
                                 _stopRecording();
                               },

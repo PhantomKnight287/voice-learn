@@ -379,6 +379,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               email: data['email'],
                               isStreakActive: false,
                               tier: Tiers.free,
+                              voiceMessages: data['voiceMessages'],
                             ),
                             context,
                             monthName,

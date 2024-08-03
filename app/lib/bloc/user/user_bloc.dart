@@ -21,6 +21,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
             streaks: -1,
             isStreakActive: false,
             tier: Tiers.free,
+            voiceMessages: -1,
           ),
         ) {
     on<UserLoggedInEvent>((event, emit) {
@@ -40,6 +41,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           isStreakActive: event.isStreakActive,
           tier: event.tier,
           avatarHash: event.avatarHash,
+          voiceMessages: event.voiceMessages,
         ),
       );
     });
@@ -65,6 +67,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           isStreakActive: event.isStreakActive,
           tier: event.tier,
           avatarHash: event.avatarHash,
+          voiceMessages: event.voiceMessages,
         ),
       );
     });

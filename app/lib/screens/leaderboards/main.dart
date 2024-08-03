@@ -127,23 +127,30 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
                                     child: index == 0
                                         ? SvgPicture.asset(
                                             "assets/svgs/gold-crown.svg",
-                                            width: 35,
+                                            width: 30,
                                           )
                                         : index == 1
                                             ? SvgPicture.asset(
                                                 "assets/svgs/silver-crown.svg",
-                                                width: 35,
+                                                width: 30,
                                               )
                                             : index == 2
                                                 ? SvgPicture.asset(
                                                     "assets/svgs/bronze-crown.svg",
-                                                    width: 35,
+                                                    width: 30,
                                                   )
-                                                : Text(
-                                                    (index + 1).toString(),
-                                                    style: TextStyle(
-                                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                                      fontWeight: FontWeight.w600,
+                                                : Container(
+                                                    padding: const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                    ),
+                                                    child: Center(
+                                                      child: Text(
+                                                        (index + 1).toString(),
+                                                        style: TextStyle(
+                                                          fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                                          fontWeight: FontWeight.w600,
+                                                        ),
+                                                      ),
                                                     ),
                                                   ),
                                   ),

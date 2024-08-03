@@ -84,6 +84,7 @@ class _ViewHandlerState extends State<ViewHandler> {
                 isStreakActive: user.isStreakActive,
                 tier: user.tier,
                 avatarHash: user.avatarHash,
+                voiceMessages: user.voiceMessages,
               ),
             );
         logger.i("User State Hydrated");

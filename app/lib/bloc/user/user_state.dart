@@ -17,6 +17,7 @@ abstract class UserState extends UserModel {
     required super.tier,
     super.isStreakActive,
     super.avatarHash,
+    required super.voiceMessages,
   });
 }
 
@@ -36,6 +37,7 @@ class UserInitial extends UserState {
     super.isStreakActive,
     required super.tier,
     super.avatarHash,
+    required super.voiceMessages,
   });
 }
 
@@ -55,6 +57,7 @@ class UserLoggedInState extends UserState {
     required super.streaks,
     super.isStreakActive,
     super.avatarHash,
+    required super.voiceMessages,
   });
 }
 
@@ -74,5 +77,6 @@ class UserLoggedOutState extends UserState {
     super.isStreakActive = false,
     super.tier = Tiers.free,
     super.avatarHash = "",
+    super.voiceMessages = -1,
   });
 }

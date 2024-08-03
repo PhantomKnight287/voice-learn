@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/bloc/user/user_bloc.dart';
+import 'package:app/components/input.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/models/user.dart';
@@ -15,6 +16,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 class ShopScreen extends StatefulWidget {
   const ShopScreen({super.key});
@@ -25,43 +27,21 @@ class ShopScreen extends StatefulWidget {
 
 class _ShopScreenState extends State<ShopScreen> {
   List<Package> packages = [];
-
+  List<Widget> FREE_FEATURES = [];
+  List<Widget> PREMIUM_FEATURES = [];
+  bool _buyOneVoiceCreditLoading = false;
+  final _formKey = GlobalKey<FormState>();
+  final _focusNode = FocusNode();
   @override
-  void initState() {
-    super.initState();
-    initialize();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  Future<void> initialize() async {
-    try {
-      Offerings offerings = await Purchases.getOfferings();
-      if (offerings.current != null && offerings.current!.availablePackages.isNotEmpty) {
-        final emeraldsOffering = offerings.getOffering("Emeralds");
-        if (emeraldsOffering != null && emeraldsOffering.availablePackages.isNotEmpty) {
-          setState(() {
-            packages = emeraldsOffering.availablePackages;
-          });
-        }
-      }
-    } on PlatformException catch (e) {
-      // optional error handling
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final FREE_FEATURES = [
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    FREE_FEATURES = [
       Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           HeroIcon(
-            HeroIcons.speakerWave,
+            HeroIcons.microphone,
             style: HeroIconStyle.outline,
             color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
           ),
@@ -159,13 +139,13 @@ class _ShopScreenState extends State<ShopScreen> {
         ],
       ),
     ];
-    final PREMIUM_FEATURES = [
+    PREMIUM_FEATURES = [
       Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           HeroIcon(
-            HeroIcons.speakerWave,
+            HeroIcons.microphone,
             style: HeroIconStyle.outline,
             color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
           ),
@@ -267,7 +247,37 @@ class _ShopScreenState extends State<ShopScreen> {
         ],
       ),
     ];
+  }
 
+  @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  Future<void> initialize() async {
+    try {
+      Offerings offerings = await Purchases.getOfferings();
+      if (offerings.current != null && offerings.current!.availablePackages.isNotEmpty) {
+        final emeraldsOffering = offerings.getOffering("Emeralds");
+        if (emeraldsOffering != null && emeraldsOffering.availablePackages.isNotEmpty) {
+          setState(() {
+            packages = emeraldsOffering.availablePackages;
+          });
+        }
+      }
+    } on PlatformException catch (e) {
+      // optional error handling
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = context.read<UserBloc>().state;
     return Scaffold(
       appBar: AppBar(
@@ -279,36 +289,6 @@ class _ShopScreenState extends State<ShopScreen> {
           "Shop",
         ),
         centerTitle: true,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(
-              right: 10,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Hero(
-                  tag: "emerald",
-                  child: SvgPicture.asset(
-                    "assets/images/emerald.svg",
-                    width: 25,
-                    height: 25,
-                  ),
-                ),
-                const SizedBox(
-                  width: BASE_MARGIN * 2,
-                ),
-                Text(
-                  state.emeralds.toString(),
-                  style: TextStyle(
-                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -318,13 +298,50 @@ class _ShopScreenState extends State<ShopScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Emeralds",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-                  fontFamily: "CalSans",
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    "Emeralds",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                      fontFamily: "CalSans",
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      right: 10,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Hero(
+                          tag: "emerald",
+                          child: SvgPicture.asset(
+                            "assets/images/emerald.svg",
+                            width: 25,
+                            height: 25,
+                          ),
+                        ),
+                        const SizedBox(
+                          width: BASE_MARGIN * 2,
+                        ),
+                        Text(
+                          state.emeralds.toString(),
+                          style: TextStyle(
+                            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: BASE_MARGIN * 2,
               ),
               QueryBuilder(
                 'emeralds',
@@ -351,83 +368,501 @@ class _ShopScreenState extends State<ShopScreen> {
                   }
                   final data = query.data;
                   if (data == null) return const SizedBox();
-                  return SizedBox(
-                    height: 410,
-                    child: GridView.count(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: BASE_MARGIN * 2,
-                      crossAxisSpacing: BASE_MARGIN * 2,
-                      childAspectRatio: 1,
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: data
-                          .map((element) => GestureDetector(
-                                onTap: () async {
-                                  Navigator.of(context).push(NoSwipePageRoute(
-                                    builder: (context) {
-                                      return TransactionScreen(
-                                        type: ProductType.consumable,
-                                        storeProduct: element.storeProduct,
-                                      );
-                                    },
-                                  )).then((value) {
-                                    setState(() {});
-                                  });
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: getSecondaryColor(context),
-                                        width: 2,
-                                      ),
-                                      borderRadius: BorderRadius.circular(
-                                        10,
-                                      ),
+                  return GridView.count(
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    childAspectRatio: 1,
+                    physics: const NeverScrollableScrollPhysics(),
+                    mainAxisSpacing: BASE_MARGIN * 2,
+                    crossAxisSpacing: BASE_MARGIN * 2,
+                    children: data
+                        .map((element) => GestureDetector(
+                              onTap: () async {
+                                Navigator.of(context).push(NoSwipePageRoute(
+                                  builder: (context) {
+                                    return TransactionScreen(
+                                      type: ProductType.consumable,
+                                      storeProduct: element.storeProduct,
+                                    );
+                                  },
+                                )).then((value) {
+                                  setState(() {});
+                                });
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(0),
+                                child: Container(
+                                  padding: EdgeInsets.all(
+                                    10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: getSecondaryColor(context),
+                                      width: 2,
                                     ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        if (element.storeProduct.identifier.endsWith("100")) SvgPicture.asset("assets/svgs/bronze.svg"),
-                                        if (element.storeProduct.identifier.endsWith("200")) SvgPicture.asset("assets/svgs/silver.svg"),
-                                        if (element.storeProduct.identifier.endsWith("500")) SvgPicture.asset("assets/svgs/gold.svg"),
-                                        if (element.storeProduct.identifier.endsWith("1000")) SvgPicture.asset("assets/svgs/platinum.svg"),
-                                        const SizedBox(
-                                          height: BASE_MARGIN * 2,
-                                        ),
-                                        Text(
-                                          element.storeProduct.title,
-                                          style: TextStyle(
-                                            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                            color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
-                                            fontWeight: FontWeight.w600,
-                                            fontFamily: "CalSans",
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          height: BASE_MARGIN * 2,
-                                        ),
-                                        Text(
-                                          element.storeProduct.priceString,
-                                          style: TextStyle(
-                                            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 0.8,
-                                            color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        )
-                                      ],
+                                    borderRadius: BorderRadius.circular(
+                                      10,
                                     ),
                                   ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      if (element.storeProduct.identifier.endsWith("100")) SvgPicture.asset("assets/svgs/bronze.svg"),
+                                      if (element.storeProduct.identifier.endsWith("200")) SvgPicture.asset("assets/svgs/silver.svg"),
+                                      if (element.storeProduct.identifier.endsWith("500")) SvgPicture.asset("assets/svgs/gold.svg"),
+                                      if (element.storeProduct.identifier.endsWith("1000")) SvgPicture.asset("assets/svgs/platinum.svg"),
+                                      const SizedBox(
+                                        height: BASE_MARGIN * 2,
+                                      ),
+                                      Text(
+                                        element.storeProduct.title.replaceAll("(Voice Learn)", ""),
+                                        style: TextStyle(
+                                          fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                          color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: "CalSans",
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: BASE_MARGIN * 2,
+                                      ),
+                                      Text(
+                                        element.storeProduct.priceString,
+                                        style: TextStyle(
+                                          fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 0.8,
+                                          color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      )
+                                    ],
+                                  ),
                                 ),
-                              ))
-                          .toList(),
-                    ),
+                              ),
+                            ))
+                        .toList(),
                   );
                 },
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    "Voice Credits",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                      fontFamily: "CalSans",
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      right: 10,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          "assets/svgs/voice_credit.svg",
+                          width: 30,
+                          height: 30,
+                        ),
+                        const SizedBox(
+                          width: BASE_MARGIN * 2,
+                        ),
+                        Text(
+                          state.voiceMessages.toString(),
+                          style: TextStyle(
+                            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(
-                height: BASE_MARGIN * 4,
+                height: BASE_MARGIN * 3,
+              ),
+              GestureDetector(
+                onTap: () {
+                  WoltModalSheet.show(
+                    context: context,
+                    pageListBuilder: (context) {
+                      return [
+                        WoltModalSheetPage(
+                          topBarTitle: Text(
+                            'Buy Voice Credits',
+                            style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                                  color: Colors.black,
+                                ),
+                          ),
+                          isTopBarLayerAlwaysVisible: true,
+                          trailingNavBarWidget: IconButton(
+                            padding: const EdgeInsets.all(BASE_MARGIN * 2),
+                            icon: const Icon(Icons.close),
+                            onPressed: Navigator.of(context).pop,
+                          ),
+                          child: StatefulBuilder(
+                            builder: (context, setState) {
+                              return Container(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        right: 10,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          SvgPicture.asset(
+                                            "assets/svgs/voice_credit.svg",
+                                            width: 30,
+                                            height: 30,
+                                          ),
+                                          const SizedBox(
+                                            width: BASE_MARGIN * 2,
+                                          ),
+                                          Text(
+                                            state.voiceMessages.toString(),
+                                            style: TextStyle(
+                                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: BASE_MARGIN * 4,
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        setState(() {
+                                          _buyOneVoiceCreditLoading = true;
+                                        });
+                                        // await _buyOneStreakShield();
+
+                                        setState(() {
+                                          _buyOneVoiceCreditLoading = false;
+                                        });
+                                        if (context.mounted) Navigator.pop(context);
+                                      },
+                                      style: ButtonStyle(
+                                        backgroundColor: WidgetStateProperty.all(
+                                          getSecondaryColor(context),
+                                        ),
+                                        alignment: Alignment.center,
+                                        foregroundColor: WidgetStateProperty.all(Colors.black),
+                                        padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
+                                          (Set<WidgetState> states) {
+                                            return const EdgeInsets.all(15);
+                                          },
+                                        ),
+                                        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                        ),
+                                      ),
+                                      child: _buyOneVoiceCreditLoading
+                                          ? Container(
+                                              width: 24,
+                                              height: 24,
+                                              padding: const EdgeInsets.all(2.0),
+                                              child: const CupertinoActivityIndicator(
+                                                animating: true,
+                                                radius: 20,
+                                              ),
+                                            )
+                                          : Row(
+                                              children: [
+                                                SvgPicture.asset(
+                                                  "assets/svgs/voice_credit.svg",
+                                                  width: 30,
+                                                  height: 30,
+                                                ),
+                                                const SizedBox(
+                                                  width: BASE_MARGIN * 2,
+                                                ),
+                                                Expanded(
+                                                  child: Text(
+                                                    "Buy 1 credit",
+                                                    style: TextStyle(
+                                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
+                                                      fontWeight: FontWeight.w600,
+                                                      color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
+                                                    ),
+                                                  ),
+                                                ),
+                                                SvgPicture.asset(
+                                                  "assets/images/emerald.svg",
+                                                  width: 25,
+                                                  height: 25,
+                                                ),
+                                                const SizedBox(
+                                                  width: BASE_MARGIN * 2,
+                                                ),
+                                                Text(
+                                                  "2",
+                                                  style: TextStyle(
+                                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                    ),
+                                    SizedBox(
+                                      height: BASE_MARGIN * 4,
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        setState(() {
+                                          _buyOneVoiceCreditLoading = true;
+                                        });
+                                        // await _buyOneStreakShield();
+
+                                        setState(() {
+                                          _buyOneVoiceCreditLoading = false;
+                                        });
+                                        if (context.mounted) Navigator.pop(context);
+                                      },
+                                      style: ButtonStyle(
+                                        backgroundColor: WidgetStateProperty.all(
+                                          getSecondaryColor(context),
+                                        ),
+                                        alignment: Alignment.center,
+                                        foregroundColor: WidgetStateProperty.all(Colors.black),
+                                        padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
+                                          (Set<WidgetState> states) {
+                                            return const EdgeInsets.all(15);
+                                          },
+                                        ),
+                                        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                        ),
+                                      ),
+                                      child: _buyOneVoiceCreditLoading
+                                          ? Container(
+                                              width: 24,
+                                              height: 24,
+                                              padding: const EdgeInsets.all(2.0),
+                                              child: const CupertinoActivityIndicator(
+                                                animating: true,
+                                                radius: 20,
+                                              ),
+                                            )
+                                          : Row(
+                                              children: [
+                                                SvgPicture.asset(
+                                                  "assets/svgs/voice_credit.svg",
+                                                  width: 30,
+                                                  height: 30,
+                                                ),
+                                                const SizedBox(
+                                                  width: BASE_MARGIN * 2,
+                                                ),
+                                                Expanded(
+                                                  child: Text(
+                                                    "Buy 10 credits",
+                                                    style: TextStyle(
+                                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
+                                                      fontWeight: FontWeight.w600,
+                                                      color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
+                                                    ),
+                                                  ),
+                                                ),
+                                                SvgPicture.asset(
+                                                  "assets/images/emerald.svg",
+                                                  width: 25,
+                                                  height: 25,
+                                                ),
+                                                const SizedBox(
+                                                  width: BASE_MARGIN * 2,
+                                                ),
+                                                Text(
+                                                  (2 * 10).toString(),
+                                                  style: TextStyle(
+                                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                    ),
+                                    SizedBox(
+                                      height: BASE_MARGIN * 4,
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: WoltModalSheet.of(context).showNext,
+                                      style: ButtonStyle(
+                                        backgroundColor: WidgetStateProperty.all(
+                                          getSecondaryColor(context),
+                                        ),
+                                        alignment: Alignment.center,
+                                        foregroundColor: WidgetStateProperty.all(Colors.black),
+                                        padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
+                                          (Set<WidgetState> states) {
+                                            return const EdgeInsets.all(15);
+                                          },
+                                        ),
+                                        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          SvgPicture.asset(
+                                            "assets/svgs/voice_credit.svg",
+                                            width: 30,
+                                            height: 30,
+                                          ),
+                                          const SizedBox(
+                                            width: BASE_MARGIN * 2,
+                                          ),
+                                          Expanded(
+                                            child: Text(
+                                              "Buy Custom",
+                                              style: TextStyle(
+                                                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
+                                                fontWeight: FontWeight.w600,
+                                                color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        WoltModalSheetPage(
+                          topBarTitle: Text(
+                            'Buy Voice Credits',
+                            style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                                  color: Colors.black,
+                                ),
+                          ),
+                          isTopBarLayerAlwaysVisible: true,
+                          trailingNavBarWidget: IconButton(
+                            padding: const EdgeInsets.all(BASE_MARGIN * 2),
+                            icon: const Icon(Icons.close),
+                            onPressed: Navigator.of(context).pop,
+                          ),
+                          child: StatefulBuilder(
+                            builder: (context, setState) {
+                              return Container(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    InputField(
+                                      hintText: "Enter no of credits",
+                                      keyboardType: TextInputType.number,
+                                      autoFocus: true,
+                                    ),
+                                    SizedBox(
+                                      height: BASE_MARGIN * 4,
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () {},
+                                      style: ButtonStyle(
+                                        alignment: Alignment.center,
+                                        foregroundColor: WidgetStateProperty.all(Colors.black),
+                                        padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
+                                          (Set<WidgetState> states) {
+                                            return const EdgeInsets.all(15);
+                                          },
+                                        ),
+                                        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                        ),
+                                      ),
+                                      child:
+                                          //  _loading
+                                          //     ? Container(
+                                          //         width: 24,
+                                          //         height: 24,
+                                          //         padding: const EdgeInsets.all(2.0),
+                                          //         child: CircularProgressIndicator(
+                                          //           color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
+                                          //           strokeWidth: 3,
+                                          //         ),
+                                          //       )
+                                          //     :
+                                          Text(
+                                        "Confirm",
+                                        style: TextStyle(
+                                          fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ];
+                    },
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: getSecondaryColor(
+                      context,
+                    ),
+                    borderRadius: BorderRadius.circular(
+                      10,
+                    ),
+                  ),
+                  padding: EdgeInsets.all(
+                    BASE_MARGIN * 4,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SvgPicture.asset(
+                        "assets/svgs/voice_credit.svg",
+                        width: 30,
+                        height: 30,
+                      ),
+                      const SizedBox(
+                        width: BASE_MARGIN * 4,
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Engage in interactive voice chats with the AI. Use them to practice conversations, improve your language skills, and make the most of your learning experience!",
+                            ),
+                            const SizedBox(
+                              height: BASE_MARGIN * 2,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
               Text(
                 "Subscriptions",
@@ -437,101 +872,8 @@ class _ShopScreenState extends State<ShopScreen> {
                   fontFamily: "CalSans",
                 ),
               ),
-              // Container(
-              //   padding: const EdgeInsets.all(8.0),
-              //   decoration: BoxDecoration(
-              //     borderRadius: BorderRadius.circular(
-              //       10,
-              //     ),
-              //     border: Border.all(
-              //       color: getSecondaryColor(context),
-              //       width: 2,
-              //     ),
-              //   ),
-              //   child: Column(
-              //     crossAxisAlignment: CrossAxisAlignment.stretch,
-              //     children: [
-              //       Text(
-              //         "Free",
-              //         style: TextStyle(
-              //           fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-              //           color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
-              //           fontWeight: FontWeight.w700,
-              //           letterSpacing: 0.5,
-              //           fontFamily: "CalSans",
-              //         ),
-              //       ),
-              //       Text(
-              //         "\$0 / mo",
-              //         style: TextStyle(
-              //           fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 0.8,
-              //           color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
-              //           fontWeight: FontWeight.w600,
-              //         ),
-              //       ),
-              //       const SizedBox(
-              //         height: BASE_MARGIN * 4,
-              //       ),
-              //       ListView.separated(
-              //         shrinkWrap: true,
-              //         physics: const NeverScrollableScrollPhysics(),
-              //         itemBuilder: (context, index) {
-              //           return FREE_FEATURES[index];
-              //         },
-              //         separatorBuilder: (context, index) {
-              //           return const SizedBox(
-              //             height: BASE_MARGIN * 2,
-              //           );
-              //         },
-              //         itemCount: FREE_FEATURES.length,
-              //       ),
-              //       const SizedBox(
-              //         height: BASE_MARGIN * 2,
-              //       ),
-              //       const Text(
-              //         "*Each voice message costs 1 emerald.",
-              //         style: TextStyle(
-              //           color: Colors.grey,
-              //         ),
-              //       ),
-              //       const SizedBox(
-              //         height: BASE_MARGIN * 4,
-              //       ),
-              //       ElevatedButton(
-              //         onPressed: () {},
-              //         style: ButtonStyle(
-              //           alignment: Alignment.center,
-              //           foregroundColor: WidgetStateProperty.all(AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white),
-              //           padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
-              //             (Set<WidgetState> states) {
-              //               return const EdgeInsets.all(15);
-              //             },
-              //           ),
-              //           shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-              //             RoundedRectangleBorder(
-              //               borderRadius: BorderRadius.circular(10),
-              //             ),
-              //           ),
-              //           backgroundColor: WidgetStateProperty.all(
-              //             SECONDARY_BG_COLOR,
-              //           ),
-              //         ),
-              //         child: Text(
-              //           state.tier == Tiers.free ? "This is what you have" : "Already included in Premium",
-              //           style: TextStyle(
-              //             fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-              //             fontWeight: FontWeight.w600,
-              //             fontFamily: "CalSans",
-              //             color: Colors.black,
-              //           ),
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              // ),
-              //
               const SizedBox(
-                height: BASE_MARGIN * 4,
+                height: BASE_MARGIN * 2,
               ),
               Container(
                 padding: const EdgeInsets.all(
@@ -686,6 +1028,8 @@ class _ShopScreenState extends State<ShopScreen> {
               Column(
                 children: [
                   DataTable(
+                    dataRowHeight: 60,
+                    dividerThickness: 1.5,
                     columns: [
                       DataColumn(
                         label: Text(
@@ -983,30 +1327,9 @@ class _ShopScreenState extends State<ShopScreen> {
                         cells: [
                           DataCell(
                             Text(
-                              'ADs',
-                            ),
-                          ),
-                          DataCell(
-                            Center(
-                              child: HeroIcon(
-                                HeroIcons.xMark,
-                              ),
-                            ),
-                          ),
-                          DataCell(
-                            Center(
-                              child: HeroIcon(
-                                HeroIcons.check,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const DataRow(
-                        cells: [
-                          DataCell(
-                            Text(
-                              'Voice Note Duration',
+                              'Voice Message Duration',
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           DataCell(

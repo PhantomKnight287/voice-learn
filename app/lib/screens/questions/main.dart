@@ -21,7 +21,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -55,7 +54,6 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
   bool _disabled = false;
   double _speed = 0.5;
   String testSentence = "";
-  InterstitialAd? _interstitialAd;
   Language? lessonLanguage;
   bool _devModeEnabled = false;
   List<dynamic> voices = [];
@@ -65,7 +63,6 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
   @override
   void dispose() {
     super.dispose();
-    _interstitialAd?.dispose();
   }
 
   void _getTTSConfig(
@@ -86,39 +83,6 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     if (Platform.isIOS) {
       await AppTrackingTransparency.requestTrackingAuthorization();
     }
-    InterstitialAd.load(
-        adUnitId: LESSON_COMPLETION_AD_ID,
-        request: const AdRequest(),
-        adLoadCallback: InterstitialAdLoadCallback(
-          // Called when an ad is successfully received.
-          onAdLoaded: (ad) {
-            ad.fullScreenContentCallback = FullScreenContentCallback(
-              // Called when the ad showed the full screen content.
-              onAdShowedFullScreenContent: (ad) {},
-              // Called when an impression occurs on the ad.
-              onAdImpression: (ad) {},
-              // Called when the ad failed to show full screen content.
-              onAdFailedToShowFullScreenContent: (ad, err) {
-                // Dispose the ad here to free resources.
-                ad.dispose();
-              },
-              // Called when the ad dismissed full screen content.
-              onAdDismissedFullScreenContent: (ad) {
-                // Dispose the ad here to free resources.
-                ad.dispose();
-              },
-              // Called when a click is recorded for an ad.
-              onAdClicked: (ad) {},
-            );
-
-            // Keep a reference to the ad so you can show it later.
-            _interstitialAd = ad;
-          },
-          // Called when an ad request failed.
-          onAdFailedToLoad: (LoadAdError error) {
-            logger.e('InterstitialAd failed to load: $error');
-          },
-        ));
   }
 
   void _setSpeed() async {
@@ -204,50 +168,16 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
       _submitAnswer(questionId, answer, last).then(
         (value) async {
           if (last) {
-            _interstitialAd?.fullScreenContentCallback = FullScreenContentCallback(
-              onAdDismissedFullScreenContent: (ad) {
-                ad.dispose();
-                Navigator.of(context).pushReplacement(
-                  NoSwipePageRoute(
-                    builder: (context) {
-                      return LessonCompleteScreen(
-                        questionId: questionId,
-                        showAd: true,
-                      );
-                    },
-                  ),
-                );
-              },
-              onAdFailedToShowFullScreenContent: (ad, error) {
-                ad.dispose();
-                logger.e("Failed to show full screen ad: ${error.message}");
-                Navigator.of(context).pushReplacement(
-                  NoSwipePageRoute(
-                    builder: (context) {
-                      return LessonCompleteScreen(
-                        questionId: questionId,
-                        showAd: true,
-                      );
-                    },
-                  ),
-                );
-              },
+            Navigator.of(context).pushReplacement(
+              NoSwipePageRoute(
+                builder: (context) {
+                  return LessonCompleteScreen(
+                    questionId: questionId,
+                    showAd: true,
+                  );
+                },
+              ),
             );
-            final userState = context.read<UserBloc>().state;
-            if (userState.tier == Tiers.free) {
-              await _interstitialAd?.show();
-            } else {
-              Navigator.of(context).pushReplacement(
-                NoSwipePageRoute(
-                  builder: (context) {
-                    return LessonCompleteScreen(
-                      questionId: questionId,
-                      showAd: true,
-                    );
-                  },
-                ),
-              );
-            }
           }
         },
       );
@@ -414,19 +344,8 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
       if (req.statusCode == 201) {
         logger.d("Answer to question $questionId submitted");
         userBloc.add(
-          DecreaseUserHeartEvent(
-            id: state.id,
-            name: state.name,
-            createdAt: state.createdAt,
-            paths: state.paths,
-            updatedAt: state.updatedAt,
-            token: state.token,
-            emeralds: body['emeralds'],
-            lives: body['lives'],
-            xp: body['xp'].toDouble(),
-            streaks: body['streaks'] ?? last == true ? state.streaks + 1 : state.streaks,
-            isStreakActive: body['isStreakActive'] ?? state.isStreakActive,
-            tier: state.tier,
+          DecreaseUserHeartEvent.decreaseBy(
+            state,
           ),
         );
       } else {

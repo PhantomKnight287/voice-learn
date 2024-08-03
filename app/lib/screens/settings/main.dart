@@ -216,6 +216,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   streaks: -1,
                                   isStreakActive: false,
                                   tier: Tiers.free,
+                                  voiceMessages: -1,
                                 ),
                               );
                           if (context.mounted) {

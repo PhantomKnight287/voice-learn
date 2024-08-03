@@ -16,6 +16,7 @@ import { GeminiService } from 'src/services/gemini/gemini.service';
 import { Subscription } from 'rxjs';
 import { queue } from 'src/services/queue/queue.service';
 import {
+  ISO6391,
   messageSubject,
   openai,
   queuePositionSubject,
@@ -26,7 +27,6 @@ import { createReadStream, createWriteStream } from 'fs';
 import { promisify } from 'util';
 import { pipeline } from 'stream';
 import { S3Service } from 'src/services/s3/s3.service';
-import { DeleteObjectCommand } from '@aws-sdk/client-s3';
 
 const streamPipeline = promisify(pipeline);
 
@@ -119,10 +119,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
       if (!attachment) return client.emit('error', 'Invalid attachment');
 
-      if (user.emeralds <= 0) {
+      if (user.voiceMessages <= 0 && user.tier !== 'premium') {
         client.emit(
           'error',
-          'Not enough emeralds to continue in voice chat mode. Please use text only chat.',
+          'Not enough credits to continue in voice chat mode. Please use text only chat or upgrade to premium',
         );
         addToQueue = false;
         await this.s3Service.deleteObject({
@@ -130,23 +130,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           Key: attachment.key,
         });
       }
-      if (user.tier === 'free') {
-        const chat = await prisma.chat.findFirst({
-          where: { id: client.handshake.query.chatId as string },
-          include: { voice: true },
-        });
-        if (chat.voice.provider === 'XILabs') {
-          client.emit(
-            'error',
-            'This chat is using a premium voice. Please upgrade to premium to continue with voice messages in this chat.',
-          );
-          await this.s3Service.deleteObject({
-            Bucket: process.env.R2_BUCKET_NAME,
-            Key: attachment.key,
-          });
-          return;
-        }
-      }
+      const chat = await prisma.chat.findFirst({
+        where: {
+          id: client.handshake.query.chatId as string,
+        },
+        include: {
+          language: true,
+        },
+      });
       const res = await fetch(attachment.url);
       if (!res.ok)
         throw new Error(`Failed to fetch ${attachment.url}: ${res.statusText}`);
@@ -163,6 +154,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         model: 'whisper-1',
         response_format: 'json',
         file: createReadStream(filePath),
+        language: ISO6391[chat.language.name],
       });
       if (whipserRes.text) {
         const arr = whipserRes.text;

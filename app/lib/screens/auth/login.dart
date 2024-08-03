@@ -117,6 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
             isStreakActive: response.user.isStreakActive,
             tier: response.user.tier,
             avatarHash: response.user.avatarHash,
+            voiceMessages: response.user.voiceMessages,
           ),
         );
     logger.d("Login Successful. User Id:${response.user.id}. Email:${response.user.email}");

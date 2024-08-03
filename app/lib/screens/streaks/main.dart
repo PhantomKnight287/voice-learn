@@ -272,9 +272,12 @@ class _StreaksScreenState extends State<StreaksScreen> {
                     : null,
                 builder: (context, query) {
                   if (query.isLoading) {
-                    return const Center(
-                      child: CupertinoActivityIndicator(
-                        animating: true,
+                    return const SizedBox(
+                      height: 350,
+                      child: Center(
+                        child: CupertinoActivityIndicator(
+                          animating: true,
+                        ),
                       ),
                     );
                   }
@@ -301,6 +304,7 @@ class _StreaksScreenState extends State<StreaksScreen> {
                       lastDay: DateTime.utc(2030, 12, 31),
                       focusedDay: _focusedDay,
                       calendarFormat: _calendarFormat,
+                      availableCalendarFormats: const {CalendarFormat.month: "Month"},
                       selectedDayPredicate: (day) {
                         return isSameDay(_selectedDay, day);
                       },
@@ -710,7 +714,10 @@ class _StreaksScreenState extends State<StreaksScreen> {
                   ),
                   refreshOnQueryFnChange: true,
                 ),
-              )
+              ),
+              const SizedBox(
+                height: BASE_MARGIN * 3,
+              ),
             ],
           ),
         ),

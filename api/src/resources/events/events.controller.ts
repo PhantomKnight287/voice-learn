@@ -501,7 +501,7 @@ Constraints:
             },
             {
               role: 'system',
-              content: `Your response must be an object containing "response", which will be a string with your response. Example: {"response":"Hello, how are you?"}
+              content: `Your response must be an object containing "response" and "translation" where "response" will be a string with your response and "translation" will be translation of your response in english. Example: {"response":"Guten Morgen","translation":"Good morning"}
   Generate responses that are relevant and meaningful to the user's input. Avoid generating nonsensical or out-of-context content.`,
             },
             //@ts-expect-error
@@ -546,9 +546,8 @@ Constraints:
         ) {
           const audioStream = await elevenLabs.generate({
             voice: chat.voice.name,
-            text: (
-              res.object as unknown as z.infer<typeof llmTextResponse>
-            ).response,
+            text: (res.object as unknown as z.infer<typeof llmTextResponse>)
+              .response,
             model_id: 'eleven_multilingual_v2',
             stream: true,
             enable_logging: true,
@@ -594,7 +593,7 @@ Constraints:
               id: chat.userId,
             },
             data: {
-              emeralds: {
+              voiceMessages: {
                 decrement: 1,
               },
             },
@@ -604,7 +603,7 @@ Constraints:
         const llmMessage = await prisma.message.create({
           data: {
             id: `message_${createId()}`,
-            content: (res.object as z.infer<typeof llmTextResponse>).response.split(" "),
+            content: [res.object as z.infer<typeof llmTextResponse>],
             author: 'Bot',
             chatId: body.id,
             attachmentId: llmAudio,
@@ -659,7 +658,6 @@ Constraints:
 
 **Style/Tone**: The content should be educational and accessible, suitable for learners at ${path.knowledge}. Try to start with as basic items as possible based on user's level.`,
             },
-
             {
               role: 'user',
               content: `I want to learn ${path.language.name} and I am ${path.knowledge}. I want to learn ${path.language.name}.`,

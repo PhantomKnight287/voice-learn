@@ -648,6 +648,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                                           style: TextStyle(
                                                             fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
                                                             fontWeight: FontWeight.w600,
+                                                            color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                                                           ),
                                                         ),
                                                       ],
@@ -742,6 +743,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                                           style: TextStyle(
                                                             fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
                                                             fontWeight: FontWeight.w600,
+                                                            color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
                                                           ),
                                                         ),
                                                       ],

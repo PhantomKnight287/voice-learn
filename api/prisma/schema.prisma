@@ -23,6 +23,7 @@ model User {
   notificationToken String?
   /// the current active streaks, will increase or reset based on completing a lesson
   activeStreaks     Int     @default(0)
+  voiceMessages     Int     @default(10) // only 10 free voice messages
   longestStreak     Int     @default(0)
 
   tier           Tiers   @default(free)
@@ -308,8 +309,6 @@ model Voice {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   chats       Chat[]
-
-  tiers Tiers[] @default([free])
 }
 
 model Transaction {

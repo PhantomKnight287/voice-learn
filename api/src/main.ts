@@ -43,7 +43,6 @@ async function bootstrap() {
   await app.listen(5000);
   await fetchVoices();
   await loadOpenAiVoices();
-  
 }
 bootstrap();
 
@@ -71,7 +70,6 @@ async function fetchVoices() {
         accent: voice.labels.accent,
         gender: voice?.labels?.gender,
         provider: 'XILabs',
-        tiers: ['premium', 'epic'],
       },
       create: {
         description: voice.description,
@@ -81,7 +79,6 @@ async function fetchVoices() {
         accent: voice.labels.accent,
         gender: voice?.labels?.gender,
         provider: 'XILabs',
-        tiers: ['premium', 'epic'],
       },
     });
   }
@@ -100,7 +97,6 @@ async function loadOpenAiVoices() {
         data: {
           name: voice,
           previewUrl: `https://cdn.openai.com/API/docs/audio/${voice.toLowerCase()}.wav`,
-          tiers: ['free'],
         },
       });
     } else {
@@ -109,7 +105,6 @@ async function loadOpenAiVoices() {
           name: voice,
           id: `voice_${createId()}`,
           previewUrl: `https://cdn.openai.com/API/docs/audio/${voice.toLowerCase()}.wav`,
-          tiers: ['free'],
           provider: 'OpenAI',
         },
       });

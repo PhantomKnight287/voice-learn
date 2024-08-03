@@ -47,7 +47,7 @@ class BackwardCompatibleWordRendering extends StatelessWidget {
         ),
       );
     } else if (word is Map<String, dynamic>) {
-      final String wordText = word['word'] ?? '';
+      final String wordText = word['word'] ?? word['response'] ?? '';
       final String? translation = word['translation'];
 
       if (translation != null) {

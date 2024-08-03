@@ -130,6 +130,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             streaks: response.user.streaks,
             tier: response.user.tier,
             avatarHash: response.user.avatarHash,
+            voiceMessages: response.user.voiceMessages,
           ),
         );
     await OneSignal.login(response.user.id);

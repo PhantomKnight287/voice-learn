@@ -235,7 +235,7 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
                             leading: CircularProgressAnimated(
                               currentItems: lesson.correctAnswers.toDouble(),
                               maxItems: lesson.questions!.toDouble(),
-                              bgColor: lesson.questions!.toDouble() > lesson.incorrectAnswers.toDouble() && lesson.correctAnswers.toDouble() > 1 ? Colors.red : null,
+                              bgColor: lesson.questions!.toDouble() > lesson.incorrectAnswers.toDouble() && lesson.correctAnswers.toDouble() >= 1 ? Colors.red : null,
                             ),
                             tileColor: getSecondaryColor(context),
                             shape: RoundedRectangleBorder(
@@ -243,7 +243,7 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
                             ),
                             enabled: true,
                             trailing: SizedBox(
-                              width: 40,
+                              width: 45,
                               child: Row(
                                 mainAxisAlignment: lesson.completed == false ? MainAxisAlignment.end : MainAxisAlignment.center,
                                 children: lesson.completed == false
@@ -256,11 +256,11 @@ class _LessonsListScreenState extends State<LessonsListScreen> with RouteAware {
                                           ),
                                         if (lesson.emeralds != 0)
                                           const SizedBox(
-                                            width: BASE_MARGIN * 1,
+                                            width: BASE_MARGIN * .5,
                                           ),
                                         if (lesson.emeralds != 0)
                                           Text(
-                                            lesson.emeralds.toString(),
+                                            "+${lesson.emeralds.toString()}",
                                             style: Theme.of(context).textTheme.titleSmall,
                                           ),
                                       ]
