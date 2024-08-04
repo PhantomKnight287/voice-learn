@@ -9,6 +9,17 @@ export class LivesService {
       if (user.emeralds < 4) {
         throw new HttpException('Not enough Emeralds.', HttpStatus.BAD_REQUEST);
       }
+      if (user.lives >= 5) {
+        throw new HttpException(
+          'You already have full lives',
+          HttpStatus.CONFLICT,
+        );
+      }
+      if (user.tier !== 'premium')
+        throw new HttpException(
+          'You have infinite lives.',
+          HttpStatus.CONFLICT,
+        );
       return await tx.user.update({
         where: { id: userId },
         data: {
@@ -36,7 +47,17 @@ export class LivesService {
       if (user.emeralds < requiredEmeralds) {
         throw new HttpException('Not enough Emeralds.', HttpStatus.BAD_REQUEST);
       }
-
+      if (user.lives >= 5) {
+        throw new HttpException(
+          'You already have full lives',
+          HttpStatus.CONFLICT,
+        );
+      }
+      if (user.tier !== 'premium')
+        throw new HttpException(
+          'You have infinite lives.',
+          HttpStatus.CONFLICT,
+        );
       return await tx.user.update({
         where: { id: userId },
         data: {

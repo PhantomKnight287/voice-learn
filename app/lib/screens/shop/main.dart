@@ -1,11 +1,14 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/input.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
+import 'package:app/main.dart';
 import 'package:app/models/user.dart';
 import 'package:app/screens/shop/transaction.dart';
+import 'package:app/utils/error.dart';
 import 'package:app/utils/print.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,8 +18,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:toastification/toastification.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
+import 'package:http/http.dart' as http;
 
 class ShopScreen extends StatefulWidget {
   const ShopScreen({super.key});
@@ -29,9 +35,75 @@ class _ShopScreenState extends State<ShopScreen> {
   List<Package> packages = [];
   List<Widget> FREE_FEATURES = [];
   List<Widget> PREMIUM_FEATURES = [];
+  //! do not make these final
   bool _buyOneVoiceCreditLoading = false;
-  final _formKey = GlobalKey<FormState>();
-  final _focusNode = FocusNode();
+  bool _buyCustomVoiceCreditsLoading = false;
+  bool _buyTenVoiceCreditsLoading = false;
+  TextEditingController _countController = TextEditingController();
+
+  Future<bool> _buyVoiceCredits(
+    int count,
+  ) async {
+    final userBloc = context.read<UserBloc>();
+    final userState = userBloc.state;
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString("token");
+    final url = Uri.parse(
+      "$API_URL/voice-credits/buy",
+    );
+    logger.t("Buying $count voice credits: ${url.toString()}");
+
+    final req = await http.post(
+      url,
+      headers: {
+        "Authorization": "Bearer $token",
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode({
+        "count": count,
+      }),
+    );
+    final body = jsonDecode(req.body);
+
+    if (req.statusCode != 201) {
+      final message = ApiResponseHelper.getErrorMessage(body);
+      toastification.show(
+        type: ToastificationType.error,
+        style: ToastificationStyle.minimal,
+        autoCloseDuration: const Duration(seconds: 5),
+        title: const Text("An Error Occurred"),
+        description: Text(message),
+        alignment: Alignment.topCenter,
+        showProgressBar: false,
+      );
+      logger.e("Failed to login: $message");
+      return false;
+    } else {
+      toastification.show(
+        type: ToastificationType.success,
+        style: ToastificationStyle.minimal,
+        autoCloseDuration: const Duration(
+          seconds: 5,
+        ),
+        title: Text(
+          "Bought $count voice credits",
+        ),
+        alignment: Alignment.topCenter,
+        showProgressBar: false,
+      );
+      userBloc.add(
+        UserLoggedInEvent.setEmeraldsAndLives(
+          userState,
+          body['emeralds'],
+          null,
+          voiceMessages: body['voiceMessages'],
+        ),
+      );
+      setState(() {});
+      return true;
+    }
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -258,6 +330,7 @@ class _ShopScreenState extends State<ShopScreen> {
   @override
   void dispose() {
     super.dispose();
+    _countController.dispose();
   }
 
   Future<void> initialize() async {
@@ -392,7 +465,7 @@ class _ShopScreenState extends State<ShopScreen> {
                               child: Padding(
                                 padding: const EdgeInsets.all(0),
                                 child: Container(
-                                  padding: EdgeInsets.all(
+                                  padding: const EdgeInsets.all(
                                     10,
                                   ),
                                   decoration: BoxDecoration(
@@ -537,7 +610,7 @@ class _ShopScreenState extends State<ShopScreen> {
                                         ],
                                       ),
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       height: BASE_MARGIN * 4,
                                     ),
                                     ElevatedButton(
@@ -545,8 +618,9 @@ class _ShopScreenState extends State<ShopScreen> {
                                         setState(() {
                                           _buyOneVoiceCreditLoading = true;
                                         });
-                                        // await _buyOneStreakShield();
-
+                                        await _buyVoiceCredits(
+                                          1,
+                                        );
                                         setState(() {
                                           _buyOneVoiceCreditLoading = false;
                                         });
@@ -618,18 +692,19 @@ class _ShopScreenState extends State<ShopScreen> {
                                               ],
                                             ),
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       height: BASE_MARGIN * 4,
                                     ),
                                     ElevatedButton(
                                       onPressed: () async {
                                         setState(() {
-                                          _buyOneVoiceCreditLoading = true;
+                                          _buyTenVoiceCreditsLoading = false;
                                         });
-                                        // await _buyOneStreakShield();
-
+                                        await _buyVoiceCredits(
+                                          10,
+                                        );
                                         setState(() {
-                                          _buyOneVoiceCreditLoading = false;
+                                          _buyTenVoiceCreditsLoading = true;
                                         });
                                         if (context.mounted) Navigator.pop(context);
                                       },
@@ -650,7 +725,7 @@ class _ShopScreenState extends State<ShopScreen> {
                                           ),
                                         ),
                                       ),
-                                      child: _buyOneVoiceCreditLoading
+                                      child: _buyTenVoiceCreditsLoading
                                           ? Container(
                                               width: 24,
                                               height: 24,
@@ -699,7 +774,7 @@ class _ShopScreenState extends State<ShopScreen> {
                                               ],
                                             ),
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       height: BASE_MARGIN * 4,
                                     ),
                                     ElevatedButton(
@@ -774,12 +849,46 @@ class _ShopScreenState extends State<ShopScreen> {
                                       hintText: "Enter no of credits",
                                       keyboardType: TextInputType.number,
                                       autoFocus: true,
+                                      enabled: !_buyCustomVoiceCreditsLoading,
+                                      controller: _countController,
                                     ),
                                     SizedBox(
+                                      height: BASE_MARGIN.toDouble(),
+                                    ),
+                                    Text("Max: ${(state.emeralds / 2).floor()}"),
+                                    const SizedBox(
                                       height: BASE_MARGIN * 4,
                                     ),
                                     ElevatedButton(
-                                      onPressed: () {},
+                                      onPressed: () async {
+                                        final count = int.tryParse(_countController.text);
+                                        if (count == null) {
+                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                            content: Text(
+                                              "Invalid Number",
+                                            ),
+                                          ));
+                                          return;
+                                        }
+                                        if (count > (state.emeralds / 2).floor()) {
+                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                            content: Text(
+                                              "Not enough emeralds to buy $count voice credits.",
+                                            ),
+                                          ));
+                                          return;
+                                        }
+                                        setState(() {
+                                          _buyCustomVoiceCreditsLoading = true;
+                                        });
+                                        await _buyVoiceCredits(
+                                          count,
+                                        );
+                                        setState(() {
+                                          _buyCustomVoiceCreditsLoading = false;
+                                        });
+                                        if (context.mounted) Navigator.pop(context);
+                                      },
                                       style: ButtonStyle(
                                         alignment: Alignment.center,
                                         foregroundColor: WidgetStateProperty.all(Colors.black),
@@ -794,25 +903,23 @@ class _ShopScreenState extends State<ShopScreen> {
                                           ),
                                         ),
                                       ),
-                                      child:
-                                          //  _loading
-                                          //     ? Container(
-                                          //         width: 24,
-                                          //         height: 24,
-                                          //         padding: const EdgeInsets.all(2.0),
-                                          //         child: CircularProgressIndicator(
-                                          //           color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
-                                          //           strokeWidth: 3,
-                                          //         ),
-                                          //       )
-                                          //     :
-                                          Text(
-                                        "Confirm",
-                                        style: TextStyle(
-                                          fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
+                                      child: _buyCustomVoiceCreditsLoading
+                                          ? Container(
+                                              width: 24,
+                                              height: 24,
+                                              padding: const EdgeInsets.all(2.0),
+                                              child: CupertinoActivityIndicator(
+                                                color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
+                                                radius: 20,
+                                              ),
+                                            )
+                                          : Text(
+                                              "Confirm",
+                                              style: TextStyle(
+                                                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
                                     ),
                                   ],
                                 ),
@@ -833,7 +940,7 @@ class _ShopScreenState extends State<ShopScreen> {
                       10,
                     ),
                   ),
-                  padding: EdgeInsets.all(
+                  padding: const EdgeInsets.all(
                     BASE_MARGIN * 4,
                   ),
                   child: Row(
@@ -847,14 +954,14 @@ class _ShopScreenState extends State<ShopScreen> {
                       const SizedBox(
                         width: BASE_MARGIN * 4,
                       ),
-                      Expanded(
+                      const Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               "Engage in interactive voice chats with the AI. Use them to practice conversations, improve your language skills, and make the most of your learning experience!",
                             ),
-                            const SizedBox(
+                            SizedBox(
                               height: BASE_MARGIN * 2,
                             ),
                           ],

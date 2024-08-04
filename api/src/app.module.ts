@@ -43,6 +43,7 @@ import { AdminModule } from './resources/admin/admin.module';
 import { AdminAuthMiddleware } from './middlewares/admin/admin.middleware';
 import { AdminAuthService } from './resources/admin/auth/auth.service';
 import { IAPModule, AppleEnvironment } from '@jeremybarbet/nest-iap';
+import { VoiceCreditsModule } from './resources/voice-credits/voice-credits.module';
 
 @Module({
   imports: [
@@ -95,6 +96,7 @@ import { IAPModule, AppleEnvironment } from '@jeremybarbet/nest-iap';
         password: process.env.APPLE_SHARED_SECRET!,
       },
     }),
+    VoiceCreditsModule,
   ],
   controllers: [AppController],
   providers: [
