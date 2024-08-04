@@ -13,7 +13,6 @@ import 'package:app/screens/questions/complete.dart';
 import 'package:app/screens/recall/notes/create.dart';
 import 'package:app/utils/error.dart';
 import 'package:app/utils/string.dart';
-import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
@@ -77,12 +76,6 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
       this.engines = engines;
       this.defaultEngine = defaultEngine;
     });
-  }
-
-  void loadAd() async {
-    if (Platform.isIOS) {
-      await AppTrackingTransparency.requestTrackingAuthorization();
-    }
   }
 
   void _setSpeed() async {
@@ -343,11 +336,13 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
 
       if (req.statusCode == 201) {
         logger.d("Answer to question $questionId submitted");
-        userBloc.add(
-          DecreaseUserHeartEvent.decreaseBy(
-            state,
-          ),
-        );
+        if (body['correct'] == false) {
+          userBloc.add(
+            DecreaseUserHeartEvent.decreaseBy(
+              state,
+            ),
+          );
+        }
       } else {
         final message = ApiResponseHelper.getErrorMessage(body);
         logger.e("Failed to submit answer: $message");
@@ -362,7 +357,6 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     super.initState();
     _fetchQuestions = _fetchQuestionsFuture();
     _setSpeed();
-    loadAd();
     _getDevMode();
   }
 
@@ -1027,10 +1021,10 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                           final applicationState = context.read<ApplicationBloc>().state;
                                           final hasVibrator = applicationState.hasVibrator;
                                           final hasAmplitude = applicationState.hasAmplitudeControl;
-                                          final correctAnswerPatterns = [0, 500];
-                                          final correctVibrationIntensities = [1, 255];
-                                          final List<int> incorrectVibrationPatterns = [0, 200, 100, 200, 100, 200];
-                                          final List<int> incorrectVibrationIntensities = [0, 255, 0, 255, 0, 255];
+                                          final correctAnswerPatterns = [1, 100];
+                                          final correctVibrationIntensities = [1, 128];
+                                          final incorrectVibrationPatterns = [1, 100, 50, 100];
+                                          final incorrectVibrationIntensities = [1, 128, 1, 128];
                                           if (question.type == QuestionType.sentence) {
                                             if (_answerController.text.isEmpty) {
                                               setState(() {
@@ -1040,7 +1034,16 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                             }
                                             if (removePunctuation(_answerController.text.trim()).toLowerCase() == removePunctuation(question.correctAnswer.trim()).toLowerCase()) {
                                               if (hasVibrator) {
-                                                Vibration.vibrate();
+                                                if (hasAmplitude) {
+                                                  Vibration.vibrate(
+                                                    pattern: correctAnswerPatterns,
+                                                    intensities: correctVibrationIntensities,
+                                                  );
+                                                } else {
+                                                  Vibration.vibrate(
+                                                    pattern: correctAnswerPatterns,
+                                                  );
+                                                }
                                               }
                                               setState(() {
                                                 correct = true;
@@ -1082,11 +1085,23 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                             }
 
                                             if (_selectedStep == question.correctAnswer) {
+                                              print("correct answer");
                                               setState(() {
                                                 correct = true;
                                               });
 
-                                              Vibration.vibrate();
+                                              if (hasVibrator) {
+                                                if (hasAmplitude) {
+                                                  Vibration.vibrate(
+                                                    pattern: correctAnswerPatterns,
+                                                    intensities: correctVibrationIntensities,
+                                                  );
+                                                } else {
+                                                  Vibration.vibrate(
+                                                    pattern: correctAnswerPatterns,
+                                                  );
+                                                }
+                                              }
 
                                               await player.play(AssetSource("audios/correct.mp3"));
                                               await _onCorrectAnswer(

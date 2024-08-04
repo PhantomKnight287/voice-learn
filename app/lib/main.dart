@@ -57,22 +57,30 @@ void main() async {
     cachePrefix: 'voice_learn',
     connectivity: FlQueryConnectivityPlusAdapter(),
   );
-  await SentryFlutter.init(
-    (options) {
-      options.dsn = 'https://19a3b39cf3893b0234988f1e59625785@o4507713912897536.ingest.de.sentry.io/4507713920368720';
-      // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
-      // We recommend adjusting this value in production.
-      options.tracesSampleRate = 1.0;
-      // The sampling rate for profiling is relative to tracesSampleRate
-      // Setting to 1.0 will profile 100% of sampled transactions:
-      options.profilesSampleRate = 1.0;
-    },
-    appRunner: () => runApp(
+  if (kDebugMode) {
+    runApp(
       QueryClientProvider(
         child: const VoiceLearnApp(),
       ),
-    ),
-  );
+    );
+  } else {
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = 'https://19a3b39cf3893b0234988f1e59625785@o4507713912897536.ingest.de.sentry.io/4507713920368720';
+        // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
+        // We recommend adjusting this value in production.
+        options.tracesSampleRate = 1.0;
+        // The sampling rate for profiling is relative to tracesSampleRate
+        // Setting to 1.0 will profile 100% of sampled transactions:
+        options.profilesSampleRate = 1.0;
+      },
+      appRunner: () => runApp(
+        QueryClientProvider(
+          child: const VoiceLearnApp(),
+        ),
+      ),
+    );
+  }
 }
 
 class VoiceLearnApp extends StatefulWidget {

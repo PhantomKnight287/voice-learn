@@ -635,10 +635,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(
-                Icons.star_rounded,
-                size: BASE_MARGIN * 8,
-                color: Colors.lime,
+              SvgPicture.asset(
+                "assets/svgs/xp.svg",
+                width: 30,
+                height: 30,
               ),
               const SizedBox(
                 width: BASE_MARGIN * 2,
@@ -906,10 +906,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(
-                    Icons.star_rounded,
-                    size: BASE_MARGIN * 8,
-                    color: Colors.lime,
+                  SvgPicture.asset(
+                    "assets/svgs/xp.svg",
+                    width: 30,
+                    height: 30,
                   ),
                   const SizedBox(
                     width: BASE_MARGIN * 2,

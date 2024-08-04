@@ -81,169 +81,158 @@ class LessonCompleteScreenState extends State<LessonCompleteScreen> {
         centerTitle: true,
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              BASE_MARGIN * 2,
-              0,
-              BASE_MARGIN * 2,
-              BASE_MARGIN * 2,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(
-                  height: BASE_MARGIN * 3,
-                ),
-                Center(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(
-                      BASE_MARGIN * 5,
-                    ),
-                    child: Image.asset(
-                      'assets/animations/good-anime.gif',
-                      width: double.infinity,
-                    ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            BASE_MARGIN * 2,
+            0,
+            BASE_MARGIN * 2,
+            BASE_MARGIN * 2,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(
+                    BASE_MARGIN * 5,
                   ),
-                ),
-                const SizedBox(
-                  height: BASE_MARGIN * 3,
-                ),
-                AsyncBuilder(
-                  waiting: (context) {
-                    return const Column(
-                      children: [
-                        SpinKitRipple(
-                          color: PRIMARY_COLOR,
-                          size: 100,
-                        ),
-                      ],
-                    );
-                  },
-                  builder: (context, value) {
-                    return Wrap(
-                      children: [
-                        StatCard(
-                          backgroundColor: const Color(0xFFFFF5F5),
-                          borderColor: const Color(0xFFFEE2E2),
-                          iconBackgroundColor: const Color(0xFFFEE2E2),
-                          icon: const Icon(
-                            LucideIcons.locateFixed,
-                            color: Color(0xFFF87171),
-                          ),
-                          title: 'Accuracy',
-                          value: "${((value!.correctAnswers / (value.correctAnswers + value.incorrectAnswers)) * 100).toStringAsFixed(0)}%",
-                          valueColor: const Color(0xFFEF4444),
-                        ),
-                        const SizedBox(
-                          height: BASE_MARGIN * 2,
-                        ),
-                        StatCard(
-                          backgroundColor: const Color(0xFFF0FEFF),
-                          borderColor: const Color(0xFFCCFBF1),
-                          iconBackgroundColor: const Color(0xFFCCFBF1),
-                          icon: const Icon(
-                            LucideIcons.timer,
-                            color: Color(0xFF06B6D4),
-                          ),
-                          title: 'Time Taken',
-                          value: calculateTimeDifference(
-                            value.startDate,
-                            value.endDate,
-                          ),
-                          valueColor: const Color(0xFF0891B2),
-                        ),
-                        const SizedBox(
-                          height: BASE_MARGIN * 2,
-                        ),
-                        StatCard(
-                          backgroundColor: const Color(0xFFF5F3FF),
-                          borderColor: const Color(0xFFE9D5FF),
-                          iconBackgroundColor: const Color(0xFFE9D5FF),
-                          icon: const Icon(
-                            Icons.star_rounded,
-                            color: Color(0xFFA855F7),
-                          ),
-                          title: 'XP Earned',
-                          value: value!.xpEarned.toString(),
-                          valueColor: const Color(0xFF8B5CF6),
-                        ),
-                      ],
-                    );
-                  },
-                  future: _fetchLessonStats(),
-                ),
-                const SizedBox(
-                  height: BASE_MARGIN * 5,
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    Navigator.pop(context);
-                  },
-                  style: ButtonStyle(
-                    alignment: Alignment.center,
-                    foregroundColor: WidgetStateProperty.all(Colors.black),
-                    padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
-                      (Set<WidgetState> states) {
-                        return const EdgeInsets.all(15);
-                      },
-                    ),
-                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                  child: Text(
-                    "Continue",
-                    style: TextStyle(
-                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: BASE_MARGIN * 2,
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).pushReplacement(
-                      NoSwipePageRoute(
-                        builder: (context) => LessonStatsScreen(
-                          lessonId: widget.questionId,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Container(
+                  child: Image.asset(
+                    'assets/animations/good-anime.gif',
                     width: double.infinity,
-                    alignment: Alignment.center,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: Colors.grey,
-                        width: 2,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Review",
-                          style: TextStyle(
-                            color: PRIMARY_COLOR,
-                            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                            fontWeight: FontWeight.w600,
-                          ),
+                  ),
+                ),
+              ),
+              const Spacer(),
+              AsyncBuilder(
+                waiting: (context) {
+                  return const SpinKitRipple(
+                    color: PRIMARY_COLOR,
+                    size: 100,
+                  );
+                },
+                builder: (context, value) {
+                  return Wrap(
+                    children: [
+                      StatCard(
+                        backgroundColor: const Color(0xFFFFF5F5),
+                        borderColor: const Color(0xFFFEE2E2),
+                        iconBackgroundColor: const Color(0xFFFEE2E2),
+                        icon: const Icon(
+                          LucideIcons.locateFixed,
+                          color: Color(0xFFF87171),
                         ),
-                      ],
+                        title: 'Accuracy',
+                        value: "${((value!.correctAnswers / (value.correctAnswers + value.incorrectAnswers)) * 100).toStringAsFixed(0)}%",
+                        valueColor: const Color(0xFFEF4444),
+                      ),
+                      const SizedBox(
+                        height: BASE_MARGIN * 2,
+                      ),
+                      StatCard(
+                        backgroundColor: const Color(0xFFF0FEFF),
+                        borderColor: const Color(0xFFCCFBF1),
+                        iconBackgroundColor: const Color(0xFFCCFBF1),
+                        icon: const Icon(
+                          LucideIcons.timer,
+                          color: Color(0xFF06B6D4),
+                        ),
+                        title: 'Time Taken',
+                        value: calculateTimeDifference(
+                          value.startDate,
+                          value.endDate,
+                        ),
+                        valueColor: const Color(0xFF0891B2),
+                      ),
+                      const SizedBox(
+                        height: BASE_MARGIN * 2,
+                      ),
+                      StatCard(
+                        backgroundColor: const Color(0xFFF5F3FF),
+                        borderColor: const Color(0xFFE9D5FF),
+                        iconBackgroundColor: const Color(0xFFE9D5FF),
+                        icon: const Icon(
+                          Icons.star_rounded,
+                          color: Color(0xFFA855F7),
+                        ),
+                        title: 'XP Earned',
+                        value: value.xpEarned.toString(),
+                        valueColor: const Color(0xFF8B5CF6),
+                      ),
+                    ],
+                  );
+                },
+                future: _fetchLessonStats(),
+              ),
+              const SizedBox(
+                height: BASE_MARGIN * 5,
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                },
+                style: ButtonStyle(
+                  alignment: Alignment.center,
+                  foregroundColor: WidgetStateProperty.all(Colors.black),
+                  padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
+                    (Set<WidgetState> states) {
+                      return const EdgeInsets.all(15);
+                    },
+                  ),
+                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                )
-              ],
-            ),
+                ),
+                child: Text(
+                  "Continue",
+                  style: TextStyle(
+                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: BASE_MARGIN * 2,
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pushReplacement(
+                    NoSwipePageRoute(
+                      builder: (context) => LessonStatsScreen(
+                        lessonId: widget.questionId,
+                      ),
+                    ),
+                  );
+                },
+                child: Container(
+                  width: double.infinity,
+                  alignment: Alignment.center,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 2,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Review",
+                        style: TextStyle(
+                          color: PRIMARY_COLOR,
+                          fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            ],
           ),
         ),
       ),
