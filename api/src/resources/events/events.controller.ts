@@ -718,6 +718,7 @@ Constraints:
 
       console.log('generated ' + body.type);
     } catch (error) {
+      console.log(error);
       if (body.retries >= 5 && body.type !== 'learning_path') {
         await this.notificationService.createNotification(
           body.userId,
