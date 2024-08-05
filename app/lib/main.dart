@@ -40,6 +40,7 @@ void main() async {
     OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
   }
   await Purchases.setLogLevel(LogLevel.verbose);
+  OneSignal.initialize(ONESIGNAL_APP_ID);
   await OneSignal.Location.setShared(false);
 
   PurchasesConfiguration configuration;
@@ -52,7 +53,6 @@ void main() async {
   }
   await Purchases.configure(configuration);
 
-  OneSignal.initialize(ONESIGNAL_APP_ID);
   await QueryClient.initialize(
     cachePrefix: 'voice_learn',
     connectivity: FlQueryConnectivityPlusAdapter(),

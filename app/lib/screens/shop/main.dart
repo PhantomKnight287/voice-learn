@@ -517,6 +517,9 @@ class _ShopScreenState extends State<ShopScreen> {
                   );
                 },
               ),
+              const SizedBox(
+                height: BASE_MARGIN * 4,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -863,7 +866,7 @@ class _ShopScreenState extends State<ShopScreen> {
                                       onPressed: () async {
                                         final count = int.tryParse(_countController.text);
                                         if (count == null) {
-                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                                             content: Text(
                                               "Invalid Number",
                                             ),
@@ -971,6 +974,9 @@ class _ShopScreenState extends State<ShopScreen> {
                   ),
                 ),
               ),
+              const SizedBox(
+                height: BASE_MARGIN * 4,
+              ),
               Text(
                 "Subscriptions",
                 style: TextStyle(
@@ -980,7 +986,7 @@ class _ShopScreenState extends State<ShopScreen> {
                 ),
               ),
               const SizedBox(
-                height: BASE_MARGIN * 2,
+                height: BASE_MARGIN * 3,
               ),
               Container(
                 padding: const EdgeInsets.all(
@@ -1063,6 +1069,9 @@ class _ShopScreenState extends State<ShopScreen> {
                                 );
                               },
                               itemCount: PREMIUM_FEATURES.length,
+                            ),
+                            const SizedBox(
+                              height: BASE_MARGIN * 3,
                             ),
                             ElevatedButton(
                               onPressed: () async {
