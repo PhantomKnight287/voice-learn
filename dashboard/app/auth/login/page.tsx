@@ -12,8 +12,10 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast";
-import { useActionState, useState, useTransition } from "react"
+import { useState, } from "react"
 import { loginAction } from "./action";
+import { useUser } from "@/state/user";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
     return (
@@ -27,7 +29,8 @@ function LoginForm() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const { toast } = useToast()
-
+    const { user, setUser } = useUser()
+    const { replace } = useRouter()
     return (
         <Card className="w-full max-w-sm">
             <CardHeader>
@@ -49,6 +52,7 @@ function LoginForm() {
                     <Input id="password" type="password" required
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        placeholder="password"
                     />
                 </div>
             </CardContent>
@@ -60,7 +64,12 @@ function LoginForm() {
                         if (data.error) {
                             return toast({ title: data.error, variant: "destructive" })
                         }
-                        
+
+                        setUser({
+                            id: data.id, name: data.name
+                        })
+                        toast({ title: `Welcome ${data.name}` })
+                        replace("/dashboard")
                     }}
                 >Sign in</Button>
             </CardFooter>

@@ -86,7 +86,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return Scaffold(
       appBar: AppBar(
         bottom: BOTTOM(context),
-        title: Text(
+        title: const Text(
           "Notifications",
         ),
         actions: [
@@ -139,7 +139,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 logger.t("Marked ${body['count']} as read");
               },
               icon: loading
-                  ? CircularProgressIndicator.adaptive()
+                  ? const CircularProgressIndicator.adaptive()
                   : Icon(
                       Icons.check,
                       color: isActive ? PRIMARY_COLOR : Colors.grey,
@@ -150,7 +150,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(BASE_MARGIN * 2),
+          padding: const EdgeInsets.all(BASE_MARGIN * 2),
           child: Column(
             children: [
               InfiniteQueryBuilder<List<NotificationModel>, HttpException, int>(
@@ -214,7 +214,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               return Container(
                                 height: 200,
                                 width: double.infinity,
-                                padding: EdgeInsets.all(
+                                padding: const EdgeInsets.all(
                                   16,
                                 ),
                                 child: Column(
@@ -228,7 +228,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                         fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
                                       ),
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       height: BASE_MARGIN * 2,
                                     ),
                                     Text(notification.description),

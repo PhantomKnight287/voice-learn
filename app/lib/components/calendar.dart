@@ -11,13 +11,16 @@ class DateRange {
 class CalendarWidget extends StatelessWidget {
   final List<DateRange> dateRanges;
 
-  CalendarWidget({required this.dateRanges});
+  const CalendarWidget({
+    required this.dateRanges,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Calendar Widget'),
+        title: const Text('Calendar Widget'),
       ),
       body: IgnorePointer(
         ignoring: true, // This will disable any interaction with the calendar
@@ -41,7 +44,7 @@ class CalendarWidget extends StatelessWidget {
                   ),
                   child: Text(
                     '${date.day}',
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                   ),
                 );
               }
@@ -56,7 +59,7 @@ class CalendarWidget extends StatelessWidget {
 
 bool isWithinRanges(DateTime date, List<DateRange> ranges) {
   for (DateRange range in ranges) {
-    if (date.isAfter(range.startDate.subtract(Duration(days: 1))) && date.isBefore(range.endDate.add(Duration(days: 1)))) {
+    if (date.isAfter(range.startDate.subtract(const Duration(days: 1))) && date.isBefore(range.endDate.add(const Duration(days: 1)))) {
       return true;
     }
   }

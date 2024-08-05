@@ -1,6 +1,6 @@
 "use server";
 
-import { API_URL } from "@/constants";
+import { API_URL, COOKIE_NAME } from "@/constants";
 import { cookies } from "next/headers";
 
 export async function loginAction(email: string, password: string) {
@@ -16,6 +16,6 @@ export async function loginAction(email: string, password: string) {
       error: body.message || "Internal server error",
     };
   }
-  cookies().set("voice_learn_admin_token",body.token,{maxAge:30 * 24 * 60 * 60 * 1000})
+  cookies().set(COOKIE_NAME,body.token,{maxAge:30 * 24 * 60 * 60 * 1000})
   return body;
 }

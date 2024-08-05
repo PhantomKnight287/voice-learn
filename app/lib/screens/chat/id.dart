@@ -155,7 +155,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           const Duration(seconds: 10),
         );
         if (data['refId'] == lastMessageId) {
-          if (context.mounted) {
+          if (context != null && context.mounted) {
             // ignore: no_leading_underscores_for_local_identifiers
             final _messages = messages;
             _messages[_messages.length - 1] = Message.fromJSON(data);
@@ -205,7 +205,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     socket!.on("user_update", (data) {
       final userBloc = context.read<UserBloc>();
       final userState = userBloc.state;
-      print(data['voiceMessages']);
       userBloc.add(
         UserLoggedInEvent.setEmeraldsAndLives(
           userState,

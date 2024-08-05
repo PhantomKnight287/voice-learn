@@ -232,6 +232,8 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
                       style: TextStyle(
                         fontSize: Theme.of(context).textTheme.titleMedium!.fontSize! * 0.9,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     subtitle: chat.lastMessage.isNotEmpty
                         ? Text(

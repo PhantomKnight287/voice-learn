@@ -5,7 +5,6 @@ import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/screens/home/main.dart';
 import 'package:app/utils/string.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -54,13 +53,15 @@ class _LearningPathLoadingScreenState extends State<LearningPathLoadingScreen> {
           });
         }
       } else {
-        Navigator.of(context).pushReplacement(
-          NoSwipePageRoute(
-            builder: (context) {
-              return const HomeScreen();
-            },
-          ),
-        );
+        if (context != null && mounted) {
+          Navigator.of(context).pushReplacement(
+            NoSwipePageRoute(
+              builder: (context) {
+                return const HomeScreen();
+              },
+            ),
+          );
+        }
       }
     }
   }
@@ -90,7 +91,7 @@ class _LearningPathLoadingScreenState extends State<LearningPathLoadingScreen> {
             style: Theme.of(context).textTheme.titleMedium,
             textAlign: TextAlign.center,
           ),
-          SizedBox(
+          const SizedBox(
             height: BASE_MARGIN * 3,
           ),
           Text(

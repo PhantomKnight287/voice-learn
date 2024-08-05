@@ -71,7 +71,7 @@ type DecodedData = {
 
 @Injectable()
 export class WebhooksService {
-  logger = new Logger(WebhooksService.name)
+  logger = new Logger(WebhooksService.name);
   async handleGooglePlayEvent(data: GooglePlayNotification) {
     const parsedData = JSON.parse(
       Buffer.from(data.message.data, 'base64').toString(),
@@ -273,7 +273,7 @@ export class WebhooksService {
     const transactionInfo = payload.data.signedTransactionInfo
       ? decode(payload.data.signedTransactionInfo, { complete: true })?.payload
       : {};
-      return {
+    return {
       //@ts-expect-error
       transactionId: transactionInfo.transactionId,
       //@ts-expect-error
@@ -442,44 +442,44 @@ export class WebhooksService {
     }
   }
 
-  async handleRevenueCatWebhook(data:any){
-    const userId = data.app_user_id
-    const user = await prisma.user.findFirst(
-      {
-        where:{
-          id:userId
-        }
-      }
-    )
-    if(!user) this.logger.error(`No user found with id: ${userId}`)
-    if(data.type==="INITIAL_PURCHASE"){
+  async handleRevenueCatWebhook(data: any) {
+    const userId = data.app_user_id;
+    const user = await prisma.user.findFirst({
+      where: {
+        id: userId,
+      },
+    });
+    if (!user?.id) return this.logger.error(`No user found with id: ${userId}`);
+    if (data.type === 'INITIAL_PURCHASE') {
       // user bought premium, yayy!
-      await prisma.user.update({data:{tier:"premium",},where:{id:user.id}})
-    }
-    else if(data.type=="RENEWAL"){
+      await prisma.user.update({
+        data: { tier: 'premium' },
+        where: { id: user.id },
+      });
+    } else if (data.type == 'RENEWAL') {
       // user renewed his subscription, yayy!
-      await prisma.user.update({data:{tier:"premium",},where:{id:user.id}})
-
-    }
-    else if(data.type==="NON_RENEWING_PURCHASE"){
+      await prisma.user.update({
+        data: { tier: 'premium' },
+        where: { id: user.id },
+      });
+    } else if (data.type === 'NON_RENEWING_PURCHASE') {
       // user bought emeralds
-      await prisma.user.update(
-        {
-          where:{
-            id:user.id
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          emeralds: {
+            increment: PRODUCTS[data.product_id] ?? 0,
           },
-          data:{
-            emeralds:{
-              increment: PRODUCTS[data.product_id] ?? 0
-            }
-          }
-        }
-      )
-    }
-    else if(data.type==="EXPIRATION"){
+        },
+      });
+    } else if (data.type === 'EXPIRATION') {
       // subscription expired 😔
-      await prisma.user.update({where:{id:user.id},data:{tier:"free"}})
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { tier: 'free' },
+      });
     }
-    
   }
 }

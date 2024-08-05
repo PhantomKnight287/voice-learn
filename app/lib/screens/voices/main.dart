@@ -1,15 +1,10 @@
 import 'dart:convert';
 
-import 'package:app/bloc/user/user_bloc.dart';
-import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
-import 'package:app/models/user.dart';
 import 'package:app/models/voice.dart';
-import 'package:app/screens/shop/subscription.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:http/http.dart' as http;
 import 'package:shimmer/shimmer.dart';
@@ -58,8 +53,6 @@ class _VoicesScreenState extends State<VoicesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.read<UserBloc>().state;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -106,7 +99,6 @@ class _VoicesScreenState extends State<VoicesScreen> {
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   final voice = data[index];
-                  final paid = voice.tiers.contains(Tiers.epic) || voice.tiers.contains(Tiers.premium);
                   final item = ListTile(
                     onTap: () {
                       setState(() {
