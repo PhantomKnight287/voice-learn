@@ -453,7 +453,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     _setSpeed();
     _controller.addListener(() {
       setState(() {
-        _isWriting = _controller.text.isNotEmpty;
+        _isWriting = _controller.text.trim().isNotEmpty;
       });
     });
     _scrollController.addListener(() {

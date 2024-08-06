@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/components/no_swipe_page_route.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/screens/questions/report.dart';
@@ -205,10 +206,20 @@ class _LessonStatsScreenState extends State<LessonStatsScreen> {
                                                     }
                                                   },
                                                   child: word['word'] == "<empty>"
-                                                      ? Text(
-                                                          " ___ ",
-                                                          style: TextStyle(
-                                                            fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                                                      ? RichText(
+                                                          text: TextSpan(
+                                                            children: [
+                                                              const TextSpan(text: "\u00A0"),
+                                                              TextSpan(
+                                                                text: "      ",
+                                                                style: TextStyle(
+                                                                  fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                                                                  decoration: TextDecoration.underline,
+                                                                  decorationColor: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+                                                                ),
+                                                              ),
+                                                              const TextSpan(text: "\u00A0"),
+                                                            ],
                                                           ),
                                                         )
                                                       : Tooltip(
@@ -371,8 +382,36 @@ class _LessonStatsScreenState extends State<LessonStatsScreen> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    subtitle: Text(
-                      question['question'].map((ques) => ques['word']).map((translation) => translation == "<empty>" ? " ___ " : translation).join(" "),
+                    subtitle: RichText(
+                      text: TextSpan(
+                        children: question['question'].map<InlineSpan>((ques) {
+                          if (ques['word'] == "<empty>") {
+                            return TextSpan(
+                              children: [
+                                const TextSpan(text: "\u00A0"), // Non-breaking space before
+                                TextSpan(
+                                  text: "      ", // Six spaces to represent an empty word
+                                  style: TextStyle(
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+                                  ),
+                                ),
+                                const TextSpan(text: "\u00A0"), // Non-breaking space after
+                              ],
+                              style: TextStyle(
+                                color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+                              ),
+                            );
+                          } else {
+                            return TextSpan(
+                              text: ques['word'],
+                              style: TextStyle(
+                                color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+                              ),
+                            );
+                          }
+                        }).toList(),
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/bloc/application/application_bloc.dart';
 import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/components/no_swipe_page_route.dart';
@@ -769,10 +770,20 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                         }
                                       },
                                       child: word.word == "<empty>"
-                                          ? Text(
-                                              " ___ ",
-                                              style: TextStyle(
-                                                fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                                          ? RichText(
+                                              text: TextSpan(
+                                                children: [
+                                                  const TextSpan(text: "\u00A0"),
+                                                  TextSpan(
+                                                    text: "      ",
+                                                    style: TextStyle(
+                                                      fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                                                      decoration: TextDecoration.underline,
+                                                      decorationColor: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+                                                    ),
+                                                  ),
+                                                  const TextSpan(text: "\u00A0"),
+                                                ],
                                               ),
                                             )
                                           : Tooltip(

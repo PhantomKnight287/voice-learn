@@ -1,8 +1,9 @@
-import { IsEmail, IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class UpdateProfileDTO {
   @IsString()
   @IsOptional()
+  @IsNotEmpty({ message: 'Empty Name is not allowed' })
   name?: string;
 
   @IsOptional()

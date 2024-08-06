@@ -63,8 +63,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           "content-type": "application/json",
         },
         body: jsonEncode({
-          "email": _emailController.text,
-          "name": _nameController.text,
+          "email": _emailController.text.trim(),
+          "name": _nameController.text.trim(),
         }));
     final body = jsonDecode(req.body);
     setState(() {
@@ -638,12 +638,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     ),
                                   ],
                                   onChanged: (value) async {
-                                    final prefs = await SharedPreferences.getInstance();
                                     if (value == "light") {
                                       AdaptiveTheme.of(context).setLight();
                                     } else {
                                       AdaptiveTheme.of(context).setDark();
                                     }
+                                    final prefs = await SharedPreferences.getInstance();
                                     prefs.setString("theme", value ?? "dark");
                                   },
                                 )),

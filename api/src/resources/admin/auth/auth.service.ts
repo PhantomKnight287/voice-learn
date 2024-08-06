@@ -37,7 +37,10 @@ export class AdminAuthService {
 
   async hydrate(token: string) {
     try {
-      const data = verify(token, process.env.RESET_PASSWORD_SECRET);
+      const data = verify(
+        token.replace('Bearer ', ''),
+        process.env.RESET_PASSWORD_SECRET,
+      );
       const userId = (data as any).id;
       const user = await prisma.user.findFirst({ where: { id: userId } });
       if (!user) throw new HttpException('No user found', HttpStatus.NOT_FOUND);
@@ -54,6 +57,7 @@ export class AdminAuthService {
       if (e instanceof HttpException) {
         throw new HttpException(e.message, e.getStatus());
       }
+
       throw new HttpException('Invalid Token', HttpStatus.UNAUTHORIZED);
     }
   }

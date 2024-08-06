@@ -29,6 +29,8 @@ import { randomUUID } from 'crypto';
 import { parseBuffer } from 'music-metadata';
 import { openai as aiSdkOpenAI } from '@ai-sdk/openai';
 import { NotificationsService } from '../notifications/notifications.service';
+import { inspect } from 'util';
+import { generateTimestamps } from 'src/lib/time';
 @Controller('events')
 export class EventsController {
   private readonly logger = new Logger(EventsController.name);
@@ -476,7 +478,14 @@ Constraints:
                 },
               ],
             },
-            user: { select: { tier: true } },
+            user: {
+              select: {
+                tier: true,
+                name: true,
+                timezone: true,
+                timeZoneOffSet: true,
+              },
+            },
           },
         });
 
@@ -487,7 +496,6 @@ Constraints:
           },
         });
         const text = userMessage.content;
-
         const res = await this.geminiService.generateObject({
           schema: llmTextResponse,
           messages: [
@@ -504,6 +512,12 @@ Constraints:
               content: `Your response must be an object containing "response" and "translation" where "response" will be a string with your response and "translation" will be translation of your response in english. Example: {"response":"Guten Morgen","translation":"Good morning"}
   Generate responses that are relevant and meaningful to the user's input. Avoid generating nonsensical or out-of-context content.`,
             },
+            {
+              role: 'user',
+              content: chat.user.timezone
+                ? `My name is ${chat.user.name} and current time is ${generateTimestamps(chat.user.timezone).currentDate.toLocaleString()}`
+                : `My name is ${chat.user.name}`,
+            },
             //@ts-expect-error
             ...(chat.user.tier === 'free'
               ? chat.messages.slice(0, 20)
@@ -512,15 +526,19 @@ Constraints:
               .reverse()
               .map((message) => ({
                 role: message.author === 'Bot' ? 'assistant' : 'user',
-                content: `${message.content
-                  .map((message: any) => ({
-                    word: message.word,
-                    translation: message.translation || '',
-                  }))
-                  .join('\n')}`,
+                content: `${
+                  (message.content as any)?.[0]?.response
+                    ? ((message.content as any)[0].response as string)
+                    : message.content
+                        .map((message: any) => ({
+                          word: message.word,
+                          translation: message.translation || '',
+                        }))
+                        .join('\n')
+                }`,
               })),
             {
-              content: text.map((e) => (e as { word: string }).word).join(' '),
+              content: (text[0] as any).response as string,
               //@ts-expect-error
               role: 'user',
             },
