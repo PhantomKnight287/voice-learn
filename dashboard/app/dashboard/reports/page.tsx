@@ -21,7 +21,7 @@ export default async function Reports({
   const req = await fetch(`${API_URL}/reports?page=${page}&limit=${limit}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  const data =await req.json()
+  const data = await req.json();
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
       <div className="flex items-center">

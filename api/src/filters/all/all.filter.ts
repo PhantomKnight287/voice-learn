@@ -43,7 +43,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
       message,
       timestamp: new Date().toISOString(),
       path: request.originalUrl,
-      detailedError,
     };
     console.error(exception.stack);
 

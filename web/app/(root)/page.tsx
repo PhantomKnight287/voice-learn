@@ -29,7 +29,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between lg:p-24 overflow-x-hidden">
       <div className="relative flex place-items-center">
-        <section className="w-full py-32 xl:py-32 ">
+        <section className="w-full pt-44 xl:py-32 ">
           <div className="container flex flex-col items-center gap-4 px-4 md:px-6">
             <div className="flex flex-col items-center space-y-2 text-center ">
               <Gradient className="top-[-500px] opacity-[0.15] w-[1000px] h-[1000px] bg-gradient-to-t from-blue-500 z-0" />
@@ -52,7 +52,6 @@ export default function Home() {
       {/* <FlagAnimation /> */}
       <Features />
       <ApplicationStats />
-      <HowItWorks />
       <div className="mx-8 flex flex-col items-center justify-center">
         <div className="container px-5 py-24 mx-auto">
           <h2

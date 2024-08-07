@@ -27,9 +27,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { randomUUID } from 'crypto';
 import { parseBuffer } from 'music-metadata';
-import { openai as aiSdkOpenAI } from '@ai-sdk/openai';
 import { NotificationsService } from '../notifications/notifications.service';
-import { inspect } from 'util';
 import { generateTimestamps } from 'src/lib/time';
 @Controller('events')
 export class EventsController {

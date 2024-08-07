@@ -8,3 +8,21 @@ export const updateUserSchema = z.object({
   updateReasonTitle: z.string(),
   updateReasonDescription: z.string(),
 });
+
+export const removeAvatarSchema = z.object({
+  updateReasonTitle: z.string(),
+  updateReasonDescription: z.string(),
+});
+
+export enum NotificationType {
+  ALERT = "ALERT",
+  WARNING = "WARNING",
+  INFO = "INFO",
+  SUCCESS = "SUCCESS",
+}
+
+export const sendNotificationSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  type: z.nativeEnum(NotificationType),
+});

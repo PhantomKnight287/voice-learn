@@ -22,6 +22,15 @@ const nextConfig = {
   },
   typescript: { ignoreBuildErrors: true },
   pageExtensions: ["js", "jsx", "ts", "tsx", "mdx"],
+  async redirects() {
+    return [
+      {
+        source: "/contact",
+        destination: "https://emailthing.me/@voicelearn",
+        permanent: true,
+      }
+    ]
+  }
 };
 
 export default withMDX(nextConfig);

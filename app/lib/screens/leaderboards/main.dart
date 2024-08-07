@@ -176,20 +176,21 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
                                   const SizedBox(
                                     width: BASE_MARGIN * 4,
                                   ),
-                                  Text(
-                                    item.name,
-                                    style: TextStyle(
-                                      fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
-                                      fontWeight: FontWeight.w600,
+                                  Flexible(
+                                    child: Text(
+                                      item.name,
+                                      style: TextStyle(
+                                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.1,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      textAlign: TextAlign.start,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                    textAlign: TextAlign.start,
                                   ),
                                   const Spacer(),
                                   Padding(
-                                    padding: const EdgeInsets.only(
-                                      right: 20,
-                                      left: 20,
-                                    ),
+                                    padding: const EdgeInsets.only(right: 20, left: 20),
                                     child: Text(
                                       "${item.xp} XP",
                                       style: TextStyle(

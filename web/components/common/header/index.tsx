@@ -21,10 +21,10 @@ const LINKS = [
 
 export default function Header() {
   const pathname = usePathname();
-  const { theme } = useTheme();
+
   return (  
     <header
-      className={cn("flex pt-5 pb-6 z-10 ", {
+      className={cn("flex pt-5 pb-6 z-50", {
         "bg-transparent fixed w-full backdrop-blur-lg": pathname === "/",
       })}
     >

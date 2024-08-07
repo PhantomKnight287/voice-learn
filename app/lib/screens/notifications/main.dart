@@ -148,109 +148,102 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ],
         centerTitle: true,
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(BASE_MARGIN * 2),
-          child: Column(
-            children: [
-              InfiniteQueryBuilder<List<NotificationModel>, HttpException, int>(
-                "notifications",
-                (page) => _fetchNotifications(page),
-                nextPage: (lastPage, lastPageData) {
-                  if (lastPageData.length == 100) return lastPage + 1;
-                  return null;
-                },
-                builder: (context, query) {
-                  this.query = query;
-                  final notifications = query.pages.map((e) => e).expand((e) => e).toList();
-                  if (notifications.isEmpty) {
-                    return const Center(
-                      child: Text("No notifications"),
+      body: Padding(
+        padding: const EdgeInsets.all(BASE_MARGIN * 2),
+        child: InfiniteQueryBuilder<List<NotificationModel>, HttpException, int>(
+          "notifications",
+          (page) => _fetchNotifications(page),
+          nextPage: (lastPage, lastPageData) {
+            if (lastPageData.length == 100) return lastPage + 1;
+            return null;
+          },
+          builder: (context, query) {
+            this.query = query;
+            final notifications = query.pages.map((e) => e).expand((e) => e).toList();
+            if (notifications.isEmpty) {
+              return const Center(
+                child: Text("No notifications"),
+              );
+            }
+            return ListView.separated(
+              controller: _scrollController,
+              separatorBuilder: (context, index) {
+                return const SizedBox(
+                  height: BASE_MARGIN * 1,
+                );
+              },
+              itemBuilder: (context, index) {
+                final notification = notifications[index];
+                final visuals = NotificationModel.getProperties(notification.type);
+                return ListTile(
+                  tileColor: getSecondaryColor(context),
+                  title: Text(notification.title),
+                  leading: Container(
+                    height: 40,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      color: visuals['color'].withOpacity(
+                        0.2,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        visuals['icon'],
+                        color: visuals['color'],
+                      ),
+                    ),
+                  ),
+                  subtitle: Text(
+                    notification.description,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      10,
+                    ),
+                  ),
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (context) {
+                        return Container(
+                          height: 200,
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(
+                            16,
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                notification.title,
+                                style: TextStyle(
+                                  fontFamily: "CalSans",
+                                  fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                                ),
+                              ),
+                              const SizedBox(
+                                height: BASE_MARGIN * 2,
+                              ),
+                              Text(notification.description),
+                            ],
+                          ),
+                        );
+                      },
                     );
-                  }
-                  return ListView.separated(
-                    controller: _scrollController,
-                    separatorBuilder: (context, index) {
-                      return const SizedBox(
-                        height: BASE_MARGIN * 1,
-                      );
-                    },
-                    itemBuilder: (context, index) {
-                      final notification = notifications[index];
-                      final visuals = NotificationModel.getProperties(notification.type);
-                      return ListTile(
-                        tileColor: getSecondaryColor(context),
-                        title: Text(notification.title),
-                        leading: Container(
-                          height: 40,
-                          width: 40,
-                          decoration: BoxDecoration(
-                            color: visuals['color'].withOpacity(
-                              0.2,
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Center(
-                            child: Icon(
-                              visuals['icon'],
-                              color: visuals['color'],
-                            ),
-                          ),
-                        ),
-                        subtitle: Text(
-                          notification.description,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            10,
-                          ),
-                        ),
-                        onTap: () {
-                          showModalBottomSheet(
-                            context: context,
-                            builder: (context) {
-                              return Container(
-                                height: 200,
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(
-                                  16,
-                                ),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      notification.title,
-                                      style: TextStyle(
-                                        fontFamily: "CalSans",
-                                        fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      height: BASE_MARGIN * 2,
-                                    ),
-                                    Text(notification.description),
-                                  ],
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      );
-                    },
-                    shrinkWrap: true,
-                    itemCount: notifications.length,
-                  );
-                },
-                initialPage: 1,
-                refreshConfig: RefreshConfig.withDefaults(
-                  context,
-                  refreshOnMount: true,
-                ),
-              )
-            ],
+                  },
+                );
+              },
+              itemCount: notifications.length,
+            );
+          },
+          initialPage: 1,
+          refreshConfig: RefreshConfig.withDefaults(
+            context,
+            refreshOnMount: true,
           ),
         ),
       ),
