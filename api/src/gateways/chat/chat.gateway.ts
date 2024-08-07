@@ -105,7 +105,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return client.emit('error', result.error.errors[0].message);
     }
     let addToQueue = true;
-    let response = payload.message.trim();
+    let response = payload.message?.trim();
     const rawToken = client.handshake.auth.token;
     const token = rawToken.replace('Bearer ', '');
     const user = await prisma.user.findFirst({

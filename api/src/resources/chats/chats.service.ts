@@ -79,8 +79,8 @@ export class ChatsService {
     const chat = await prisma.chat.create({
       data: {
         id: `chat_${createId()}`,
-        name: body.name,
-        initialPrompt: body.initialPrompt,
+        name: body.name.trim(),
+        initialPrompt: body.initialPrompt.trim(),
         languageId: body.languageId,
         voiceId: body.voiceId,
         userId,

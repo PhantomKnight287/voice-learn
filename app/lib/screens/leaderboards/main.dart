@@ -102,7 +102,11 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
                       final avatar = item.avatar ?? (item.avatarHash != null ? "$BASE_GRAVATAR_URL/${item.avatarHash}?d=404" : defaultImage);
                       return Column(
                         children: [
-                          GestureDetector(
+                          ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: BASE_MARGIN * 0,
+                              horizontal: 20,
+                            ),
                             onTap: () {
                               Navigator.of(context).push(NoSwipePageRoute(
                                 builder: (context) {
@@ -112,50 +116,31 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
                                 },
                               ));
                             },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: BASE_MARGIN * 0,
-                              ),
+                            leading: SizedBox(
+                              width: 90, // Adjust this width as needed
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      right: 20,
-                                      left: 20,
-                                    ),
-                                    child: index == 0
+                                  SizedBox(
+                                    width: 30,
+                                    child: index <= 2
                                         ? SvgPicture.asset(
-                                            "assets/svgs/gold-crown.svg",
+                                            "assets/svgs/${['gold', 'silver', 'bronze'][index]}-crown.svg",
                                             width: 30,
                                           )
-                                        : index == 1
-                                            ? SvgPicture.asset(
-                                                "assets/svgs/silver-crown.svg",
-                                                width: 30,
-                                              )
-                                            : index == 2
-                                                ? SvgPicture.asset(
-                                                    "assets/svgs/bronze-crown.svg",
-                                                    width: 30,
-                                                  )
-                                                : Container(
-                                                    padding: const EdgeInsets.symmetric(
-                                                      horizontal: 10,
-                                                    ),
-                                                    child: Center(
-                                                      child: Text(
-                                                        (index + 1).toString(),
-                                                        style: TextStyle(
-                                                          fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                                          fontWeight: FontWeight.w600,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
+                                        : Center(
+                                            child: Text(
+                                              (index + 1).toString(),
+                                              style: TextStyle(
+                                                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
                                   ),
+                                  const SizedBox(width: 10),
                                   CircleAvatar(
-                                    radius: 30,
+                                    radius: 25,
                                     backgroundColor: Colors.transparent,
                                     child: ClipOval(
                                       child: CachedNetworkImage(
@@ -166,40 +151,30 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
                                         errorWidget: (context, error, stackTrace) {
                                           return const Icon(
                                             Icons.account_circle_rounded,
-                                            size: 60,
+                                            size: 50,
                                             color: Colors.grey,
                                           );
                                         },
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(
-                                    width: BASE_MARGIN * 4,
-                                  ),
-                                  Flexible(
-                                    child: Text(
-                                      item.name,
-                                      style: TextStyle(
-                                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.1,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                      textAlign: TextAlign.start,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 20, left: 20),
-                                    child: Text(
-                                      "${item.xp} XP",
-                                      style: TextStyle(
-                                        fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
                                 ],
+                              ),
+                            ),
+                            title: Text(
+                              item.name == " " ? "John" : item.name,
+                              style: TextStyle(
+                                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.1,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            trailing: Text(
+                              "${item.xp} XP",
+                              style: TextStyle(
+                                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
