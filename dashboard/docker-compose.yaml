@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   nextjs-app:
@@ -11,7 +11,4 @@ services:
       - NODE_ENV=production
     env_file:
       - .env
-    volumes:
-      - ./public:/app/public
-      - ./src:/app/src
     restart: unless-stopped

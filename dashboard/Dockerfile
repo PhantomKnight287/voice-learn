@@ -1,9 +1,6 @@
 # Stage 1: Build environment
 FROM node:18-alpine AS builder
 
-# Install corepack
-RUN apk add --no-cache corepack
-
 # Enable pnpm
 RUN corepack enable pnpm
 
@@ -24,9 +21,6 @@ RUN pnpm run build
 
 # Stage 2: Production environment
 FROM node:18-alpine AS runner
-
-# Install corepack
-RUN apk add --no-cache corepack
 
 # Enable pnpm
 RUN corepack enable pnpm
