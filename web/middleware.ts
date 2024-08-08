@@ -5,6 +5,7 @@ export function middleware(request: NextRequest) {
   if (process.env.NODE_ENV === "development") return;
   if (
     request.nextUrl.pathname.startsWith("/legal") ||
+    request.nextUrl.pathname.startsWith("/reset-password") ||
     request.nextUrl.pathname == "/"
   ) {
     return;
