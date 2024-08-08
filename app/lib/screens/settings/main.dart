@@ -849,36 +849,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                             ),
                             child: ListTile(
-                              title: Padding(
-                                padding: const EdgeInsets.only(
-                                  bottom: BASE_MARGIN * 1,
-                                ),
-                                child: Text(
-                                  "Request My Data",
-                                  style: TextStyle(
-                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              subtitle: const Text("Can take upto a week."),
-                              trailing: const Icon(
-                                Icons.storage,
-                                size: 30,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(
-                            height: BASE_MARGIN * 2,
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: getSecondaryColor(context),
-                              borderRadius: BorderRadius.circular(
-                                10,
-                              ),
-                            ),
-                            child: ListTile(
                               onTap: () {
                                 showDialog(
                                   context: context,

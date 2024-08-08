@@ -1,4 +1,4 @@
-import Header from "@/components/common/header";
+import './device.css';
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -55,10 +55,10 @@ export default function Layout({ children }: { children: ReactNode }) {
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
-          forcedTheme="dark"
+          forcedTheme="light"
         >
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster />

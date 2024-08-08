@@ -1,11 +1,11 @@
 import Script from "next/script";
 import { Features } from "./_components/features";
-import HowItWorks from "./_components/how-it-works";
-import FlagAnimation from "./flag.animation";
-import { buttonVariants } from "@/components/ui/button";
 import { ApplicationStats } from "@/components/component/application-stats";
 import { cn } from "@/lib/utils";
 import { CalSans } from "@/fonts";
+import VoiceLearnLogo_Light from "@/components/icons/light";
+import VoiceLearnLogo_Dark from "@/components/icons/dark";
+import DeviceFrame from "./_components/device";
 
 function Gradient({
   conic,
@@ -32,24 +32,52 @@ export default function Home() {
         <section className="w-full pt-44 xl:py-32 ">
           <div className="container flex flex-col items-center gap-4 px-4 md:px-6">
             <div className="flex flex-col items-center space-y-2 text-center ">
-              <Gradient className="top-[-500px] opacity-[0.15] w-[1000px] h-[1000px] bg-gradient-to-t from-blue-500 z-0" />
-              <h1 className={cn("text-3xl font-bold tracking-wide sm:text-5xl z-10",CalSans.className)}>
-                Unlock Your Language Potential
+              <div className="bg-primary p-2 rounded-md">
+                <VoiceLearnLogo_Light
+                  width={80}
+                  height={80}
+                  className="hidden dark:block"
+                />
+                <VoiceLearnLogo_Dark
+                  width={80}
+                  height={80}
+                  className="dark:hidden block"
+                />
+              </div>
+
+              <h1
+                className={cn(
+                  "text-3xl font-bold tracking-wide sm:text-5xl z-10",
+                  CalSans.className
+                )}
+              >
+                The app to practice any language, <br />
+                the fun way
               </h1>
-              <p className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400 z-10">
-                Converse with our AI assistant and take your communication
-                skills to new heights.
-              </p>
-            </div>
-            <div className="flex flex-col gap-2 min-[400px]:flex-row z-10">
-              <a className={buttonVariants()} href="#waitlist">
-                Get Started
-              </a>
             </div>
           </div>
         </section>
       </div>
-      {/* <FlagAnimation /> */}
+      <div className="flex flex-row flex-nowrap overflow-hidden mt-10 gap-10">
+        <DeviceFrame
+          src="https://cdn.voicelearn.tech/IMG_0013.PNG"
+          deviceClassName="mt-30"
+        />
+        <DeviceFrame
+          src="https://cdn.voicelearn.tech/IMG_0012.PNG"
+          deviceClassName="mt-20"
+        />
+        <DeviceFrame src="https://cdn.voicelearn.tech/IMG_0011.PNG" />
+        <DeviceFrame
+          src="https://cdn.voicelearn.tech/IMG_0022.PNG"
+          deviceClassName="mt-20"
+        />
+        <DeviceFrame
+          src="https://cdn.voicelearn.tech/IMG_0023.PNG"
+          deviceClassName="mt-30"
+        />
+      </div>
+
       <Features />
       <ApplicationStats />
       <div className="mx-8 flex flex-col items-center justify-center">
