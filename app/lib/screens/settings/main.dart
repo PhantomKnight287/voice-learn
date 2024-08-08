@@ -23,6 +23,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:shimmer/shimmer.dart';
@@ -94,7 +95,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       alignment: Alignment.topCenter,
       showProgressBar: false,
     );
-    if (context.mounted) {
+    if (mounted) {
       final bloc = context.read<UserBloc>();
       final state = bloc.state;
       bloc.add(
@@ -124,7 +125,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<dynamic> _getUserProfile() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
-    final req = await http.get(Uri.parse("$API_URL/profile/@me"), headers: {"Authorization": "Bearer $token"});
+    final req = await http.get(
+      Uri.parse("$API_URL/profile/@me"),
+      headers: {
+        "Authorization": "Bearer $token",
+      },
+    );
     final body = jsonDecode(req.body);
     if (req.statusCode != 200) {
       throw ApiResponseHelper.getErrorMessage(body);
@@ -166,6 +172,85 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await tts.awaitSpeakCompletion(true);
   }
 
+  Future<void> _deleteMyAccount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    logger.t("Deleting Profile");
+    final req = await http.delete(
+      Uri.parse("$API_URL/profile/@me"),
+      headers: {
+        "Authorization": "Bearer $token",
+      },
+    );
+    final body = jsonDecode(req.body);
+    if (req.statusCode != 200) {
+      final message = ApiResponseHelper.getErrorMessage(body);
+      toastification.show(
+        type: ToastificationType.error,
+        style: ToastificationStyle.minimal,
+        autoCloseDuration: const Duration(seconds: 5),
+        title: const Text("An Error Occurred"),
+        description: Text(message),
+        alignment: Alignment.topCenter,
+        showProgressBar: false,
+      );
+      logger.e("Failed to delete account: $message");
+      return;
+    } else {
+      toastification.show(
+        type: ToastificationType.info,
+        style: ToastificationStyle.minimal,
+        autoCloseDuration: const Duration(seconds: 5),
+        title: const Text("Account added for deletion."),
+        description: const Text("We will notify you via email when your account is deleted."),
+        alignment: Alignment.topCenter,
+        showProgressBar: false,
+      );
+      await Future.delayed(
+        const Duration(
+          seconds: 2,
+        ),
+      );
+      if (!mounted) return;
+      context.read<UserBloc>().add(
+            UserLoggedOutEvent(
+              id: '',
+              name: '',
+              createdAt: '',
+              paths: -1,
+              updatedAt: '',
+              token: '',
+              emeralds: -1,
+              lives: -1,
+              xp: -1,
+              streaks: -1,
+              isStreakActive: false,
+              tier: Tiers.free,
+              voiceMessages: -1,
+            ),
+          );
+      if (context.mounted) {
+        Navigator.of(context).pop();
+        final prefs = await SharedPreferences.getInstance();
+        prefs.clear();
+        if (mounted) {
+          await AdaptiveTheme.of(context).persist();
+        }
+        logger.t("Logged out");
+        if (mounted) {
+          QueryClient.of(context).getQueriesWithPrefix('voice_learn').clear();
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (context) => const OnboardingScreen(),
+            ),
+            (Route<dynamic> route) => false,
+          );
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -174,88 +259,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           "Account",
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        10,
-                      ),
-                    ),
-                    title: const Text("Log Out"),
-                    content: const Text("Are you sure you want to log out?"),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(); // Close the dialog
-                        },
-                        child: Text(
-                          "Cancel",
-                          style: TextStyle(
-                            color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
-                          ),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () async {
-                          context.read<UserBloc>().add(
-                                UserLoggedOutEvent(
-                                  id: '',
-                                  name: '',
-                                  createdAt: '',
-                                  paths: -1,
-                                  updatedAt: '',
-                                  token: '',
-                                  emeralds: -1,
-                                  lives: -1,
-                                  xp: -1,
-                                  streaks: -1,
-                                  isStreakActive: false,
-                                  tier: Tiers.free,
-                                  voiceMessages: -1,
-                                ),
-                              );
-                          if (context.mounted) {
-                            Navigator.of(context).pop();
-                            final prefs = await SharedPreferences.getInstance();
-                            prefs.clear();
-                            if (context.mounted) {
-                              await AdaptiveTheme.of(context).persist();
-                            }
-                            logger.t("Logged out");
-                            if (context.mounted) {
-                              QueryClient.of(context).getQueriesWithPrefix('voice_learn').clear();
-                              Navigator.of(context).pushAndRemoveUntil(
-                                MaterialPageRoute(
-                                  builder: (context) => const OnboardingScreen(),
-                                ),
-                                (Route<dynamic> route) => false,
-                              );
-                            }
-                          }
-                        },
-                        child: const Text(
-                          "Log Out",
-                          style: TextStyle(
-                            color: Colors.red,
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-            icon: const Icon(
-              Icons.logout,
-              color: Colors.red,
-            ),
-          ),
-        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -504,7 +507,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                               ),
                               subtitle: const Text(
-                                "Notify me 2 hours before my streak resets.",
+                                "Notify me few hours before my streak resets.",
                                 style: TextStyle(
                                   color: SECONDARY_TEXT_COLOR,
                                 ),
@@ -520,11 +523,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       false,
                                     );
                                     if (res == false) {
-                                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                                        content: Text(
-                                          "Notifications Permission Denied. Please allow the permission.",
-                                        ),
-                                      ));
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                          content: Text(
+                                            "Notifications Permission Denied. Please allow the permission.",
+                                          ),
+                                        ));
+                                      }
                                       Future.delayed(
                                         const Duration(seconds: 1),
                                         () async {
@@ -554,7 +559,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             },
                                           ),
                                         );
-                                      } catch (e) {}
+                                      } catch (e, trace) {
+                                        await Sentry.captureException(
+                                          e,
+                                          stackTrace: trace,
+                                        );
+                                      }
                                     }
                                   } else {
                                     await OneSignal.User.pushSubscription.optOut();
@@ -571,7 +581,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           "Content-Type": 'application/json',
                                         },
                                       );
-                                    } catch (e) {}
+                                    } catch (e, trace) {
+                                      await Sentry.captureException(
+                                        e,
+                                        stackTrace: trace,
+                                      );
+                                    }
                                   }
                                 },
                               ),
@@ -617,13 +632,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                ),
-                                subtitle: const Text(
-                                  "Change theme of app",
-                                  style: TextStyle(
-                                    color: SECONDARY_TEXT_COLOR,
-                                  ),
-                                  softWrap: true,
                                 ),
                                 trailing: DropdownButton(
                                   value: AdaptiveTheme.of(context).mode.toString().replaceFirst("AdaptiveThemeMode.", "").toLowerCase(),
@@ -690,7 +698,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                               ),
                               subtitle: const Text(
-                                "Enable Developer Only Options(can cause weird behaviour)",
+                                "Enable Developer Only Options(can cause weird behaviour).",
                                 style: TextStyle(
                                   color: SECONDARY_TEXT_COLOR,
                                 ),
@@ -705,6 +713,227 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     _devModeEnabled = value;
                                   });
                                 },
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: BASE_MARGIN * 4,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: BASE_MARGIN * 2,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Danger Zone",
+                            style: TextStyle(
+                              fontSize: Theme.of(context).textTheme.titleSmall!.fontSize! * 1.2,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: BASE_MARGIN * 2,
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: getSecondaryColor(context),
+                              borderRadius: BorderRadius.circular(
+                                10,
+                              ),
+                            ),
+                            child: ListTile(
+                              title: Padding(
+                                padding: const EdgeInsets.only(
+                                  bottom: BASE_MARGIN * 1,
+                                ),
+                                child: Text(
+                                  "LogOut",
+                                  style: TextStyle(
+                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          10,
+                                        ),
+                                      ),
+                                      title: const Text("Log Out"),
+                                      content: const Text("Are you sure you want to log out?"),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop(); // Close the dialog
+                                          },
+                                          child: Text(
+                                            "Cancel",
+                                            style: TextStyle(
+                                              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () async {
+                                            context.read<UserBloc>().add(
+                                                  UserLoggedOutEvent(
+                                                    id: '',
+                                                    name: '',
+                                                    createdAt: '',
+                                                    paths: -1,
+                                                    updatedAt: '',
+                                                    token: '',
+                                                    emeralds: -1,
+                                                    lives: -1,
+                                                    xp: -1,
+                                                    streaks: -1,
+                                                    isStreakActive: false,
+                                                    tier: Tiers.free,
+                                                    voiceMessages: -1,
+                                                  ),
+                                                );
+                                            if (context.mounted) {
+                                              Navigator.of(context).pop();
+                                              final prefs = await SharedPreferences.getInstance();
+                                              prefs.clear();
+                                              if (context.mounted) {
+                                                await AdaptiveTheme.of(context).persist();
+                                              }
+                                              logger.t("Logged out");
+                                              if (context.mounted) {
+                                                QueryClient.of(context).getQueriesWithPrefix('voice_learn').clear();
+                                                Navigator.of(context).pushAndRemoveUntil(
+                                                  MaterialPageRoute(
+                                                    builder: (context) => const OnboardingScreen(),
+                                                  ),
+                                                  (Route<dynamic> route) => false,
+                                                );
+                                              }
+                                            }
+                                          },
+                                          child: const Text(
+                                            "Log Out",
+                                            style: TextStyle(
+                                              color: Colors.red,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              trailing: const Icon(
+                                Icons.logout,
+                                color: Colors.red,
+                                size: 30,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: BASE_MARGIN * 2,
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: getSecondaryColor(context),
+                              borderRadius: BorderRadius.circular(
+                                10,
+                              ),
+                            ),
+                            child: ListTile(
+                              title: Padding(
+                                padding: const EdgeInsets.only(
+                                  bottom: BASE_MARGIN * 1,
+                                ),
+                                child: Text(
+                                  "Request My Data",
+                                  style: TextStyle(
+                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              subtitle: const Text("Can take upto a week."),
+                              trailing: const Icon(
+                                Icons.storage,
+                                size: 30,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: BASE_MARGIN * 2,
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: getSecondaryColor(context),
+                              borderRadius: BorderRadius.circular(
+                                10,
+                              ),
+                            ),
+                            child: ListTile(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          10,
+                                        ),
+                                      ),
+                                      title: const Text("Delete Account?"),
+                                      content: const Text("Are you sure you want to delete your account? This action is irreversible."),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop(); // Close the dialog
+                                          },
+                                          child: Text(
+                                            "Cancel",
+                                            style: TextStyle(
+                                              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: _deleteMyAccount,
+                                          child: const Text(
+                                            "Confirm",
+                                            style: TextStyle(
+                                              color: Colors.red,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              title: Padding(
+                                padding: const EdgeInsets.only(
+                                  bottom: BASE_MARGIN * 1,
+                                ),
+                                child: Text(
+                                  "Delete My Account",
+                                  style: TextStyle(
+                                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              subtitle: const Text("This will delete all of your data. This can take few hours."),
+                              trailing: const Icon(
+                                Icons.delete_forever,
+                                color: Colors.red,
+                                size: 30,
                               ),
                             ),
                           ),

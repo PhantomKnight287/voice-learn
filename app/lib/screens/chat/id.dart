@@ -13,7 +13,6 @@ import 'package:app/main.dart';
 import 'package:app/models/chat.dart';
 import 'package:app/models/message.dart';
 import 'package:app/models/user.dart';
-import 'package:app/screens/recall/notes/create.dart';
 import 'package:app/screens/shop/main.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:fl_query/fl_query.dart';
@@ -28,6 +27,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:shimmer/shimmer.dart';
 import 'package:app/utils/string.dart';
+// ignore: library_prefixes
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:toastification/toastification.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
@@ -155,7 +155,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           const Duration(seconds: 10),
         );
         if (data['refId'] == lastMessageId) {
-          if (context != null && context.mounted) {
+          if (context.mounted) {
             // ignore: no_leading_underscores_for_local_identifiers
             final _messages = messages;
             _messages[_messages.length - 1] = Message.fromJSON(data);
@@ -223,7 +223,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           botResponse = '';
           lastMessageReceivedId = "";
         });
-      } else if ((data as String).startsWith("This chat is using a premium voice.")) {
+      } else if ((data).startsWith("This chat is using a premium voice.")) {
         setState(() {
           if (messages.isNotEmpty) {
             messages.removeLast();
@@ -255,6 +255,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     if (req.statusCode == 200) {
       shown = body['chatScreenTutorialShown'];
     }
+    // ignore: non_constant_identifier_names
     final older_shown = prefs.getBool("chat_tutorial");
     if (older_shown == true) {
       await http.put(
@@ -334,7 +335,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           return true;
         },
       );
-      tutorial.show(context: context);
+      if (mounted) {
+        tutorial.show(context: context);
+      }
     }
   }
 
@@ -363,7 +366,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     ].request();
 
     bool granted = permissions[Permission.microphone]!.isGranted;
-    if (!granted) {
+    if (!granted && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Please allow microphone permission to send audio messages."),
@@ -605,7 +608,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                       chatId: widget.id,
                       speed: message.author == MessageAuthor.Bot ? _speed : null,
                     );
-
                     return bubble;
                   },
                   separatorBuilder: (context, index) {
@@ -707,7 +709,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                                   onPressed: () async {
                                                     final prefs = await SharedPreferences.getInstance();
                                                     prefs.setDouble("audio_speed", _speed);
-                                                    Navigator.of(context).pop();
+                                                    if (context.mounted) {
+                                                      Navigator.of(context).pop();
+                                                    }
                                                     setState(() {});
                                                   },
                                                   style: ButtonStyle(

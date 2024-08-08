@@ -9,7 +9,6 @@ import 'package:app/screens/home/main.dart';
 import 'package:app/screens/questions/main.dart';
 import 'package:app/utils/error.dart';
 import 'package:app/utils/string.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -32,7 +31,7 @@ class QuestionsGenerationLoadingScreen extends StatefulWidget {
 
 class _QuestionsGenerationLoadingScreenState extends State<QuestionsGenerationLoadingScreen> {
   String message = "Your questions are being generated.";
-  late Timer timer;
+  late Timer? timer;
   void _fetchStatus() async {
     _fetchGenerationStatus(null);
     timer = Timer.periodic(

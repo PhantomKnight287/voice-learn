@@ -112,6 +112,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     controller: _currentPasswordController,
                     validator: (p0) {
                       if (p0 == null || p0.isEmpty) return 'Please enter your current password';
+                      return null;
                     },
                     obscureText: !_currentPasswordVisible,
                     suffixIcon: IconButton(
@@ -144,6 +145,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     controller: _newPasswordController,
                     validator: (p0) {
                       if (p0 == null || p0.isEmpty) return 'Please enter your new password';
+                      return null;
                     },
                     obscureText: !_newPasswordVisible,
                     suffixIcon: IconButton(
@@ -177,6 +179,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     validator: (p0) {
                       if (p0 == null || p0.isEmpty) return 'Please enter your new password again';
                       if (_newPasswordController.text != _confirmPasswordController.text) return 'Passwords do not match';
+                      return null;
                     },
                     obscureText: !_confirmPasswordVisible,
                     suffixIcon: IconButton(

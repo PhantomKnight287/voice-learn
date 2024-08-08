@@ -23,7 +23,7 @@ class LearningPathLoadingScreen extends StatefulWidget {
 
 class _LearningPathLoadingScreenState extends State<LearningPathLoadingScreen> {
   String message = "Your learning path is being generated.";
-  late Timer timer;
+  late Timer? timer;
   void _fetchStatus() async {
     _fetchGenerationStatus(null);
     timer = Timer.periodic(
@@ -53,7 +53,7 @@ class _LearningPathLoadingScreenState extends State<LearningPathLoadingScreen> {
           });
         }
       } else {
-        if (context != null && mounted) {
+        if (mounted) {
           Navigator.of(context).pushReplacement(
             NoSwipePageRoute(
               builder: (context) {

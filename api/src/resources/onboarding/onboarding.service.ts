@@ -17,21 +17,23 @@ export class OnboardingService {
       },
       select: { id: true },
     });
-    const analytics = await prisma.analytics.findFirst({
-      where: { name: { mode: 'insensitive', equals: body.analytics } },
-    });
-    if (analytics) {
-      await prisma.analytics.update({
-        where: { id: analytics.id },
-        data: { users: { increment: 1 } },
+    if (body.analytics) {
+      const analytics = await prisma.analytics.findFirst({
+        where: { name: { mode: 'insensitive', equals: body.analytics } },
       });
-    } else {
-      await prisma.analytics.create({
-        data: {
-          users: 1,
-          name: body.analytics,
-        },
-      });
+      if (analytics) {
+        await prisma.analytics.update({
+          where: { id: analytics.id },
+          data: { users: { increment: 1 } },
+        });
+      } else {
+        await prisma.analytics.create({
+          data: {
+            users: 1,
+            name: body.analytics,
+          },
+        });
+      }
     }
     await queue.addToQueue({
       id: learningPath.id,

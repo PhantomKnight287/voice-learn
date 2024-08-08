@@ -95,7 +95,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         type: ToastificationType.error,
         style: ToastificationStyle.minimal,
         autoCloseDuration: const Duration(seconds: 5),
-        title: Text("An Error Occurred"),
+        title: const Text("An Error Occurred"),
         description: Text(
           ApiResponseHelper.getErrorMessage(body),
         ),

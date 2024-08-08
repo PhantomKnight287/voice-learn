@@ -36,7 +36,7 @@ class _ViewHandlerState extends State<ViewHandler> {
     final hasVibrator = await Vibration.hasVibrator() ?? false;
     final hasAmplituteControl = await Vibration.hasAmplitudeControl() ?? false;
 
-    if (context.mounted) {
+    if (mounted) {
       context.read<ApplicationBloc>().add(
             SetApplicationVibrationOption(
               hasAmplituteControl: hasAmplituteControl,
@@ -93,18 +93,22 @@ class _ViewHandlerState extends State<ViewHandler> {
         await Purchases.logIn(user.id);
         logger.i("Logged into revenue cat");
         if (body['path']?['type'] == 'created') {
-          Navigator.of(context).pushReplacement(
-            NoSwipePageRoute(
-              builder: (context) => LearningPathLoadingScreen(pathId: body['path']['id']),
-            ),
-          );
+          if (mounted) {
+            Navigator.of(context).pushReplacement(
+              NoSwipePageRoute(
+                builder: (context) => LearningPathLoadingScreen(pathId: body['path']['id']),
+              ),
+            );
+          }
           return;
         } else if (body['path'] == null) {
-          Navigator.of(context).pushReplacement(
-            NoSwipePageRoute(
-              builder: (context) => const OnboardingQuestionsScreen(),
-            ),
-          );
+          if (mounted) {
+            Navigator.of(context).pushReplacement(
+              NoSwipePageRoute(
+                builder: (context) => const OnboardingQuestionsScreen(),
+              ),
+            );
+          }
         } else {
           setState(() {});
         }

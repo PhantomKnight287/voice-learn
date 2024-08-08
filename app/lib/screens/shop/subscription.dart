@@ -51,7 +51,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with TickerProv
                   padding: const EdgeInsets.all(
                     BASE_MARGIN * 2,
                   ),
-                  child: SizedBox(),
+                  child: const SizedBox(),
                 ),
               ],
             ),

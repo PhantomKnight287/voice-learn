@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Auth } from 'src/decorators/auth/auth.decorator';
@@ -25,5 +25,9 @@ export class ProfileController {
   @Patch()
   updateProfile(@Auth() auth: User, @Body() body: UpdateProfileDTO) {
     return this.profileService.updateProfile(body, auth.id);
+  }
+  @Delete('@me')
+  deleteMyAccount(@Auth() auth: User) {
+    return this.profileService.deleteUser(auth.id);
   }
 }

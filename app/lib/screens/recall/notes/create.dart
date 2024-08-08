@@ -382,12 +382,12 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> with RouteAware {
                         onChanged: (value) {
                           if (value != null) {
                             setState(() {
-                              _stackId = value as String;
+                              _stackId = value;
                             });
                           }
                         },
                         validator: (value) {
-                          if (value == null || (value as String).isEmpty) {
+                          if (value == null || (value).isEmpty) {
                             return 'Please select a stack.';
                           }
                           return null;
@@ -435,7 +435,7 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> with RouteAware {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
-                        color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Color(0xffe7e0e8) : Color(0xff36343a),
+                        color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? const Color(0xffe7e0e8) : const Color(0xff36343a),
                       ),
                       child: Align(
                         alignment: Alignment.centerLeft,

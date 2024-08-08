@@ -421,7 +421,7 @@ class _StreaksScreenState extends State<StreaksScreen> {
                         showDragHandle: true,
                         builder: (context) {
                           return StatefulBuilder(
-                            builder: (context, _setState) {
+                            builder: (context, setState) {
                               return Padding(
                                 padding: const EdgeInsets.all(BASE_MARGIN * 2),
                                 child: Column(
@@ -433,7 +433,7 @@ class _StreaksScreenState extends State<StreaksScreen> {
                                       height: BASE_MARGIN * 4,
                                     ),
                                     Text(
-                                      data >= 5 ? "You have full shields" : "You have ${data} ${data == 1 ? "shield" : "shields"}",
+                                      data >= 5 ? "You have full shields" : "You have $data ${data == 1 ? "shield" : "shields"}",
                                       style: TextStyle(
                                         fontWeight: FontWeight.w700,
                                         fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
@@ -445,12 +445,12 @@ class _StreaksScreenState extends State<StreaksScreen> {
                                     ElevatedButton(
                                       onPressed: () async {
                                         if (data >= 5) return;
-                                        _setState(() {
+                                        setState(() {
                                           _refillShieldsLoading = true;
                                         });
                                         await _refillStreakShields();
                                         await query.refresh();
-                                        _setState(() {
+                                        setState(() {
                                           _refillShieldsLoading = false;
                                         });
                                         if (context.mounted) Navigator.pop(context);
@@ -527,7 +527,7 @@ class _StreaksScreenState extends State<StreaksScreen> {
                                                   width: BASE_MARGIN * 2,
                                                 ),
                                                 Text(
-                                                  data >= 5 ? "50" : ((5 - data!) * 10).toString(),
+                                                  data >= 5 ? "50" : ((5 - data) * 10).toString(),
                                                   style: TextStyle(
                                                     fontSize: Theme.of(context).textTheme.titleSmall!.fontSize!,
                                                     fontWeight: FontWeight.w600,
@@ -543,12 +543,12 @@ class _StreaksScreenState extends State<StreaksScreen> {
                                     ElevatedButton(
                                       onPressed: () async {
                                         if (data >= 5) return;
-                                        _setState(() {
+                                        setState(() {
                                           _buyOneShieldLoading = true;
                                         });
                                         await _buyOneStreakShield();
                                         await query.refresh();
-                                        _setState(() {
+                                        setState(() {
                                           _buyOneShieldLoading = false;
                                         });
                                         if (context.mounted) Navigator.pop(context);
@@ -685,7 +685,7 @@ class _StreaksScreenState extends State<StreaksScreen> {
                                   ),
                                 if (data != null)
                                   Container(
-                                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                                     decoration: BoxDecoration(
                                       color: data == 0 ? Colors.red.shade100 : Colors.green.shade100,
                                       borderRadius: BorderRadius.circular(8),
@@ -709,7 +709,7 @@ class _StreaksScreenState extends State<StreaksScreen> {
                 },
                 refreshConfig: RefreshConfig.withDefaults(
                   context,
-                  staleDuration: Duration(
+                  staleDuration: const Duration(
                     seconds: 0,
                   ),
                   refreshOnQueryFnChange: true,

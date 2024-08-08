@@ -15,13 +15,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fl_query/fl_query.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gravatar/flutter_gravatar.dart';
 import 'package:flutter_gravatar/utils.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_gravatar/flutter_gravatar.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -145,7 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Navigator.of(context).push(
                               NoSwipePageRoute(
                                 builder: (context) {
-                                  return NotificationsScreen();
+                                  return const NotificationsScreen();
                                 },
                               ),
                             ).then(
@@ -172,7 +172,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               child: Text(
                                 (value) > 99 ? "99+" : value.toString(),
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 8,
                                 ),
@@ -189,7 +189,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Navigator.of(context).push(
                           NoSwipePageRoute(
                             builder: (context) {
-                              return NotificationsScreen();
+                              return const NotificationsScreen();
                             },
                           ),
                         ).then(
@@ -228,7 +228,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               context,
                               monthName,
                               dateTime,
-                              userState.email != null && userState.email!.isValidEmail() ? Gravatar(userState.email!).imageUrl() : "https://api.dicebear.com/8.x/initials/png?seed=${userState.name}",
+                              userState.email != null && userState.email!.isValidEmail()
+                                  ? Gravatar(userState.email!).imageUrl(defaultImage: "404")
+                                  : "https://api.dicebear.com/8.x/initials/png?seed=${userState.name}",
                             ),
                             _buildStatsLoader(context),
                           ],
@@ -242,7 +244,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               context,
                               monthName,
                               dateTime,
-                              userState.email != null && userState.email!.isValidEmail() ? Gravatar(userState.email!).imageUrl() : "https://api.dicebear.com/8.x/initials/png?seed=${userState.name}",
+                              userState.email != null && userState.email!.isValidEmail()
+                                  ? Gravatar(userState.email!).imageUrl(defaultImage: "404")
+                                  : "https://api.dicebear.com/8.x/initials/png?seed=${userState.name}",
                             ),
                             _buildStatsLoader(context),
                           ],
@@ -680,7 +684,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           lineBarsData: [
             LineChartBarData(
               color: Colors.green,
-              spots: ((data?['answerHistory']['correctAnswers'] as List) ?? [])
+              spots: ((data?['answerHistory']['correctAnswers'] as List?) ?? [])
                   .map(
                     (history) => FlSpot(
                       DateTime.parse(history['date']).day.toDouble(),
@@ -701,7 +705,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             LineChartBarData(
               color: Colors.red,
-              spots: ((data?['answerHistory']['incorrectAnswers'] as List) ?? [])
+              spots: ((data?['answerHistory']['incorrectAnswers'] as List?) ?? [])
                   .map(
                     (history) => FlSpot(
                       DateTime.parse(history['date']).day.toDouble(),
@@ -762,7 +766,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           lineBarsData: [
             LineChartBarData(
-              spots: ((data?['xpHistory'] as List) ?? [])
+              spots: ((data?['xpHistory'] as List?) ?? [])
                   .map(
                     (history) => FlSpot(
                       DateTime.parse(history['date']).day.toDouble(),

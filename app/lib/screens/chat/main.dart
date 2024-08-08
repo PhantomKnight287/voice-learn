@@ -26,7 +26,7 @@ class ChatsScreen extends StatefulWidget {
 
 class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
   final _scrollController = ScrollController();
-  late InfiniteQuery<List<Chat>, HttpException, int> query;
+  late InfiniteQuery<List<Chat>, HttpException, int>? query;
   bool isDeleting = false;
 
   Future<List<Chat>> _fetchChats(int page) async {
@@ -75,8 +75,8 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
   void _scrollListener() async {
     if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
       if (query != null) {
-        if (query.hasNextPage) {
-          await query.fetchNext();
+        if (query!.hasNextPage) {
+          await query!.fetchNext();
         }
       }
     }
@@ -129,10 +129,10 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
               );
             }
             return ListView.separated(
+              key: const PageStorageKey('chats'),
               controller: _scrollController,
               itemBuilder: (context, index) {
                 final chat = chats[index];
-
                 return Slidable(
                   endActionPane: ActionPane(
                     motion: const StretchMotion(),

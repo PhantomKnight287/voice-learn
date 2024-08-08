@@ -93,11 +93,11 @@ class _ReportScreenState extends State<ReportScreen> {
     return Scaffold(
       appBar: AppBar(
         bottom: BOTTOM(context),
-        title: Text("Report"),
+        title: const Text("Report"),
       ),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(
+          padding: const EdgeInsets.all(
             BASE_MARGIN * 4,
           ),
           child: Column(

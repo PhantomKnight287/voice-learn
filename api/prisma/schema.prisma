@@ -56,7 +56,7 @@ model Notification {
   read        Boolean          @default(false)
   type        NotificationType
 
-  user   User?   @relation(fields: [userId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String?
 
   createdAt DateTime @default(now())
@@ -76,10 +76,10 @@ model Note {
   /// This is gonna support markdown
   description String
 
-  language   Language? @relation(fields: [languageId], references: [id])
+  language   Language? @relation(fields: [languageId], references: [id], onDelete: Cascade)
   languageId String?
 
-  stack   Stack  @relation(fields: [stackId], references: [id])
+  stack   Stack  @relation(fields: [stackId], references: [id], onDelete: Cascade)
   stackId String
 
   createdAt DateTime @default(now())
@@ -91,7 +91,7 @@ model Stack {
   name        String
   description String?
 
-  user   User?   @relation(fields: [userId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String?
 
   notes Note[]
@@ -104,10 +104,10 @@ model XP {
   id     String @id @unique @default(cuid())
   earned Int    @default(0)
 
-  language   Language @relation(fields: [languageId], references: [id])
+  language   Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
   languageId String
 
-  User   User?   @relation(fields: [userId], references: [id])
+  User   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String?
 
   createdAt DateTime @default(now())
@@ -122,7 +122,7 @@ model Upload {
 
   messages Message[]
 
-  user   User?   @relation(fields: [userId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String?
 
   createdAt DateTime @default(now())
@@ -139,8 +139,8 @@ model GenerationRequest {
   prompt    String?
   completed Boolean               @default(false)
   moduleId  String?
-  module    Module?               @relation(fields: [moduleId], references: [id])
-  user      User?                 @relation(fields: [userId], references: [id])
+  module    Module?               @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  user      User?                 @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Streak {
@@ -148,7 +148,7 @@ model Streak {
 
   type StreakType @default(active)
 
-  user   User?   @relation(fields: [userId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String?
 
   createdAt DateTime @default(now())
@@ -172,9 +172,9 @@ model LearningPath {
   id String @id @unique
 
   languageId String
-  language   Language @relation(fields: [languageId], references: [id])
+  language   Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
 
-  user   User?   @relation(fields: [userId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String?
 
   reason    String
@@ -241,10 +241,10 @@ model Answer {
   id   String     @id @unique
   type AnswerType
 
-  question   Question? @relation(fields: [questionId], references: [id])
+  question   Question? @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String?
 
-  user   User?   @relation(fields: [userId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String?
 
   answer String?
@@ -277,9 +277,9 @@ model Chat {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   languageId    String
-  language      Language  @relation(fields: [languageId], references: [id])
-  user          User      @relation(fields: [userId], references: [id])
-  voice         Voice     @relation(fields: [voiceId], references: [id])
+  language      Language  @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  voice         Voice     @relation(fields: [voiceId], references: [id], onDelete: Cascade)
   messages      Message[]
 }
 
@@ -287,7 +287,7 @@ model Message {
   id           String        @id
   content      Json[]
   author       MessageAuthor @default(User)
-  attachment   Upload?       @relation(fields: [attachmentId], references: [id])
+  attachment   Upload?       @relation(fields: [attachmentId], references: [id], onDelete: Cascade)
   attachmentId String?
 
   audioDuration Int @default(10)
@@ -295,7 +295,7 @@ model Message {
   chatId    String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  chat      Chat?    @relation(fields: [chatId], references: [id])
+  chat      Chat?    @relation(fields: [chatId], references: [id], onDelete: Cascade)
 }
 
 model Voice {
@@ -343,13 +343,13 @@ model Report {
 
   status ReportStatus @default(pending)
 
-  author   User   @relation(fields: [authorId], references: [id])
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  question   Question? @relation(fields: [questionId], references: [id])
+  question   Question? @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String?   @unique
 }
 

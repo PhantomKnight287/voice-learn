@@ -22,6 +22,7 @@ class NoSwipePageRoute<T> extends CupertinoPageRoute<T> {
   @override
   bool get hasScopedWillPopCallback {
     if (Platform.isIOS || Platform.isMacOS) {
+      // ignore: deprecated_member_use
       return super.hasScopedWillPopCallback;
     } else {
       return true;

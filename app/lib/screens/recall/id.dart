@@ -30,7 +30,7 @@ class StackScreen extends StatefulWidget {
 }
 
 class _StackScreenState extends State<StackScreen> with RouteAware {
-  late InfiniteQuery<List<Note>, HttpException, int> query;
+  late InfiniteQuery<List<Note>, HttpException, int>? query;
   final controller = ScrollController();
   bool isDeleting = false;
 
@@ -64,8 +64,8 @@ class _StackScreenState extends State<StackScreen> with RouteAware {
       () async {
         if (controller.position.pixels == controller.position.maxScrollExtent) {
           if (query != null) {
-            if (query.hasNextPage) {
-              await query.fetchNext();
+            if (query!.hasNextPage) {
+              await query!.fetchNext();
             }
           }
         }
@@ -117,7 +117,7 @@ class _StackScreenState extends State<StackScreen> with RouteAware {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Icon(
+        child: const Icon(
           Icons.add_rounded,
           color: Colors.black,
         ),
@@ -218,8 +218,8 @@ class _StackScreenState extends State<StackScreen> with RouteAware {
                                             if (context.mounted) Navigator.of(context).pop();
                                           },
                                           child: isDeleting
-                                              ? CircularProgressIndicator()
-                                              : Text(
+                                              ? const CircularProgressIndicator()
+                                              : const Text(
                                                   "Delete",
                                                   style: TextStyle(
                                                     color: Colors.red,

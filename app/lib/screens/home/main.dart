@@ -62,7 +62,9 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
       Uri.parse(
         "$API_URL/lives/add-one",
       ),
-      headers: {"Authorization": "Bearer $token"},
+      headers: {
+        "Authorization": "Bearer $token",
+      },
     );
     final body = jsonDecode(req.body);
     if (req.statusCode != 200) {
@@ -129,8 +131,8 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
     if (req.statusCode == 200) {
       shown = body['homeScreenTutorialShown'];
     }
-    final older_shown = prefs.getBool("tutorial_shown");
-    if (older_shown == true) {
+    final olderShown = prefs.getBool("tutorial_shown");
+    if (olderShown == true) {
       await http.put(
         Uri.parse(
           "$API_URL/tutorials/home",
@@ -281,7 +283,9 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
           return true;
         },
       );
-      tutorial.show(context: context);
+      if (mounted) {
+        tutorial.show(context: context);
+      }
     }
   }
 
@@ -297,6 +301,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
   @override
   void dispose() {
     routeObserver.unsubscribe(this);
+
     super.dispose();
   }
 
@@ -514,7 +519,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                 showDragHandle: true,
                                 builder: (context) {
                                   return StatefulBuilder(
-                                    builder: (context, _setState) {
+                                    builder: (context, setState) {
                                       final bloc = context.read<UserBloc>();
                                       final state = bloc.state;
                                       return Padding(
@@ -566,11 +571,11 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                             ElevatedButton(
                                               onPressed: () async {
                                                 if (state.lives >= 5) return;
-                                                _setState(() {
+                                                setState(() {
                                                   refillLivesButtonLoading = true;
                                                 });
                                                 await _refillLives();
-                                                _setState(() {
+                                                setState(() {
                                                   refillLivesButtonLoading = false;
                                                 });
                                               },
@@ -661,11 +666,11 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                                               onPressed: () async {
                                                 if (state.lives >= 5) return;
                                                 if (state.lives >= 5) return;
-                                                _setState(() {
+                                                setState(() {
                                                   buyOneLifeButtonLoading = true;
                                                 });
                                                 await _buyOneLife();
-                                                _setState(() {
+                                                setState(() {
                                                   buyOneLifeButtonLoading = false;
                                                 });
                                               },
@@ -824,6 +829,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                       scrollDirection: Axis.vertical,
                       itemCount: data.modules.length,
                       shrinkWrap: true,
+                      key: const PageStorageKey('modules'),
                       itemBuilder: (context, index) {
                         final module = data.modules[index];
                         final item = Padding(

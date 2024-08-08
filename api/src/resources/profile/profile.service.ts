@@ -2,9 +2,11 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { prisma } from 'src/db';
 import { UpdateProfileDTO } from './dto/update-profile.dto';
 import { createHash } from 'crypto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class ProfileService {
+  constructor(protected e: EventEmitter2) {}
   async getMyProfile(userId: string, own = true) {
     const user = await prisma.user.findFirst({
       where: {
@@ -111,6 +113,18 @@ export class ProfileService {
     return {
       name: user.name,
       email: user.email,
+    };
+  }
+  async deleteUser(userId: string) {
+    const user = await prisma.user.findFirst({
+      where: {
+        id: userId,
+      },
+    });
+    if (!user) throw new HttpException('No user found', HttpStatus.NOT_FOUND);
+    this.e.emit('user.delete', userId);
+    return {
+      message: `Your account will be deleted soon. We will notify you by email.`,
     };
   }
 }

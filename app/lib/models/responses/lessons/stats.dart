@@ -1,5 +1,3 @@
-import 'package:app/models/question.dart';
-
 class LessonStats {
   final int correctAnswers;
   final int incorrectAnswers;

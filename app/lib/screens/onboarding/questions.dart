@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:app/components/no_swipe_page_route.dart';
@@ -121,7 +122,7 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
       ),
       Reason(
         reason: "App Store",
-        icon: SvgPicture.asset("assets/svgs/google-play.svg"),
+        icon: Platform.isIOS ? SvgPicture.asset("assets/svgs/app_store.svg") : SvgPicture.asset("assets/svgs/google-play.svg"),
       ),
       Reason(
         reason: "News/article/blog",
@@ -198,11 +199,253 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
       );
       return;
     }
-    Navigator.of(context).pushReplacement(
-      NoSwipePageRoute(
-        builder: (context) => LearningPathLoadingScreen(
-          pathId: body['id'],
+    if (mounted) {
+      Navigator.of(context).pushReplacement(
+        NoSwipePageRoute(
+          builder: (context) => LearningPathLoadingScreen(
+            pathId: body['id'],
+          ),
         ),
+      );
+    }
+  }
+
+  Widget _buildLanguagesList() {
+    return FutureBuilder(
+      future: _languagesFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('No languages found.'));
+        } else {
+          final languages = snapshot.data!;
+          return ListView.separated(
+            separatorBuilder: (context, index) {
+              return const SizedBox(
+                height: BASE_MARGIN * 4,
+              );
+            },
+            shrinkWrap: true,
+            itemCount: languages.length,
+            padding: const EdgeInsets.all(0),
+            itemBuilder: (context, index) {
+              final language = languages[index];
+              final tile = _buildLanguageTile(language);
+              if (index == 0) {
+                return Column(
+                  children: [
+                    Text(
+                      "Which language would you like to learn?",
+                      style: TextStyle(
+                        fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                        fontFamily: "CalSans",
+                      ),
+                    ),
+                    const SizedBox(
+                      height: BASE_MARGIN * 4,
+                    ),
+                    tile,
+                  ],
+                );
+              }
+              return tile;
+            },
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildLanguageTile(Language language) {
+    return ListTile(
+      onTap: () {
+        HapticFeedback.mediumImpact();
+        setState(() {
+          _selectedLanguageId = language.id;
+          _selectedLanguage = language;
+        });
+      },
+      splashColor: Colors.transparent,
+      tileColor: getSecondaryColor(context),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: _selectedLanguageId == language.id
+            ? BorderSide(
+                color: Colors.green.shade500,
+                strokeAlign: 2,
+                style: BorderStyle.solid,
+                width: 2,
+              )
+            : BorderSide.none,
+      ),
+      title: Text(
+        language.name,
+        style: TextStyle(
+          color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
+          fontSize: 20,
+        ),
+      ),
+      leading: CachedNetworkImage(
+        imageUrl: language.flagUrl,
+        progressIndicatorBuilder: (context, url, progress) {
+          return const CircularProgressIndicator.adaptive();
+        },
+        width: 35,
+        height: 35,
+      ),
+    );
+  }
+
+  Widget _buildKnowledgeList() {
+    return ListView.separated(
+      separatorBuilder: (context, index) {
+        return const SizedBox(
+          height: BASE_MARGIN * 4,
+        );
+      },
+      shrinkWrap: true,
+      itemCount: _getKnowledge(_selectedLanguage?.name ?? "").length,
+      padding: const EdgeInsets.all(0),
+      itemBuilder: (context, index) {
+        final item = _getKnowledge(_selectedLanguage?.name ?? "")[index];
+        return _buildKnowledgeTile(item);
+      },
+    );
+  }
+
+  Widget _buildKnowledgeTile(Knowledge item) {
+    return ListTile(
+      title: Text(
+        item.message,
+        style: TextStyle(
+          color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
+          fontSize: 20,
+        ),
+      ),
+      onTap: () {
+        setState(() {
+          _selectedKnowledge = item;
+        });
+      },
+      splashColor: Colors.transparent,
+      tileColor: getSecondaryColor(context),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: _selectedKnowledge?.message == item.message
+            ? BorderSide(
+                color: Colors.green.shade500,
+                strokeAlign: 2,
+                style: BorderStyle.solid,
+                width: 2,
+              )
+            : BorderSide.none,
+      ),
+    );
+  }
+
+  Widget _buildReasonsList() {
+    return ListView.separated(
+      separatorBuilder: (context, index) {
+        return const SizedBox(
+          height: BASE_MARGIN * 4,
+        );
+      },
+      shrinkWrap: true,
+      itemCount: _getReasons().length,
+      padding: const EdgeInsets.all(0),
+      itemBuilder: (context, index) {
+        final item = _getReasons()[index];
+        return _buildReasonsTile(item);
+      },
+    );
+  }
+
+  Widget _buildReasonsTile(Reason item) {
+    return ListTile(
+      title: Text(
+        item.reason,
+        style: TextStyle(
+          color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
+          fontSize: 20,
+        ),
+      ),
+      leading: SizedBox(
+        height: 40,
+        width: 50,
+        child: item.icon,
+      ),
+      onTap: () {
+        setState(() {
+          _selectedReason = item;
+        });
+      },
+      splashColor: Colors.transparent,
+      tileColor: getSecondaryColor(context),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: _selectedReason?.reason == item.reason
+            ? BorderSide(
+                color: Colors.green.shade500,
+                strokeAlign: 2,
+                style: BorderStyle.solid,
+                width: 2,
+              )
+            : BorderSide.none,
+      ),
+    );
+  }
+
+  Widget _buildHearAboutList() {
+    return ListView.separated(
+      separatorBuilder: (context, index) {
+        return const SizedBox(
+          height: BASE_MARGIN * 4,
+        );
+      },
+      shrinkWrap: true,
+      itemCount: _getHearAbout().length,
+      padding: const EdgeInsets.all(0),
+      itemBuilder: (context, index) {
+        final item = _getHearAbout()[index];
+        return _buildHearAboutTile(item);
+      },
+    );
+  }
+
+  Widget _buildHearAboutTile(Reason item) {
+    return ListTile(
+      title: Text(
+        item.reason,
+        style: TextStyle(
+          color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
+          fontSize: 20,
+        ),
+      ),
+      leading: SizedBox(
+        height: 40,
+        width: 50,
+        child: item.icon,
+      ),
+      onTap: () {
+        setState(() {
+          _hearAbout = item;
+        });
+      },
+      splashColor: Colors.transparent,
+      tileColor: getSecondaryColor(context),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: _hearAbout?.reason == item.reason
+            ? BorderSide(
+                color: Colors.green.shade500,
+                strokeAlign: 2,
+                style: BorderStyle.solid,
+                width: 2,
+              )
+            : BorderSide.none,
       ),
     );
   }
@@ -278,100 +521,7 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                 controller: _pageController,
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
-                  FutureBuilder(
-                    future: _languagesFuture,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      } else if (snapshot.hasError) {
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return const Center(child: Text('No languages found.'));
-                      } else {
-                        final languages = snapshot.data!;
-
-                        return ListView.separated(
-                          separatorBuilder: (context, index) {
-                            return const SizedBox(
-                              height: BASE_MARGIN * 4,
-                            );
-                          },
-                          shrinkWrap: true,
-                          itemCount: languages.length,
-                          padding: const EdgeInsets.all(0),
-                          itemBuilder: (context, index) {
-                            final language = languages[index];
-                            final tile = ListTile(
-                              onTap: () {
-                                HapticFeedback.mediumImpact();
-                                setState(() {
-                                  _selectedLanguageId = language.id;
-                                  _selectedLanguage = language;
-                                });
-                              },
-                              splashColor: Colors.transparent,
-                              tileColor: getSecondaryColor(context),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: _selectedLanguageId == language.id
-                                    ? BorderSide(
-                                        color: Colors.green.shade500,
-                                        strokeAlign: 2,
-                                        style: BorderStyle.solid,
-                                        width: 2,
-                                      )
-                                    : BorderSide.none,
-                              ),
-                              title: Text(
-                                language.name,
-                                style: TextStyle(
-                                  color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
-                                  fontSize: 20,
-                                ),
-                              ),
-                              leading: CachedNetworkImage(
-                                imageUrl: language.flagUrl,
-                                progressIndicatorBuilder: (context, url, progress) {
-                                  return const CircularProgressIndicator.adaptive();
-                                },
-                                width: 35,
-                                height: 35,
-                              ),
-                            );
-                            if (index == 0) {
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "What would you like to learn?",
-                                    style: TextStyle(
-                                      fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-                                      fontFamily: "CalSans",
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    height: BASE_MARGIN * 6,
-                                  ),
-                                  tile
-                                ],
-                              );
-                            }
-                            if (index == snapshot.data!.length - 1) {
-                              return Column(
-                                children: [
-                                  tile,
-                                  const SizedBox(
-                                    height: 100,
-                                  ),
-                                ],
-                              );
-                            }
-                            return tile;
-                          },
-                        );
-                      }
-                    },
-                  ),
+                  _buildLanguagesList(),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -385,38 +535,7 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                       const SizedBox(
                         height: BASE_MARGIN * 4,
                       ),
-                      for (var item in _getKnowledge(_selectedLanguage?.name ?? "")) ...[
-                        ListTile(
-                          title: Text(
-                            item.message,
-                            style: TextStyle(
-                              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
-                              fontSize: 20,
-                            ),
-                          ),
-                          onTap: () {
-                            setState(() {
-                              _selectedKnowledge = item;
-                            });
-                          },
-                          splashColor: Colors.transparent,
-                          tileColor: getSecondaryColor(context),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: _selectedKnowledge?.message == item.message
-                                ? BorderSide(
-                                    color: Colors.green.shade500,
-                                    strokeAlign: 2,
-                                    style: BorderStyle.solid,
-                                    width: 2,
-                                  )
-                                : BorderSide.none,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: BASE_MARGIN * 4,
-                        ),
-                      ],
+                      _buildKnowledgeList(),
                     ],
                   ),
                   Column(
@@ -432,43 +551,7 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                       const SizedBox(
                         height: BASE_MARGIN * 4,
                       ),
-                      for (var item in _getReasons()) ...[
-                        ListTile(
-                          title: Text(
-                            item.reason,
-                            style: TextStyle(
-                              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
-                              fontSize: 20,
-                            ),
-                          ),
-                          leading: SizedBox(
-                            height: 40,
-                            width: 50,
-                            child: item.icon,
-                          ),
-                          onTap: () {
-                            setState(() {
-                              _selectedReason = item;
-                            });
-                          },
-                          splashColor: Colors.transparent,
-                          tileColor: getSecondaryColor(context),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: _selectedReason?.reason == item.reason
-                                ? BorderSide(
-                                    color: Colors.green.shade500,
-                                    strokeAlign: 2,
-                                    style: BorderStyle.solid,
-                                    width: 2,
-                                  )
-                                : BorderSide.none,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: BASE_MARGIN * 4,
-                        ),
-                      ],
+                      _buildReasonsList(),
                     ],
                   ),
                   Column(
@@ -484,43 +567,7 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
                       const SizedBox(
                         height: BASE_MARGIN * 4,
                       ),
-                      for (var item in _getHearAbout()) ...[
-                        ListTile(
-                          title: Text(
-                            item.reason,
-                            style: TextStyle(
-                              color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
-                              fontSize: 20,
-                            ),
-                          ),
-                          leading: SizedBox(
-                            height: 40,
-                            width: 50,
-                            child: item.icon,
-                          ),
-                          onTap: () {
-                            setState(() {
-                              _hearAbout = item;
-                            });
-                          },
-                          splashColor: Colors.transparent,
-                          tileColor: getSecondaryColor(context),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: _hearAbout?.reason == item.reason
-                                ? BorderSide(
-                                    color: Colors.green.shade500,
-                                    strokeAlign: 2,
-                                    style: BorderStyle.solid,
-                                    width: 2,
-                                  )
-                                : BorderSide.none,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: BASE_MARGIN * 4,
-                        ),
-                      ],
+                      _buildHearAboutList(),
                     ],
                   ),
                 ],
@@ -530,8 +577,8 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
           Container(
             decoration: BoxDecoration(
               color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.white : Theme.of(context).scaffoldBackgroundColor,
-              boxShadow: [
-                const BoxShadow(
+              boxShadow: const [
+                BoxShadow(
                   color: SECONDARY_TEXT_COLOR,
                   blurRadius: 5,
                   blurStyle: BlurStyle.outer,
@@ -539,76 +586,126 @@ class _OnboardingQuestionsScreenState extends State<OnboardingQuestionsScreen> w
               ],
             ),
             child: Padding(
-              padding: const EdgeInsets.all(BASE_MARGIN * 2),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (_currentStep == 0 && _selectedLanguageId.isEmpty) {
-                      return;
-                    }
-                    if (_currentStep == 1 && _selectedKnowledge == null) {
-                      return;
-                    }
-                    if (_currentStep == 2 && _selectedReason == null) {
-                      return;
-                    }
-                    if (_currentStep == 3) {
-                      if (_hearAbout == null) {
-                        return;
-                      } else {
-                        _completeOnBoarding();
-                      }
-                    }
-                    if (_currentStep < 3) {
-                      _pageController.nextPage(duration: const Duration(microseconds: 500), curve: Curves.linear);
-                      setState(() {
-                        _currentStep++;
-                      });
-                    }
-                  },
-                  style: ButtonStyle(
-                    alignment: Alignment.center,
-                    foregroundColor: WidgetStateProperty.all(Colors.black),
-                    padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
-                      (Set<WidgetState> states) {
-                        return const EdgeInsets.all(15);
+              padding: const EdgeInsets.only(
+                bottom: BASE_MARGIN * 4,
+                left: BASE_MARGIN * 2,
+                right: BASE_MARGIN * 2,
+                top: BASE_MARGIN * 2,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_loading) return;
+                        if (_currentStep == 0 && _selectedLanguageId.isEmpty) {
+                          return;
+                        }
+                        if (_currentStep == 1 && _selectedKnowledge == null) {
+                          return;
+                        }
+                        if (_currentStep == 2 && _selectedReason == null) {
+                          return;
+                        }
+                        if (_currentStep == 3) {
+                          if (_hearAbout == null) {
+                            return;
+                          } else {
+                            _completeOnBoarding();
+                          }
+                        }
+                        if (_currentStep < 3) {
+                          _pageController.nextPage(duration: const Duration(microseconds: 500), curve: Curves.linear);
+                          setState(() {
+                            _currentStep++;
+                          });
+                        }
                       },
-                    ),
-                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    backgroundColor: (_currentStep == 1 && _selectedLanguageId.isEmpty)
-                        ? disabledButtonColor
-                        : (_currentStep == 2 && _selectedKnowledge == null)
-                            ? disabledButtonColor
-                            : (_currentStep == 3 && _selectedReason == null)
-                                ? disabledButtonColor
-                                : null,
-                  ),
-                  child: _loading
-                      ? Container(
-                          width: 24,
-                          height: 24,
-                          padding: const EdgeInsets.all(2.0),
-                          child: const CircularProgressIndicator(
-                            color: Colors.black,
-                            strokeWidth: 3,
-                          ),
-                        )
-                      : Text(
-                          _currentStep == 3 ? "Complete" : "Continue",
-                          style: TextStyle(
-                            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                            fontWeight: FontWeight.w600,
+                      style: ButtonStyle(
+                        alignment: Alignment.center,
+                        foregroundColor: WidgetStateProperty.all(Colors.black),
+                        padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
+                          (Set<WidgetState> states) {
+                            return const EdgeInsets.all(15);
+                          },
+                        ),
+                        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                ),
+                        backgroundColor: (_currentStep == 1 && _selectedLanguageId.isEmpty)
+                            ? disabledButtonColor
+                            : (_currentStep == 2 && _selectedKnowledge == null)
+                                ? disabledButtonColor
+                                : (_currentStep == 3 && _selectedReason == null)
+                                    ? disabledButtonColor
+                                    : null,
+                      ),
+                      child: _loading
+                          ? Container(
+                              width: 24,
+                              height: 24,
+                              padding: const EdgeInsets.all(2.0),
+                              child: const CircularProgressIndicator(
+                                color: Colors.black,
+                                strokeWidth: 3,
+                              ),
+                            )
+                          : Text(
+                              _currentStep == 3 ? "Complete" : "Continue",
+                              style: TextStyle(
+                                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                    ),
+                  ),
+                  if (_currentStep == 3)
+                    const SizedBox(
+                      width: BASE_MARGIN * 2,
+                    ),
+                  if (_currentStep == 3)
+                    OutlinedButton(
+                      onPressed: () {
+                        if (_loading) return;
+                        _completeOnBoarding();
+                      },
+                      style: ButtonStyle(
+                        padding: WidgetStateProperty.resolveWith<EdgeInsetsGeometry>(
+                          (Set<WidgetState> states) {
+                            return const EdgeInsets.all(15);
+                          },
+                        ),
+                        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      child: _loading
+                          ? Container(
+                              width: 24,
+                              height: 24,
+                              padding: const EdgeInsets.all(2.0),
+                              child: const CircularProgressIndicator(
+                                color: Colors.black,
+                                strokeWidth: 3,
+                              ),
+                            )
+                          : Text(
+                              "Skip",
+                              style: TextStyle(
+                                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                                fontWeight: FontWeight.w600,
+                                color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark ? Colors.white : Colors.black,
+                              ),
+                            ),
+                    ),
+                ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );

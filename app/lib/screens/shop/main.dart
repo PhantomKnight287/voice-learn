@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'dart:async';
 import 'dart:convert';
 import 'package:adaptive_theme/adaptive_theme.dart';
@@ -18,6 +20,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:toastification/toastification.dart';
@@ -35,11 +38,10 @@ class _ShopScreenState extends State<ShopScreen> {
   List<Package> packages = [];
   List<Widget> FREE_FEATURES = [];
   List<Widget> PREMIUM_FEATURES = [];
-  //! do not make these final
   bool _buyOneVoiceCreditLoading = false;
   bool _buyCustomVoiceCreditsLoading = false;
   bool _buyTenVoiceCreditsLoading = false;
-  TextEditingController _countController = TextEditingController();
+  final TextEditingController _countController = TextEditingController();
 
   Future<bool> _buyVoiceCredits(
     int count,
@@ -304,6 +306,7 @@ class _ShopScreenState extends State<ShopScreen> {
             "assets/svgs/queue.svg",
             width: 25,
             height: 25,
+            // ignore: deprecated_member_use
             color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Colors.black : Colors.white,
           ),
           const SizedBox(
@@ -344,8 +347,11 @@ class _ShopScreenState extends State<ShopScreen> {
           });
         }
       }
-    } on PlatformException catch (e) {
-      // optional error handling
+    } on PlatformException catch (e, stackTrace) {
+      await Sentry.captureException(
+        e,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -1144,6 +1150,7 @@ class _ShopScreenState extends State<ShopScreen> {
               Column(
                 children: [
                   DataTable(
+                    // ignore: deprecated_member_use
                     dataRowHeight: 60,
                     dividerThickness: 1.5,
                     columns: [

@@ -44,6 +44,7 @@ import { AdminAuthMiddleware } from './middlewares/admin/admin.middleware';
 import { AdminAuthService } from './resources/admin/auth/auth.service';
 import { IAPModule, AppleEnvironment } from '@jeremybarbet/nest-iap';
 import { VoiceCreditsModule } from './resources/voice-credits/voice-credits.module';
+import { DeleteService } from './services/delete/delete.service';
 
 @Module({
   imports: [
@@ -110,6 +111,7 @@ import { VoiceCreditsModule } from './resources/voice-credits/voice-credits.modu
       provide: APP_FILTER,
       useClass: AllExceptionsFilter,
     },
+    DeleteService,
   ],
   exports: [S3Service],
 })

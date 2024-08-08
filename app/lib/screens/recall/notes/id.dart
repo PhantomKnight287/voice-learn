@@ -114,7 +114,7 @@ class _NoteScreenState extends State<NoteScreen> {
                               );
                             }
                           },
-                          icon: HeroIcon(
+                          icon: const HeroIcon(
                             HeroIcons.speakerWave,
                           ),
                         ),
@@ -195,7 +195,7 @@ class _NoteScreenState extends State<NoteScreen> {
             refreshConfig: RefreshConfig.withDefaults(
               context,
               refreshOnMount: true,
-              staleDuration: Duration(
+              staleDuration: const Duration(
                 seconds: 0,
               ),
             ),

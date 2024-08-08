@@ -101,52 +101,60 @@ class _LoginScreenState extends State<LoginScreen> {
       alignment: Alignment.topCenter,
       showProgressBar: false,
     );
-    context.read<UserBloc>().add(
-          UserLoggedInEvent(
-            id: response.user.id,
-            name: response.user.name,
-            token: response.token,
-            email: response.user.email,
-            createdAt: response.user.createdAt,
-            paths: response.user.paths,
-            updatedAt: response.user.updatedAt,
-            emeralds: response.user.emeralds,
-            lives: response.user.lives,
-            xp: response.user.xp,
-            streaks: response.user.streaks,
-            isStreakActive: response.user.isStreakActive,
-            tier: response.user.tier,
-            avatarHash: response.user.avatarHash,
-            voiceMessages: response.user.voiceMessages,
-          ),
-        );
+    if (mounted) {
+      context.read<UserBloc>().add(
+            UserLoggedInEvent(
+              id: response.user.id,
+              name: response.user.name,
+              token: response.token,
+              email: response.user.email,
+              createdAt: response.user.createdAt,
+              paths: response.user.paths,
+              updatedAt: response.user.updatedAt,
+              emeralds: response.user.emeralds,
+              lives: response.user.lives,
+              xp: response.user.xp,
+              streaks: response.user.streaks,
+              isStreakActive: response.user.isStreakActive,
+              tier: response.user.tier,
+              avatarHash: response.user.avatarHash,
+              voiceMessages: response.user.voiceMessages,
+            ),
+          );
+    }
     logger.d("Login Successful. User Id:${response.user.id}. Email:${response.user.email}");
     await OneSignal.login(response.user.id);
     logger.d("Logged into OneSignal");
     await Purchases.logIn(response.user.id);
     logger.i("Logged into revenue cat");
     if (body['path']?['type'] == 'created') {
-      Navigator.of(context).pushAndRemoveUntil(
-        NoSwipePageRoute(
-          builder: (context) => LearningPathLoadingScreen(pathId: body['path']['id']),
-        ),
-        (Route<dynamic> route) => false,
-      );
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          NoSwipePageRoute(
+            builder: (context) => LearningPathLoadingScreen(pathId: body['path']['id']),
+          ),
+          (Route<dynamic> route) => false,
+        );
+      }
       return;
     } else if (body['path'] == null) {
-      Navigator.of(context).pushAndRemoveUntil(
-        NoSwipePageRoute(
-          builder: (context) => const OnboardingQuestionsScreen(),
-        ),
-        (Route<dynamic> route) => false,
-      );
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          NoSwipePageRoute(
+            builder: (context) => const OnboardingQuestionsScreen(),
+          ),
+          (Route<dynamic> route) => false,
+        );
+      }
     } else {
-      Navigator.of(context).pushAndRemoveUntil(
-        NoSwipePageRoute(
-          builder: (context) => const HomeScreen(),
-        ),
-        (Route<dynamic> route) => false,
-      );
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          NoSwipePageRoute(
+            builder: (context) => const HomeScreen(),
+          ),
+          (Route<dynamic> route) => false,
+        );
+      }
     }
   }
 

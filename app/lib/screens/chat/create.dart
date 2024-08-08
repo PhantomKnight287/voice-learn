@@ -198,7 +198,7 @@ class _CreateChatScreenState extends State<CreateChatScreen> {
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? Color(0xffe7e0e8) : Color(0xff36343a),
+                            color: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.light ? const Color(0xffe7e0e8) : const Color(0xff36343a),
                           ),
                           child: Align(
                             alignment: Alignment.centerLeft,

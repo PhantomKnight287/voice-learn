@@ -1,3 +1,5 @@
+import 'package:timezone/data/latest.dart' as tz;
+
 String numberToOrdinal(int number) {
   if (number <= 0) return number.toString(); // Handle non-positive numbers
 
@@ -92,12 +94,14 @@ String getResetTime(String userTimeZone) {
   return "$hours:${minutes.toString().padLeft(2, '0')}";
 }
 
+void initializeTimeZones() {
+  tz.initializeTimeZones();
+}
+
 Duration getTimeZoneOffset(String timeZone) {
-  // This function should return the offset of the given time zone from UTC
-  // You'll need to implement this based on your time zone data source
-  // For example, you might use a package like `timezone` to get this information
-  // Here's a placeholder implementation:
-  return Duration(hours: 0); // Replace with actual implementation
+  return const Duration(
+    hours: 0,
+  );
 }
 
 String getCurrencySymbol(String countryCode) {

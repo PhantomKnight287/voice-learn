@@ -95,6 +95,7 @@ dependencies:
   purchases_flutter: ^6.30.2
   sentry_flutter: ^8.6.0
   wolt_modal_sheet: ^0.8.0
+  timezone: ^0.9.4
 
 dev_dependencies:
   flutter_test:

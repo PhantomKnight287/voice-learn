@@ -71,7 +71,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     final voices = await flutterTts.getVoices;
     final engines = Platform.isAndroid ? await flutterTts.getEngines : [];
     final defaultEngine = Platform.isAndroid ? await flutterTts.getDefaultEngine : '';
-    final filteredVoices = ((voices == null || voices.isEmpty) ? [] : voices).where((_voice) => (_voice?['locale']).toLowerCase() == locale.toLowerCase()).toList();
+    final filteredVoices = ((voices == null || voices.isEmpty) ? [] : voices).where((voice) => (voice?['locale']).toLowerCase() == locale.toLowerCase()).toList();
     setState(() {
       this.voices = filteredVoices;
       this.engines = engines;
@@ -666,9 +666,9 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                       );
                                     }).toList(),
                                     isExpanded: true,
-                                    hint: Text('Select Voice'),
+                                    hint: const Text('Select Voice'),
                                   ),
-                                  SizedBox(height: 16.0),
+                                  const SizedBox(height: 16.0),
                                   if (Platform.isAndroid)
                                     DropdownButton<String>(
                                       onChanged: (String? newValue) async {
@@ -685,7 +685,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                         );
                                       }).toList(),
                                       isExpanded: true,
-                                      hint: Text('Select Engine'),
+                                      hint: const Text('Select Engine'),
                                     ),
                                 ],
                               ),
@@ -693,7 +693,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                           },
                         );
                       },
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.settings_rounded,
                         size: 25,
                       ),

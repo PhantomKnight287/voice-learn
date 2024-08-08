@@ -8,6 +8,7 @@ import 'package:app/bloc/user/user_bloc.dart';
 import 'package:app/constants/main.dart';
 import 'package:app/handler/switcher.dart';
 import 'package:app/logs/main.dart';
+import 'package:app/utils/string.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -42,10 +43,12 @@ void main() async {
   await Purchases.setLogLevel(LogLevel.verbose);
   OneSignal.initialize(ONESIGNAL_APP_ID);
   await OneSignal.Location.setShared(false);
-
+  initializeTimeZones();
   PurchasesConfiguration configuration;
   if (Platform.isAndroid) {
-    configuration = PurchasesConfiguration(REVENUECAT_GOOGLE_KEY);
+    configuration = PurchasesConfiguration(
+      REVENUECAT_GOOGLE_KEY,
+    );
   } else {
     configuration = PurchasesConfiguration(
       REVENUECAT_IOS_KEY,
@@ -99,7 +102,7 @@ class _VoiceLearnAppState extends State<VoiceLearnApp> {
       update.InAppUpdate.checkForUpdate().then(
         (value) {
           if (value.updateAvailability == update.UpdateAvailability.updateAvailable) {
-            update.InAppUpdate.performImmediateUpdate().catchError((e) {});
+            update.InAppUpdate.performImmediateUpdate().catchError(() {});
           }
         },
       ).catchError((e) {});
