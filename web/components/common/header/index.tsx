@@ -29,7 +29,7 @@ export default function Header() {
         "bg-transparent  w-full backdrop-blur-lg": pathname === "/",
       })}
     >
-      <div className="w-full py-6 px-10 flex flex-row">
+      <div className="w-full p-4 pt-0 md:py-6 md:px-10 flex flex-row">
         <Link href="/" className="flex items-center justify-center">
           <div className="flex flex-row items-center">
             <div className="bg-primary p-2 rounded-md">

@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils";
 import { CalSans } from "@/fonts";
 import VoiceLearnLogo_Light from "@/components/icons/light";
 import VoiceLearnLogo_Dark from "@/components/icons/dark";
-import DeviceFrame from "./_components/device";
 
 function Gradient({
   conic,
@@ -29,7 +28,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between lg:p-24 overflow-x-hidden">
       <div className="relative flex place-items-center">
-        <section className="w-full pt-44 xl:py-32 ">
+        <section className="w-full pt-20 xl:py-32 ">
           <div className="container flex flex-col items-center gap-4 px-4 md:px-6">
             <div className="flex flex-col items-center space-y-2 text-center ">
               <div className="bg-primary p-2 rounded-md">
@@ -58,23 +57,26 @@ export default function Home() {
           </div>
         </section>
       </div>
-      <div className="flex flex-row flex-nowrap overflow-hidden mt-10 gap-10">
-        <DeviceFrame
-          src="https://cdn.voicelearn.tech/IMG_0013.PNG"
-          deviceClassName="mt-30"
+      <div className="flex flex-row flex-nowrap overflow-x-hidden mt-10 gap-10 w-full items-center justify-center">
+        <img
+          src="https://cdn.voicelearn.tech/lessons.png"
+          className="max-h-[670px] mt-32"
         />
-        <DeviceFrame
-          src="https://cdn.voicelearn.tech/IMG_0012.PNG"
-          deviceClassName="mt-20"
+        <img
+          src="https://cdn.voicelearn.tech/modules.png"
+          className="max-h-[670px] mt-20"
         />
-        <DeviceFrame src="https://cdn.voicelearn.tech/IMG_0011.PNG" />
-        <DeviceFrame
-          src="https://cdn.voicelearn.tech/IMG_0022.PNG"
-          deviceClassName="mt-20"
+        <img
+          src="https://cdn.voicelearn.tech/home-noshadow.png"
+          className="max-h-[670px]"
         />
-        <DeviceFrame
-          src="https://cdn.voicelearn.tech/IMG_0023.PNG"
-          deviceClassName="mt-30"
+        <img
+          src="https://cdn.voicelearn.tech/chats.png"
+          className="max-h-[670px] mt-20"
+        />
+        <img
+          src="https://cdn.voicelearn.tech/chat.png"
+          className="max-h-[670px] mt-32"
         />
       </div>
 
